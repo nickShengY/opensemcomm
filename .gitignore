@@ -1,0 +1,22 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+build/
+dist/
+*.egg-info/
+
+# Scratch-local experiment artifacts and downloaded assets.
+cache/
+data/
+logs/
+models/
+runs/
+tmp/
+
+# Large generated manifests/results are reproducible from scratch data.
+manifests/*.csv
+manifests/*.json
+!manifests/.gitkeep
