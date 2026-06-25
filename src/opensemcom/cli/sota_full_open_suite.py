@@ -269,7 +269,37 @@ def score_methods(receiver, heads, features_cache, requested_methods: set[str] |
         )
         meta["opensemcom"] = {
             "backbone": "+".join(heads["main"].feature_names),
-            "detector_control": "learned_selective_risk+confirmed_fallback",
+            "detector_control": "learned_selective_risk+semantic_harq_refine_no_fallback",
+        }
+    if include_method("opensemcom_risk_head", requested_methods):
+        methods["opensemcom_risk_head"] = (cal_receiver, eval_receiver)
+        meta["opensemcom_risk_head"] = {
+            "backbone": "+".join(heads["main"].feature_names),
+            "detector_control": "learned_risk_head_only_no_fallback",
+        }
+    if include_method("opensemcom_calibrated", requested_methods):
+        cal_gate = score_head(heads["main"], cal_main, "one_vs_rest")
+        eval_gate = score_head(heads["main"], eval_main, "one_vs_rest")
+        methods["opensemcom_calibrated"] = (
+            Scored(cal_receiver.pred, cal_gate.risk, cal_receiver.known_prob),
+            Scored(eval_receiver.pred, eval_gate.risk, eval_receiver.known_prob),
+        )
+        meta["opensemcom_calibrated"] = {
+            "backbone": "+".join(heads["main"].feature_names),
+            "detector_control": "mixed_open_calibration_no_fallback",
+        }
+    if include_method("opensemcom_harq_refine", requested_methods):
+        cal_gate = score_head(heads["main"], cal_main, "one_vs_rest")
+        eval_gate = score_head(heads["main"], eval_main, "one_vs_rest")
+        cal_risk = np.minimum(cal_gate.risk, np.clip(0.75 * cal_gate.risk + 0.25 * cal_receiver.risk, 0.0, 1.0))
+        eval_risk = np.minimum(eval_gate.risk, np.clip(0.75 * eval_gate.risk + 0.25 * eval_receiver.risk, 0.0, 1.0))
+        methods["opensemcom_harq_refine"] = (
+            Scored(cal_receiver.pred, cal_risk, cal_receiver.known_prob),
+            Scored(eval_receiver.pred, eval_risk, eval_receiver.known_prob),
+        )
+        meta["opensemcom_harq_refine"] = {
+            "backbone": "+".join(heads["main"].feature_names),
+            "detector_control": "semantic_harq_refine_no_fallback",
         }
 
     dino_methods = {

@@ -44,7 +44,6 @@ class RiskAwareScheduler:
             ("core", "refinement"),
             ("core", "evidence"),
             ("core", "refinement", "evidence"),
-            ("fallback",),
         ]
         candidates: list[SchedulingCandidate] = []
         for codec_id in codec_ids:

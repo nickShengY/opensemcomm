@@ -6,7 +6,7 @@
 
 The central thesis is:
 
-> A semantic communication system should not merely decode meaning. It should also estimate whether the decoded meaning is reliable enough to use, decide whether to accept, refine, retransmit, adapt, reject, or fall back, and control wireless resources according to calibrated semantic risk.
+> A semantic communication system should not merely decode meaning. It should also estimate whether the decoded meaning is reliable enough to use, decide whether to accept, refine, retransmit, adapt, or reject/open, and control wireless resources according to calibrated semantic risk.
 
 OpenSemCom is built around one unified objective:
 
@@ -111,7 +111,7 @@ OpenSemCom targets seven concrete research gaps.
 | **G1: Closed semantic world** | Many systems assume known classes, known tasks, and known source domains. | Formalize open-environment semantic communication with source, channel, class, task, supervision, and resource shifts. |
 | **G2: Channel robustness is not enough** | Robustness to SNR or fading does not guarantee semantic reliability under unseen meanings or tasks. | Jointly model semantic openness and wireless channel openness. |
 | **G3: No unified open semantic risk** | BER, PSNR, SSIM, LPIPS, and average task accuracy miss unknown-class acceptance and unsafe adaptation. | Define open semantic risk combining task error, unknown acceptance, task mismatch, adaptation harm, calibration error, and resource cost. |
-| **G4: Forced semantic prediction** | Existing receivers often output a prediction even when unreliable. | Design a selective receiver that can accept, refine, retransmit, reject, adapt, or fall back. |
+| **G4: Forced semantic prediction** | Existing receivers often output a prediction even when unreliable. | Design a selective no-fallback receiver that can accept, refine, retransmit, reject/open, or adapt safely. |
 | **G5: Unsafe test-time adaptation** | Pseudo-label adaptation can accumulate errors and degrade reliability. | Introduce a certified adaptation gate with high-probability non-degradation guarantees. |
 | **G6: Resource control lacks semantic risk certification** | Schedulers often optimize quality or accuracy, not calibrated open risk. | Optimize power, bandwidth, semantic rate, latency, and compute under semantic outage constraints. |
 | **G7: Lack of full-open benchmarks** | Benchmarks often vary only SNR, channel type, or source domain. | Build OpenSemCom-Bench with factorial source, channel, class, task, supervision, and resource shifts. |
@@ -265,8 +265,7 @@ d_{k,t}
 \mathrm{refine},
 \mathrm{semantic\text{-}HARQ},
 \mathrm{adapt},
-\mathrm{reject/open},
-\mathrm{fallback}
+\mathrm{reject/open}
 \}.
 \]
 
@@ -574,7 +573,7 @@ Where:
 - \(Z_t^{\mathrm{core}}\): minimal task-relevant semantics;
 - \(Z_t^{\mathrm{ref}}\): refinement semantics;
 - \(Z_t^{\mathrm{evi}}\): evidence features for reliability checking;
-- \(Z_t^{\mathrm{fb}}\): fallback reconstruction or robust digital payload.
+- no fallback payload is used in the paper-facing method; insufficient reliability triggers semantic HARQ/refinement or reject/open.
 
 A value-of-information score can be assigned to each semantic token:
 
@@ -658,7 +657,7 @@ d_t =
 \end{cases}
 \]
 
-Additional actions include semantic HARQ, safe adaptation, codec retrieval, and fallback transmission.
+Additional actions include semantic HARQ, safe adaptation, codec retrieval, and reject/open control.
 
 ---
 
@@ -1082,7 +1081,7 @@ Primal-dual scheduling updates:
 6. Compute open-risk score \(A_t\).
 7. If \(A_t\le q_1\), accept the semantic output.
 8. If \(q_1<A_t\le q_2\), request semantic refinement or semantic HARQ.
-9. If \(A_t>q_2\), reject/open, retrieve another codec, adapt safely, or fall back.
+9. If \(A_t>q_2\), reject/open.
 10. Update risk statistics and reliability-card estimates.
 
 ---
@@ -1119,7 +1118,7 @@ Primal-dual scheduling updates:
    \kappa.
    \]
 4. Otherwise reject the update.
-5. Keep frozen fallback model \(\psi_0\) available at all times.
+5. Keep the no-fallback safety gate active at all times.
 
 ---
 
@@ -1144,7 +1143,7 @@ Primal-dual scheduling updates:
    P_{\mathrm{oso}}\le \delta
    \]
    or resources are exhausted.
-7. If reliability remains insufficient, reject or fall back.
+7. If reliability remains insufficient, reject/open.
 
 ---
 
@@ -1165,7 +1164,7 @@ Primal-dual scheduling updates:
    \frac{\Delta R_{k,i}}{c_{k,i}}.
    \]
 4. Allocate resources using primal-dual updates under outage, power, bandwidth, latency, and compute constraints.
-5. Trigger semantic HARQ or fallback if calibrated risk remains above threshold.
+5. Trigger semantic HARQ or reject/open if calibrated risk remains above threshold.
 
 ---
 
@@ -1194,9 +1193,9 @@ w(x,h,\tau)
 \le W_{\max}.
 \]
 
-**A3. Frozen fallback receiver**
+**A3. No-fallback receiver**
 
-A non-adapted base receiver \(\psi_0\) is always retained.
+The paper-facing receiver does not switch to a fallback decoder. Unsafe samples are refined through semantic HARQ or rejected/open.
 
 **A4. Finite adaptation horizon**
 
@@ -1257,7 +1256,7 @@ h(\epsilon)
 \epsilon\log(|\mathcal{Y}|-1).
 \]
 
-**Interpretation.** If the channel cannot carry enough task-relevant information, no semantic decoder can guarantee low semantic task error. Therefore, the scheduler must sometimes allocate more power, bandwidth, redundancy, semantic refinement, or fallback transmission.
+**Interpretation.** If the channel cannot carry enough task-relevant information, no semantic decoder can guarantee low semantic task error. Therefore, the scheduler must sometimes allocate more power, bandwidth, redundancy, semantic refinement, or reject/open.
 
 **Proof Sketch.** Fano's inequality gives:
 
@@ -1616,7 +1615,7 @@ where:
 - \(\mathrm{IPM}\) is an integral probability metric;
 - \(\lambda^\star\) is the error of the best shared hypothesis over both domains.
 
-**Interpretation.** If the semantic encoder maps shifted domains into stable task-relevant latent distributions, deployment risk remains bounded. If latent mismatch grows, OpenSemCom should trigger refinement, adaptation, rejection, or fallback.
+**Interpretation.** If the semantic encoder maps shifted domains into stable task-relevant latent distributions, deployment risk remains bounded. If latent mismatch grows, OpenSemCom should trigger refinement, adaptation, or rejection/open.
 
 ---
 
@@ -2109,7 +2108,7 @@ The main metric is:
 | No codec reliability cards | Tests benefit of certified module selection. |
 | No channel-aware detector term | Tests wireless-specific contribution. |
 | No task-shift detector term | Tests task-open reliability. |
-| No fallback/abstention | Shows the danger of forced semantic prediction. |
+| No abstention | Shows the danger of forced semantic prediction. |
 | No pseudo-label noise control | Tests the safety theorem's noise sensitivity. |
 | No resource constraints | Isolates semantic accuracy from wireless resource efficiency. |
 
@@ -2453,7 +2452,7 @@ Instead, the core technical spine should be:
 
 Semantic communication aims to improve communication efficiency by transmitting task-relevant meaning rather than raw bits. However, many semantic communication systems are designed under closed or partially controlled assumptions, where the source distribution, semantic label space, task objective, wireless channel condition, and edge-resource budget are known or only mildly varying. Such assumptions are fragile in dynamic 6G wireless networks, where devices must operate under changing channels, source-domain shifts, unseen semantic classes, new downstream tasks, limited labels, interference, latency constraints, and edge computation limits. Under these conditions, a semantic receiver may produce confident but incorrect predictions, generative semantic decoders may hallucinate plausible but wrong content, and test-time adaptation may degrade reliability.
 
-This paper proposes OpenSemCom, a risk-certified open-environment semantic communication framework for dynamic 6G wireless networks. OpenSemCom formulates semantic communication as a multi-axis reliability problem involving channel shift, source shift, class novelty, task drift, limited supervision, and resource constraints. It introduces open semantic risk, a unified objective that combines task error, unknown-class acceptance, task mismatch, adaptation harm, calibration failure, and wireless resource cost. OpenSemCom integrates a layered semantic encoder, a selective semantic receiver, a channel-task-aware open-risk detector, conformal reliability calibration, lightweight safe adaptation, semantic HARQ/refinement, a reliability-card codec library, and risk-aware wireless scheduling. The receiver jointly decides whether to accept, refine, retransmit, adapt, reject, or fall back.
+This paper proposes OpenSemCom, a risk-certified open-environment semantic communication framework for dynamic 6G wireless networks. OpenSemCom formulates semantic communication as a multi-axis reliability problem involving channel shift, source shift, class novelty, task drift, limited supervision, and resource constraints. It introduces open semantic risk, a unified objective that combines task error, unknown-class acceptance, task mismatch, adaptation harm, calibration failure, and wireless resource cost. OpenSemCom integrates a layered semantic encoder, a selective semantic receiver, a channel-task-aware open-risk detector, conformal reliability calibration, lightweight safe adaptation, semantic HARQ/refinement, a reliability-card codec library, and risk-aware wireless scheduling. The paper-facing receiver is no-fallback: it accepts when risk is below \(q_1\), refines or requests semantic HARQ when \(q_1 <\) risk \(\le q_2\), and rejects/open otherwise.
 
 Theoretically, OpenSemCom derives semantic feasibility lower bounds connecting task reliability to mutual information and channel capacity, provides finite-sample selective reliability guarantees, proves high-probability non-degradation for accepted adaptation updates using induction, derives optimality conditions for risk-aware semantic scheduling, and establishes open semantic outage bounds. Experimentally, OpenSemCom-Bench evaluates image, multimodal sensing, and wireless edge tasks under controlled source, channel, class, task, supervision, and resource shifts. OpenSemCom is expected to reduce open semantic risk, lower semantic outage, prevent unsafe adaptation, and improve semantic goodput compared with conventional JSCC, semantic communication, robust semantic communication, conformal semantic communication, adaptation-based, and resource-aware baselines.
 

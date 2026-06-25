@@ -11,8 +11,8 @@ The default code path is intentionally real-data-only: every experiment must be 
 ## What Is Included
 
 - AWGN, Rayleigh, Rician, MIMO, Doppler, blockage, burst-noise, and interference channel models.
-- Layered semantic parser and encoder with core, refinement, evidence, and fallback payloads.
-- Selective semantic receiver with accept, refine, semantic-HARQ, adapt, reject/open, and fallback decisions.
+- Layered semantic parser and encoder with core, refinement, and evidence payloads for the main method.
+- Selective semantic receiver with accept, refine, semantic-HARQ, adapt, and reject/open decisions.
 - Channel-task-aware open-risk detector.
 - Conformal calibration and prediction sets.
 - Safe adaptation gate with finite-sample Hoeffding margin.
@@ -72,5 +72,27 @@ source_path,label,task,domain,is_unknown,split,regime
 `source_path` must point to a real local artifact. Supported artifact formats are `.npy`, `.npz`, or any non-empty file whose bytes can be converted into a fixed-size baseline feature vector. The manifest can use `split=calibration`, `split=train`, or `split=eval`, and `regime` can select one of the OpenSemCom regimes.
 
 ## Design Notes
+
+The paper-facing OpenSemCom method is no-fallback:
+
+```text
+risk <= q1          accept
+q1 < risk <= q2     refine / semantic-HARQ
+risk > q2           reject/open
+```
+
+Current paper-result artifacts are kept under `results/` for versioned reporting:
+
+- `final_nofallback_report.md`: no-fallback severity ladder, top baselines, ablations, and risk-goodput target tables.
+- `final_nofallback_risk_goodput.svg`: risk-goodput curves at accepted OpenOut targets 0.01, 0.02, 0.05, and 0.10.
+- `deepsense_scenario1_wireless.json` / `.csv`: real DeepSense 6G Scenario1 audit showing measured camera, mmWave, and GPS artifacts with no generated channel samples.
+
+Run the wireless audit with:
+
+```bash
+python scripts/deepsense_wireless_evidence.py \
+  --scenario-root data/deepsense6g/Scenario1 \
+  --output-prefix results/deepsense_scenario1_wireless
+```
 
 This is a research scaffold, not a claim of final empirical performance. The manifest loader is deliberately strict so experiments cannot accidentally run without real data. Image, sensing, and text datasets should be integrated through the same `SemanticSample` and `BenchmarkRegime` abstractions.

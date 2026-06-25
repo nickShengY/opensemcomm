@@ -19,13 +19,9 @@ class SemanticHARQ:
         self.receiver = receiver
 
     def run(self, layers: SemanticLayers, action: ResourceAction, task: str, domain: str = "") -> ReceiverOutput:
-        selected = tuple(layer for layer in action.layers if layer != "fallback")
+        selected = action.layers
         observation = self._transmit_repeated(self.encoder.encode(layers, selected), action.repetitions, action.power)
         output = self.receiver.receive(observation.received, action, observation.state, task, domain)
-        if output.decision == Decision.ACCEPT and "fallback" not in action.layers:
-            confirmed = self._confirm_accept(layers, action, output, task, domain)
-            if confirmed is not None:
-                return confirmed
         if output.decision != Decision.REFINE:
             return output
 
@@ -58,55 +54,6 @@ class SemanticHARQ:
                 action=refined_action,
             )
         return refined
-
-    def _confirm_accept(
-        self,
-        layers: SemanticLayers,
-        action: ResourceAction,
-        output: ReceiverOutput,
-        task: str,
-        domain: str,
-    ) -> ReceiverOutput | None:
-        confirm_action = ResourceAction(
-            power=action.power,
-            bandwidth=action.bandwidth,
-            latency=action.latency + 1.0,
-            energy=action.energy + 0.5,
-            compute=action.compute + 0.5,
-            semantic_rate=action.semantic_rate / 2.0,
-            codec_id=action.codec_id,
-            layers=("fallback",),
-            repetitions=action.repetitions,
-        )
-        observation = self._transmit_repeated(
-            self.encoder.encode(layers, confirm_action.layers),
-            confirm_action.repetitions,
-            confirm_action.power,
-        )
-        confirmed = self.receiver.receive(observation.received, confirm_action, observation.state, task, domain)
-        if (
-            confirmed.y_hat == output.y_hat
-            and len(confirmed.prediction_set) == 1
-            and confirmed.risk_score <= self.receiver.q_refine
-        ):
-            return ReceiverOutput(
-                y_hat=confirmed.y_hat,
-                probabilities=confirmed.probabilities,
-                prediction_set=confirmed.prediction_set,
-                risk_score=confirmed.risk_score,
-                decision=Decision.ACCEPT,
-                features=confirmed.features,
-                action=confirm_action,
-            )
-        return ReceiverOutput(
-            y_hat=confirmed.y_hat,
-            probabilities=confirmed.probabilities,
-            prediction_set=confirmed.prediction_set,
-            risk_score=confirmed.risk_score,
-            decision=Decision.SEMANTIC_HARQ,
-            features=confirmed.features,
-            action=confirm_action,
-        )
 
     def _transmit_repeated(self, symbols, repetitions: int, power: float = 1.0):
         repetitions = max(1, int(repetitions))

@@ -20,7 +20,7 @@ from opensemcom.receiver import SelectiveSemanticReceiver
 from opensemcom.risk import OpenRiskDetector, OpenSemanticRisk, ResourceCostModel
 from opensemcom.scheduler import RiskAwareScheduler
 from opensemcom.semantic import LayeredSemanticEncoder, PrototypeSemanticDecoder, WorldAwareSemanticParser
-from opensemcom.types import Decision, ExperimentResult, ReceiverOutput, SemanticSample, ResourceAction
+from opensemcom.types import Decision, ExperimentResult, SemanticSample, ResourceAction
 from opensemcom.types import ChannelKind
 
 
@@ -171,10 +171,6 @@ class OpenSemComSystem:
                 )
                 output = self.receiver.receive(observation.received, action, observation.state, sample.task, sample.domain)
 
-            if output.decision == Decision.REJECT_OPEN and "fallback" not in output.action.layers:
-                fallback_action = replace(output.action, layers=("fallback",), latency=output.action.latency + 1.0)
-                output = self._fallback_receive(layers, fallback_action, channel, sample.task, sample.domain)
-
             self.adaptation_buffer.append((self.encoder.encode(layers, ("core", "refinement", "evidence")), sample.y))
             if self.config.ablation.use_adaptation and idx > 0 and idx % self.config.adaptation.min_buffer == 0:
                 adaptation = self.adapter.propose_and_gate(list(self.adaptation_buffer))
@@ -219,33 +215,6 @@ class OpenSemComSystem:
             certified_accept_rate=self.adapter.certified_accept_rate,
         )
         return ExperimentResult(metrics=summary, decisions=dict(metrics.decision_counts), traces=traces)
-
-    def _fallback_receive(
-        self,
-        layers,
-        action,
-        channel: WirelessChannel,
-        task: str,
-        domain: str,
-    ) -> ReceiverOutput:
-        observation = self._transmit_repeated(
-            channel,
-            self.encoder.encode(layers, action.layers),
-            action.repetitions,
-            action.power,
-        )
-        output = self.receiver.receive(observation.received, action, observation.state, task, domain)
-        if output.decision == Decision.REJECT_OPEN:
-            return ReceiverOutput(
-                y_hat=output.y_hat,
-                probabilities=output.probabilities,
-                prediction_set=output.prediction_set,
-                risk_score=output.risk_score,
-                decision=Decision.FALLBACK,
-                features=output.features,
-                action=action,
-            )
-        return output
 
     def _calibration_transmit(self, channel: WirelessChannel, symbols: np.ndarray):
         repetitions = 3 if channel.config.kind == ChannelKind.INTERFERENCE else 1
@@ -299,8 +268,6 @@ class OpenSemComSystem:
         return threshold_indices
 
     def _calibration_layer_sets(self) -> tuple[tuple[str, ...], ...]:
-        if self.config.model.classifier == "torch_mlp":
-            return (("core", "refinement", "evidence"), ("fallback",))
         return (("core", "refinement", "evidence"),)
 
 
