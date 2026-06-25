@@ -231,7 +231,7 @@ def build_arrays(rows: list[Row], backbone: str) -> tuple[np.ndarray, np.ndarray
             parts.append(load_feature(row.dino_path))
         if backbone in {"clip", "dino_clip"}:
             if row.clip_path is None:
-                raise ValueError(f"Missing CLIP feature for real row {row.key}")
+                raise ValueError(f"Missing CLIP feature for manifest row {row.key}")
             parts.append(load_feature(row.clip_path))
         parts.append(metadata_features(row, backbone))
         x = np.concatenate(parts).astype(np.float32)
@@ -248,7 +248,7 @@ def build_arrays(rows: list[Row], backbone: str) -> tuple[np.ndarray, np.ndarray
 
 
 def metadata_features(row: Row, backbone: str) -> np.ndarray:
-    """Encode real manifest metadata plus explicit missing channel-state slots."""
+    """Encode manifest metadata plus explicit missing channel-state slots."""
     task = one_hot_hash(f"task:{row.task}", 16)
     domain = one_hot_hash(f"domain:{row.domain}", 32)
     layer_flags = np.asarray(
@@ -258,7 +258,7 @@ def metadata_features(row: Row, backbone: str) -> np.ndarray:
         ],
         dtype=np.float32,
     )
-    # The current real manifests do not contain measured per-row wireless channel
+    # The current manifests do not contain measured per-row wireless channel
     # state. Keep the channel-state feature contract explicit without fabricating
     # SNR/fading/interference values.
     channel_state = np.asarray([0.0, 0.0, 0.0, 1.0], dtype=np.float32)

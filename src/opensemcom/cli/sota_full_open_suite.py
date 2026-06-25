@@ -1,4 +1,4 @@
-"""SOTA full-open safety-goodput comparison suite on real feature manifests."""
+"""SOTA full-open safety-goodput comparison suite on feature manifests."""
 
 from __future__ import annotations
 
@@ -269,13 +269,13 @@ def score_methods(receiver, heads, features_cache, requested_methods: set[str] |
         )
         meta["opensemcom"] = {
             "backbone": "+".join(heads["main"].feature_names),
-            "detector_control": "learned_selective_risk+semantic_harq_refine_no_fallback",
+            "detector_control": "learned_selective_risk+semantic_harq_refine",
         }
     if include_method("opensemcom_risk_head", requested_methods):
         methods["opensemcom_risk_head"] = (cal_receiver, eval_receiver)
         meta["opensemcom_risk_head"] = {
             "backbone": "+".join(heads["main"].feature_names),
-            "detector_control": "learned_risk_head_only_no_fallback",
+            "detector_control": "learned_risk_head_only",
         }
     if include_method("opensemcom_calibrated", requested_methods):
         cal_gate = score_head(heads["main"], cal_main, "one_vs_rest")
@@ -286,7 +286,7 @@ def score_methods(receiver, heads, features_cache, requested_methods: set[str] |
         )
         meta["opensemcom_calibrated"] = {
             "backbone": "+".join(heads["main"].feature_names),
-            "detector_control": "mixed_open_calibration_no_fallback",
+            "detector_control": "mixed_open_calibration",
         }
     if include_method("opensemcom_harq_refine", requested_methods):
         cal_gate = score_head(heads["main"], cal_main, "one_vs_rest")
@@ -299,7 +299,7 @@ def score_methods(receiver, heads, features_cache, requested_methods: set[str] |
         )
         meta["opensemcom_harq_refine"] = {
             "backbone": "+".join(heads["main"].feature_names),
-            "detector_control": "semantic_harq_refine_no_fallback",
+            "detector_control": "semantic_harq_refine",
         }
 
     dino_methods = {

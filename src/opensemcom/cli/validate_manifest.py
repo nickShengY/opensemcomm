@@ -1,4 +1,4 @@
-"""Validate OpenSemCom real-data manifests."""
+"""Validate OpenSemCom dataset manifests."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from opensemcom.manifest import validate_manifest
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Validate a real-data OpenSemCom manifest.")
+    parser = argparse.ArgumentParser(description="Validate an OpenSemCom dataset manifest.")
     parser.add_argument("manifest")
     parser.add_argument("--allow-non-scratch", action="store_true")
     return parser

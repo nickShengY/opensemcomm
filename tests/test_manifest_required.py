@@ -6,8 +6,8 @@ from opensemcom.benchmark import BenchmarkRegime
 from opensemcom.simulation import run_experiment
 
 
-def test_experiment_requires_real_dataset_manifest_by_default():
-    with pytest.raises(ValueError, match="real dataset manifest"):
+def test_experiment_requires_dataset_manifest_by_default():
+    with pytest.raises(ValueError, match="dataset manifest"):
         run_experiment(regime=BenchmarkRegime.FULL_OPEN, samples=4, seed=1)
 
 

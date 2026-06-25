@@ -16,7 +16,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--calibration-samples", type=int, default=128)
     parser.add_argument("--users", type=int, default=1)
     parser.add_argument("--seed", type=int, default=0)
-    parser.add_argument("--dataset-manifest", required=True, help="CSV manifest pointing to real data artifacts.")
+    parser.add_argument("--dataset-manifest", required=True, help="CSV manifest pointing to source artifacts.")
     parser.add_argument("--traces", action="store_true", help="Print per-sample traces in addition to aggregate metrics.")
     return parser
 

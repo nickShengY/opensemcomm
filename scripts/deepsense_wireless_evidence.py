@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Summarize real DeepSense 6G Scenario1 wireless evidence.
+"""Summarize DeepSense 6G Scenario1 wireless evidence.
 
 This audit intentionally does not simulate channels. It verifies that rows link
-real camera, mmWave power, GPS, and beam-index artifacts, then writes compact
-metadata summaries that can be cited separately from synthetic channel models.
+camera, mmWave power, GPS, and beam-index artifacts, then writes compact
+metadata summaries that can be cited separately from generated channel models.
 """
 
 from __future__ import annotations
@@ -17,7 +17,7 @@ import numpy as np
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Audit DeepSense 6G real wireless metadata.")
+    parser = argparse.ArgumentParser(description="Audit DeepSense 6G wireless metadata.")
     parser.add_argument("--scenario-root", default="data/deepsense6g/Scenario1")
     parser.add_argument("--output-prefix", default="results/deepsense_scenario1_wireless")
     parser.add_argument("--max-detail-rows", type=int, default=5000)
@@ -79,8 +79,8 @@ def main() -> None:
         "mmwave_vector_length_max": int(max(vector_lengths)) if vector_lengths else 0,
         "mmwave_max_power_mean": float(np.mean(power_values)) if power_values else None,
         "mmwave_max_power_std": float(np.std(power_values)) if power_values else None,
-        "real_wireless_evidence": True,
-        "synthetic_channel_samples": False,
+        "field_collected_wireless_evidence": True,
+        "generated_channel_samples": False,
     }
     output_prefix.with_suffix(".json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     write_csv(output_prefix.with_suffix(".csv"), details)

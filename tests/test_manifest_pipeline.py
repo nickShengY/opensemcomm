@@ -79,6 +79,6 @@ def test_validate_manifest_rejects_missing_artifact(tmp_path):
     try:
         validate_manifest(manifest, require_scratch=False)
     except FileNotFoundError as exc:
-        assert "missing real artifacts" in str(exc)
+        assert "missing source artifacts" in str(exc)
     else:
         raise AssertionError("missing artifact was not rejected")

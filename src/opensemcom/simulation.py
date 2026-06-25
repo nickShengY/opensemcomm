@@ -281,7 +281,7 @@ def run_experiment(
     dataset_manifest: str | None = None,
 ) -> ExperimentResult:
     if dataset_manifest is None:
-        raise ValueError("OpenSemCom requires a real dataset manifest; no no-data fallback is available.")
+        raise ValueError("OpenSemCom requires a dataset manifest; no no-data fallback is available.")
     config = config or OpenSemComConfig()
     if seed is not None:
         config = replace(config, seed=seed)

@@ -1,4 +1,4 @@
-"""Real dataset manifest builders and validators."""
+"""Dataset manifest builders and validators."""
 
 from __future__ import annotations
 
@@ -25,14 +25,14 @@ class ManifestBuildResult:
     availability: dict[str, dict[str, str | int | bool]]
 
 
-def build_real_manifest(
+def build_manifest(
     output: str | Path,
     roots: Iterable[str | Path],
     max_per_source: int = 512,
     max_calibration_per_class: int = 64,
     max_eval_per_class: int = 64,
 ) -> ManifestBuildResult:
-    """Build a manifest from discovered real datasets under scratch."""
+    """Build a manifest from discovered datasets under scratch."""
 
     output = Path(output).expanduser().resolve()
     roots = [Path(root).expanduser().resolve() for root in roots]
@@ -138,7 +138,7 @@ def build_real_manifest(
         availability["bdd100k"] = {"available": False, "reason": "not found under provided scratch roots"}
 
     if not rows:
-        raise ValueError("No real dataset rows could be built from the provided scratch roots.")
+        raise ValueError("No dataset rows could be built from the provided scratch roots.")
 
     output.parent.mkdir(parents=True, exist_ok=True)
     write_manifest(output, rows)
@@ -563,7 +563,7 @@ def validate_manifest(path: str | Path, require_scratch: bool = True) -> dict[st
             regimes[row.get("regime") or ""] += 1
 
     if missing:
-        raise FileNotFoundError(f"Manifest contains {len(missing)} missing real artifacts. First: {missing[0]}")
+        raise FileNotFoundError(f"Manifest contains {len(missing)} missing source artifacts. First: {missing[0]}")
     if off_scratch:
         raise ValueError(f"Manifest contains {len(off_scratch)} paths outside scratch. First: {off_scratch[0]}")
     return {

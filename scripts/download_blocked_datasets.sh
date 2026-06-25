@@ -52,7 +52,7 @@ extract_tgz_once "$DATA_ROOT/nuscenes/v1.0-mini.tgz" "$DATA_ROOT/nuscenes" "$DAT
 download_file "https://www.dropbox.com/s/j1ignuyie2som3b/Scenario1.zip?dl=1" "$DATA_ROOT/deepsense6g/Scenario1.zip"
 extract_zip_once "$DATA_ROOT/deepsense6g/Scenario1.zip" "$DATA_ROOT/deepsense6g" "$DATA_ROOT/deepsense6g/Scenario1"
 
-python -m opensemcom.cli.download_real_data --data-root "$DATA_ROOT"
+python -m opensemcom.cli.download_datasets --data-root "$DATA_ROOT"
 
 OPENSEMCOM_MAX_PER_SOURCE="${OPENSEMCOM_MAX_PER_SOURCE:-512}" \
 OPENSEMCOM_MAX_CALIBRATION_PER_CLASS="${OPENSEMCOM_MAX_CALIBRATION_PER_CLASS:-64}" \

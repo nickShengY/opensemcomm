@@ -1,4 +1,4 @@
-"""Build OpenSemCom manifests from real scratch datasets."""
+"""Build OpenSemCom manifests from scratch datasets."""
 
 from __future__ import annotations
 
@@ -6,11 +6,11 @@ import argparse
 import json
 from pathlib import Path
 
-from opensemcom.manifest import build_real_manifest, default_roots, validate_manifest
+from opensemcom.manifest import build_manifest, default_roots, validate_manifest
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Build a real-data OpenSemCom manifest.")
+    parser = argparse.ArgumentParser(description="Build an OpenSemCom dataset manifest.")
     parser.add_argument("--output", required=True)
     parser.add_argument("--root", action="append", default=[], help="Scratch dataset root. May be repeated.")
     parser.add_argument("--project-root", default="/home/nickyun/links/scratch/new_study/opensemcom")
@@ -23,7 +23,7 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> None:
     args = build_parser().parse_args()
     roots = [Path(root) for root in args.root] if args.root else default_roots(args.project_root)
-    result = build_real_manifest(
+    result = build_manifest(
         output=args.output,
         roots=roots,
         max_per_source=args.max_per_source,

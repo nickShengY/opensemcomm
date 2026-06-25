@@ -1,4 +1,4 @@
-"""Create a leakage-safe mixed-open calibration manifest from real rows."""
+"""Create a leakage-safe mixed-open calibration manifest from dataset rows."""
 
 from __future__ import annotations
 
@@ -12,10 +12,10 @@ from opensemcom.manifest import MANIFEST_COLUMNS, validate_manifest
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Move real open eval rows into an open-calibration split.")
-    parser.add_argument("--input", required=True, help="Input real-data manifest.")
+    parser = argparse.ArgumentParser(description="Move open eval rows into an open-calibration split.")
+    parser.add_argument("--input", required=True, help="Input dataset manifest.")
     parser.add_argument("--output", required=True, help="Output derived manifest under scratch.")
-    parser.add_argument("--open-rows", type=int, default=768, help="Number of real open rows to reserve.")
+    parser.add_argument("--open-rows", type=int, default=768, help="Number of open rows to reserve.")
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--regime", default="full-open")
     parser.add_argument("--open-split", default="open-calibration")

@@ -6,7 +6,7 @@ OpenSemCom is a runnable research prototype for risk-certified open-environment 
 open semantic risk -> selective reliability -> safe adaptation -> semantic outage -> wireless resource control
 ```
 
-The default code path is intentionally real-data-only: every experiment must be pointed at an explicit dataset manifest. There is no no-data fallback.
+The default code path is manifest-backed: every experiment must be pointed at an explicit dataset manifest. There is no no-data fallback.
 
 ## What Is Included
 
@@ -69,11 +69,11 @@ Experiments require a CSV manifest with these columns:
 source_path,label,task,domain,is_unknown,split,regime
 ```
 
-`source_path` must point to a real local artifact. Supported artifact formats are `.npy`, `.npz`, or any non-empty file whose bytes can be converted into a fixed-size baseline feature vector. The manifest can use `split=calibration`, `split=train`, or `split=eval`, and `regime` can select one of the OpenSemCom regimes.
+`source_path` must point to an existing local artifact. Supported artifact formats are `.npy`, `.npz`, or any non-empty file whose bytes can be converted into a fixed-size baseline feature vector. The manifest can use `split=calibration`, `split=train`, or `split=eval`, and `regime` can select one of the OpenSemCom regimes.
 
 ## Design Notes
 
-The paper-facing OpenSemCom method is no-fallback:
+The paper-facing OpenSemCom method uses this decision rule:
 
 ```text
 risk <= q1          accept
@@ -83,9 +83,9 @@ risk > q2           reject/open
 
 Current paper-result artifacts are kept under `results/` for versioned reporting:
 
-- `final_nofallback_report.md`: no-fallback severity ladder, top baselines, ablations, and risk-goodput target tables.
-- `final_nofallback_risk_goodput.svg`: risk-goodput curves at accepted OpenOut targets 0.01, 0.02, 0.05, and 0.10.
-- `deepsense_scenario1_wireless.json` / `.csv`: real DeepSense 6G Scenario1 audit showing measured camera, mmWave, and GPS artifacts with no generated channel samples.
+- `final_opensemcom_report.md`: severity ladder, top baselines, ablations, and risk-goodput target tables.
+- `final_opensemcom_risk_goodput.svg`: risk-goodput curves at accepted OpenOut targets 0.01, 0.02, 0.05, and 0.10.
+- `deepsense_scenario1_wireless.json` / `.csv`: DeepSense 6G Scenario1 audit showing measured camera, mmWave, and GPS artifacts with no generated channel samples.
 
 Run the wireless audit with:
 
@@ -95,4 +95,4 @@ python scripts/deepsense_wireless_evidence.py \
   --output-prefix results/deepsense_scenario1_wireless
 ```
 
-This is a research scaffold, not a claim of final empirical performance. The manifest loader is deliberately strict so experiments cannot accidentally run without real data. Image, sensing, and text datasets should be integrated through the same `SemanticSample` and `BenchmarkRegime` abstractions.
+This is a research scaffold, not a claim of final empirical performance. The manifest loader is deliberately strict so experiments cannot accidentally run without a dataset manifest. Image, sensing, and text datasets should be integrated through the same `SemanticSample` and `BenchmarkRegime` abstractions.

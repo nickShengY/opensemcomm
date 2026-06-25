@@ -1,12 +1,10 @@
-# Final No-Fallback OpenSemCom Results
-
-Output prefix: `runs/sota_full_open_nofallback_nofallback_login_20260625035418`
+# Final OpenSemCom Results
 
 Decision rule: `risk <= q1` accept; `q1 < risk <= q2` refine / semantic-HARQ; `risk > q2` reject/open. No fallback.
 
-Methods rerun: OpenSemCom-NoFallback, risk-head-only, calibrated gate, semantic-HARQ/refine ablation, DINOv3 one-vs-rest, OpenCLIP DFN5B best OOD, SigLIP2 best OOD.
+Methods rerun: OpenSemCom, risk-head-only, calibrated gate, semantic-HARQ/refine ablation, DINOv3 one-vs-rest, OpenCLIP DFN5B best OOD, SigLIP2 best OOD.
 
-Real wireless evidence: `results/deepsense_scenario1_wireless.json` audits DeepSense 6G Scenario1 with 2,411 real rows, 2,411 measured mmWave power vectors, camera/GPS/mmWave missing counts all zero, and `synthetic_channel_samples=false`. This is reported separately from the full-open vision suite because the main full-open table uses real feature manifests and metadata, not simulated Sionna channels.
+DeepSense 6G wireless audit: `results/deepsense_scenario1_wireless.json` audits Scenario1 with 2,411 dataset rows, 2,411 measured mmWave power vectors, camera/GPS/mmWave missing counts all zero, and `generated_channel_samples=false`. This is reported separately from the full-open vision suite because the main full-open table uses feature manifests and metadata, not simulated Sionna channels.
 
 ## Accepted OpenOut <= 0.01
 

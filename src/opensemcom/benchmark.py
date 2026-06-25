@@ -1,4 +1,4 @@
-"""Real-data OpenSemCom benchmark manifests."""
+"""OpenSemCom benchmark manifests."""
 
 from __future__ import annotations
 
@@ -44,7 +44,7 @@ class ManifestRow:
 
 
 class OpenSemComBench:
-    """Loads OpenSemCom samples from a real dataset manifest."""
+    """Loads OpenSemCom samples from a dataset manifest."""
 
     def __init__(
         self,
@@ -56,7 +56,7 @@ class OpenSemComBench:
         self.regime = regime
         self.manifest_path = Path(manifest_path).expanduser().resolve()
         if not self.manifest_path.exists():
-            raise FileNotFoundError(f"Real dataset manifest not found: {self.manifest_path}")
+            raise FileNotFoundError(f"Dataset manifest not found: {self.manifest_path}")
         self.rows = self._read_manifest()
 
     def samples(self, n: int | None = None, users: int = 1, split: str = "eval") -> list[SemanticSample]:
@@ -85,7 +85,7 @@ class OpenSemComBench:
             rows = rows[:n]
         samples = [self._row_to_sample(row, i, users) for i, row in enumerate(rows)]
         if not samples:
-            raise ValueError(f"No real samples found for split '{split}' in {self.manifest_path}")
+            raise ValueError(f"No samples found for split '{split}' in {self.manifest_path}")
         return samples
 
     def calibration_samples(self, n: int | None = None) -> list[SemanticSample]:
@@ -99,7 +99,7 @@ class OpenSemComBench:
             rows = rows[:n]
         samples = [self._row_to_sample(row, i, users=1) for i, row in enumerate(rows)]
         if not samples:
-            raise ValueError(f"No real calibration samples found in {self.manifest_path}")
+            raise ValueError(f"No calibration samples found in {self.manifest_path}")
         return samples
 
     def _mixed_calibration_rows(self, known_rows: list[ManifestRow], n: int | None) -> list[ManifestRow]:
@@ -162,7 +162,7 @@ class OpenSemComBench:
         return rows
 
     def _row_to_sample(self, row: ManifestRow, i: int, users: int) -> SemanticSample:
-        x = load_real_feature_vector(
+        x = load_feature_vector(
             row.source_path,
             self.config.model.input_dim,
             artifact_index=row.artifact_index,
@@ -188,16 +188,16 @@ class OpenSemComBench:
         )
 
 
-def load_real_feature_vector(
+def load_feature_vector(
     path: Path,
     dim: int,
     artifact_index: int | None = None,
     artifact_key: str = "",
 ) -> np.ndarray:
-    """Load a fixed-size feature vector from an existing real data artifact."""
+    """Load a fixed-size feature vector from an existing manifest artifact."""
 
     if not path.exists():
-        raise FileNotFoundError(f"Real data artifact not found: {path}")
+        raise FileNotFoundError(f"Manifest artifact not found: {path}")
     suffix = path.suffix.lower()
     if artifact_index is not None:
         values = _load_indexed_artifact(path, artifact_index, artifact_key)
@@ -207,12 +207,12 @@ def load_real_feature_vector(
         archive = np.load(path)
         key = "features" if "features" in archive else "x"
         if key not in archive:
-            raise ValueError(f"NPZ real data artifact must contain 'features' or 'x': {path}")
+            raise ValueError(f"NPZ manifest artifact must contain 'features' or 'x': {path}")
         values = archive[key]
     else:
         data = path.read_bytes()
         if not data:
-            raise ValueError(f"Real data artifact is empty: {path}")
+            raise ValueError(f"Manifest artifact is empty: {path}")
         values = np.frombuffer(data, dtype=np.uint8).astype(np.float64)
     vector = np.asarray(values, dtype=np.float64).reshape(-1)
     if vector.size < dim:
@@ -236,7 +236,7 @@ def _load_indexed_artifact(path: Path, index: int, artifact_key: str = "") -> np
     data = _load_pickle_artifact(str(path))
     key = artifact_key or "data"
     if key not in data:
-        raise ValueError(f"Indexed artifact key '{key}' not found in real data artifact: {path}")
+        raise ValueError(f"Indexed artifact key '{key}' not found in manifest artifact: {path}")
     values = data[key]
     if index < 0 or index >= len(values):
         raise IndexError(f"Artifact index {index} out of range for {path}")
@@ -250,7 +250,7 @@ def _load_pickle_artifact(path: str) -> dict:
             warnings.filterwarnings("ignore", message="dtype\\(\\): align should be passed")
             loaded = pickle.load(handle, encoding="latin1")
     if not isinstance(loaded, dict):
-        raise ValueError(f"Indexed real data artifact must be a pickle dictionary: {path}")
+        raise ValueError(f"Indexed manifest artifact must be a pickle dictionary: {path}")
     normalized = {}
     for key, value in loaded.items():
         normalized[str(key)] = value

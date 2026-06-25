@@ -1,4 +1,4 @@
-"""Extract pretrained features from real manifest artifacts."""
+"""Extract pretrained features from manifest artifacts."""
 
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ TEXT_SUFFIXES = {".txt", ".md"}
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Extract pretrained features for a real-data manifest.")
+    parser = argparse.ArgumentParser(description="Extract pretrained features for a dataset manifest.")
     parser.add_argument("--manifest", required=True)
     parser.add_argument("--output-manifest", required=True)
     parser.add_argument("--feature-root", required=True)

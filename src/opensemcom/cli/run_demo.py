@@ -1,4 +1,4 @@
-"""Run a compact OpenSemCom demo on a real dataset manifest."""
+"""Run a compact OpenSemCom demo on a dataset manifest."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from opensemcom.simulation import run_experiment
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run a compact OpenSemCom demo.")
-    parser.add_argument("--dataset-manifest", required=True, help="CSV manifest pointing to real data artifacts.")
+    parser.add_argument("--dataset-manifest", required=True, help="CSV manifest pointing to source artifacts.")
     parser.add_argument("--seed", type=int, default=7)
     return parser
 

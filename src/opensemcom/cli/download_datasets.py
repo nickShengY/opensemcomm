@@ -1,4 +1,4 @@
-"""Download accessible real datasets into scratch for OpenSemCom."""
+"""Download accessible datasets into scratch for OpenSemCom."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ HF_API = "https://datasets-server.huggingface.co"
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Download accessible real OpenSemCom datasets to scratch.")
+    parser = argparse.ArgumentParser(description="Download accessible OpenSemCom datasets to scratch.")
     parser.add_argument("--data-root", default="/home/nickyun/links/scratch/new_study/opensemcom/data")
     parser.add_argument("--ag-news-per-split", type=int, default=512)
     parser.add_argument("--bdd-images", type=int, default=256)

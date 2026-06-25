@@ -134,7 +134,7 @@ class PrototypeSemanticDecoder:
             if 0 <= label < self.config.num_known_classes:
                 grouped[label].append(latent)
         if not grouped:
-            raise ValueError("Cannot fit receiver prototypes without labeled real calibration samples.")
+            raise ValueError("Cannot fit receiver prototypes without labeled calibration samples.")
         centroids = self.prototype_book.centroids.copy()
         for label, values in grouped.items():
             centroids[label] = np.mean(values, axis=0)
