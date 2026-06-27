@@ -85,6 +85,8 @@ Current paper-result artifacts are kept under `results/` for versioned reporting
 
 - `final_opensemcom_report.md`: severity ladder, top baselines, ablations, and risk-goodput target tables.
 - `final_opensemcom_risk_goodput.svg`: risk-goodput curves at accepted OpenOut targets 0.01, 0.02, 0.05, and 0.10.
+- `final_opensemcom_wireless_report.md`: measured-wireless follow-up with DeepSense 6G channel context, conservative calibrated operating points, and resource/goodput metrics.
+- `final_opensemcom_wireless_risk_goodput.svg`: measured-wireless safety-goodput curve.
 - `deepsense_scenario1_wireless.json` / `.csv`: DeepSense 6G Scenario1 audit showing measured camera, mmWave, and GPS artifacts with no generated channel samples.
 
 Run the wireless audit with:

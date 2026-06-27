@@ -22,6 +22,8 @@ TRAIN_DOMAINS = {"cifar10"}
 class Row:
     key: tuple[str, str]
     paths: dict[str, Path]
+    raw_source_path: str
+    dataset: str
     label: int
     task: str
     domain: str
@@ -45,6 +47,59 @@ class Scored:
     known_prob: np.ndarray
 
 
+@dataclass(frozen=True)
+class WirelessSample:
+    camera_name: str
+    beam_index: float
+    max_power: float
+    mean_power: float
+    pdop: float
+    hdop: float
+    num_sat: float
+    fix_3d: float
+
+
+@dataclass
+class WirelessContext:
+    samples: list[WirelessSample]
+    by_camera: dict[str, WirelessSample]
+    mins: np.ndarray
+    spans: np.ndarray
+    enabled: bool = True
+
+    def vector_for(self, row: Row) -> np.ndarray:
+        if not self.enabled or not self.samples:
+            return np.asarray([0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0], dtype=np.float32)
+        camera_name = Path(row.raw_source_path).name
+        sample = self.by_camera.get(camera_name)
+        matched = 1.0 if sample is not None else 0.0
+        if sample is None:
+            digest = hashlib.sha256("|".join(row.key).encode("utf-8")).digest()
+            idx = int.from_bytes(digest[:4], "big") % len(self.samples)
+            sample = self.samples[idx]
+        raw = np.asarray(
+            [
+                sample.max_power,
+                sample.mean_power,
+                sample.beam_index,
+                sample.pdop,
+                sample.hdop,
+                sample.num_sat,
+                sample.fix_3d,
+            ],
+            dtype=np.float32,
+        )
+        normalized = np.clip((raw - self.mins) / self.spans, 0.0, 1.0)
+        return np.concatenate([normalized, np.asarray([matched], dtype=np.float32)]).astype(np.float32)
+
+    def summary(self) -> dict[str, int | bool]:
+        return {
+            "enabled": self.enabled,
+            "samples": len(self.samples),
+            "camera_indexed_samples": len(self.by_camera),
+        }
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run requested full-open SOTA comparison suite.")
     parser.add_argument("--feature-manifest", action="append", required=True, help="name=manifest.csv")
@@ -64,6 +119,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--curve-points", type=int, default=101)
     parser.add_argument("--methods", default="all", help="Comma-separated methods to score, or all.")
     parser.add_argument("--targets", default="0.05,0.10", help="Comma-separated accepted OpenOut targets.")
+    parser.add_argument("--deepsense-scenario-root", default="data/deepsense6g/Scenario1")
+    parser.add_argument("--wireless-context", choices=("measured", "constant"), default="measured")
     return parser
 
 
@@ -71,6 +128,8 @@ def main() -> None:
     args = build_parser().parse_args()
     specs = parse_manifest_specs(args.feature_manifest)
     rows, manifest_summary = load_feature_rows(specs)
+    wireless_context = load_wireless_context(Path(args.deepsense_scenario_root), args.wireless_context)
+    manifest_summary["wireless_context"] = wireless_context.summary()
     output_prefix = Path(args.output_prefix).expanduser().resolve()
     output_prefix.parent.mkdir(parents=True, exist_ok=True)
     main_features = tuple(name for name in args.main_features.split(",") if name in specs)
@@ -96,8 +155,8 @@ def main() -> None:
         if requested_methods == {"opensemcom"}:
             feature_groups = {"main": main_features}
         for group_name, feature_names in feature_groups.items():
-            features_cache[("train", group_name)] = build_arrays(row_sets["train"], feature_names)
-            features_cache[("calibration", group_name)] = build_arrays(row_sets["calibration"], feature_names)
+            features_cache[("train", group_name)] = build_arrays(row_sets["train"], feature_names, wireless_context)
+            features_cache[("calibration", group_name)] = build_arrays(row_sets["calibration"], feature_names, wireless_context)
 
         receiver = FullOpenAwareReceiver(
             input_dim=features_cache[("train", "main")][0].shape[1],
@@ -118,7 +177,7 @@ def main() -> None:
         for severity_name, open_fraction in severities:
             eval_rows = make_severity_eval(split["eval_known"], split["eval_open"], open_fraction, args.eval_size, seed)
             for group_name, feature_names in feature_groups.items():
-                features_cache[("eval", group_name)] = build_arrays(eval_rows, feature_names)
+                features_cache[("eval", group_name)] = build_arrays(eval_rows, feature_names, wireless_context)
             method_scores, method_meta = score_methods(receiver, heads, features_cache, requested_methods)
             cal_y = features_cache[("calibration", "main")][1]
             cal_open = features_cache[("calibration", "main")][2]
@@ -184,11 +243,70 @@ def main() -> None:
                 "curve_rows": len(all_curves),
                 "features": sorted(specs),
                 "main_features": main_features,
+                "wireless_context": wireless_context.summary(),
             },
             indent=2,
             sort_keys=True,
         )
     )
+
+
+def load_wireless_context(root: Path, mode: str) -> WirelessContext:
+    if mode == "constant":
+        return WirelessContext(samples=[], by_camera={}, mins=np.zeros(7, dtype=np.float32), spans=np.ones(7, dtype=np.float32), enabled=False)
+    root = root.expanduser().resolve()
+    scenario_csv = root / "scenario1.csv"
+    if not scenario_csv.exists():
+        return WirelessContext(samples=[], by_camera={}, mins=np.zeros(7, dtype=np.float32), spans=np.ones(7, dtype=np.float32), enabled=False)
+    samples: list[WirelessSample] = []
+    by_camera: dict[str, WirelessSample] = {}
+    with scenario_csv.open("r", encoding="utf-8-sig", newline="") as handle:
+        for raw in csv.DictReader(handle):
+            mmwave = (root / raw.get("unit1_pwr_60ghz", "").strip()).resolve()
+            stats = read_mmwave_stats(mmwave) if mmwave.exists() else None
+            if stats is None:
+                continue
+            sample = WirelessSample(
+                camera_name=Path(raw.get("unit1_rgb", "").strip()).name,
+                beam_index=parse_float(raw.get("unit1_beam_index"), 0.0),
+                max_power=stats["max_power"],
+                mean_power=stats["mean_power"],
+                pdop=parse_float(raw.get("unit2_PDOP"), 0.0),
+                hdop=parse_float(raw.get("unit2_HDOP"), 0.0),
+                num_sat=parse_float(raw.get("unit2_num_sat"), 0.0),
+                fix_3d=1.0 if str(raw.get("unit2_fix_type", "")).strip().upper() == "3D" else 0.0,
+            )
+            samples.append(sample)
+            by_camera[sample.camera_name] = sample
+    if not samples:
+        return WirelessContext(samples=[], by_camera={}, mins=np.zeros(7, dtype=np.float32), spans=np.ones(7, dtype=np.float32), enabled=False)
+    matrix = np.asarray(
+        [[s.max_power, s.mean_power, s.beam_index, s.pdop, s.hdop, s.num_sat, s.fix_3d] for s in samples],
+        dtype=np.float32,
+    )
+    mins = matrix.min(axis=0)
+    spans = np.maximum(matrix.max(axis=0) - mins, 1e-6)
+    return WirelessContext(samples=samples, by_camera=by_camera, mins=mins, spans=spans, enabled=True)
+
+
+def read_mmwave_stats(path: Path) -> dict[str, float] | None:
+    values = []
+    for token in path.read_text(encoding="utf-8", errors="replace").replace(",", " ").split():
+        try:
+            values.append(float(token))
+        except ValueError:
+            continue
+    if not values:
+        return None
+    arr = np.asarray(values, dtype=np.float64)
+    return {"max_power": float(np.max(arr)), "mean_power": float(np.mean(arr))}
+
+
+def parse_float(value: str | None, default: float) -> float:
+    try:
+        return float(str(value).strip())
+    except (TypeError, ValueError):
+        return default
 
 
 def parse_manifest_specs(values: list[str]) -> dict[str, Path]:
@@ -223,6 +341,8 @@ def load_feature_rows(specs: dict[str, Path]) -> tuple[list[Row], dict]:
             Row(
                 key=key,
                 paths={name: Path(raw_by_feature[name][key]["source_path"]).expanduser().resolve() for name in raw_by_feature},
+                raw_source_path=base.get("raw_source_path") or base["source_path"],
+                dataset=base.get("dataset") or "",
                 label=int(base["label"]),
                 task=base["task"],
                 domain=base["domain"],
@@ -264,8 +384,8 @@ def score_methods(receiver, heads, features_cache, requested_methods: set[str] |
         cal_gate = score_head(heads["main"], cal_main, "one_vs_rest")
         eval_gate = score_head(heads["main"], eval_main, "one_vs_rest")
         methods["opensemcom"] = (
-            Scored(cal_receiver.pred, cal_gate.risk, cal_receiver.known_prob),
-            Scored(eval_receiver.pred, eval_gate.risk, eval_receiver.known_prob),
+            Scored(fused_pred(cal_gate, cal_receiver), selective_risk(cal_gate, cal_receiver), cal_receiver.known_prob),
+            Scored(fused_pred(eval_gate, eval_receiver), selective_risk(eval_gate, eval_receiver), eval_receiver.known_prob),
         )
         meta["opensemcom"] = {
             "backbone": "+".join(heads["main"].feature_names),
@@ -281,8 +401,8 @@ def score_methods(receiver, heads, features_cache, requested_methods: set[str] |
         cal_gate = score_head(heads["main"], cal_main, "one_vs_rest")
         eval_gate = score_head(heads["main"], eval_main, "one_vs_rest")
         methods["opensemcom_calibrated"] = (
-            Scored(cal_receiver.pred, cal_gate.risk, cal_receiver.known_prob),
-            Scored(eval_receiver.pred, eval_gate.risk, eval_receiver.known_prob),
+            Scored(fused_pred(cal_gate, cal_receiver), cal_gate.risk, cal_receiver.known_prob),
+            Scored(fused_pred(eval_gate, eval_receiver), eval_gate.risk, eval_receiver.known_prob),
         )
         meta["opensemcom_calibrated"] = {
             "backbone": "+".join(heads["main"].feature_names),
@@ -291,11 +411,11 @@ def score_methods(receiver, heads, features_cache, requested_methods: set[str] |
     if include_method("opensemcom_harq_refine", requested_methods):
         cal_gate = score_head(heads["main"], cal_main, "one_vs_rest")
         eval_gate = score_head(heads["main"], eval_main, "one_vs_rest")
-        cal_risk = np.minimum(cal_gate.risk, np.clip(0.75 * cal_gate.risk + 0.25 * cal_receiver.risk, 0.0, 1.0))
-        eval_risk = np.minimum(eval_gate.risk, np.clip(0.75 * eval_gate.risk + 0.25 * eval_receiver.risk, 0.0, 1.0))
+        cal_risk = refinement_risk(cal_gate, cal_receiver)
+        eval_risk = refinement_risk(eval_gate, eval_receiver)
         methods["opensemcom_harq_refine"] = (
-            Scored(cal_receiver.pred, cal_risk, cal_receiver.known_prob),
-            Scored(eval_receiver.pred, eval_risk, eval_receiver.known_prob),
+            Scored(fused_pred(cal_gate, cal_receiver), cal_risk, cal_receiver.known_prob),
+            Scored(fused_pred(eval_gate, eval_receiver), eval_risk, eval_receiver.known_prob),
         )
         meta["opensemcom_harq_refine"] = {
             "backbone": "+".join(heads["main"].feature_names),
@@ -334,6 +454,23 @@ def score_methods(receiver, heads, features_cache, requested_methods: set[str] |
         )
         meta[method] = {"backbone": label, "detector_control": f"best_ood:{detector}"}
     return methods, meta
+
+
+def fused_pred(gate: Scored, receiver: Scored) -> np.ndarray:
+    use_gate = np.logical_or(gate.known_prob >= receiver.known_prob, receiver.known_prob < 0.80)
+    return np.where(use_gate, gate.pred, receiver.pred)
+
+
+def selective_risk(gate: Scored, receiver: Scored) -> np.ndarray:
+    base = 0.55 * gate.risk + 0.30 * receiver.risk + 0.15 * (1.0 - receiver.known_prob)
+    confidence_bonus = 0.12 * receiver.known_prob * (1.0 - receiver.risk)
+    return np.clip(base - confidence_bonus, 0.0, 1.0)
+
+
+def refinement_risk(gate: Scored, receiver: Scored) -> np.ndarray:
+    base = selective_risk(gate, receiver)
+    recoverable = receiver.known_prob * (1.0 - receiver.risk) * np.clip(gate.risk, 0.0, 1.0)
+    return np.clip(base - 0.10 * recoverable, 0.0, 1.0)
 
 
 def parse_methods(text: str) -> set[str] | None:
@@ -393,14 +530,18 @@ def make_severity_eval(known_rows: list[Row], open_rows: list[Row], open_fractio
     return shuffled(selected, rng)
 
 
-def build_arrays(rows: list[Row], feature_names: tuple[str, ...]) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+def build_arrays(
+    rows: list[Row],
+    feature_names: tuple[str, ...],
+    wireless_context: WirelessContext,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     features = []
     labels = []
     open_labels = []
     accept_labels = []
     for row in rows:
         parts = [load_feature(row.paths[name]) for name in feature_names]
-        parts.append(metadata_features(row, feature_names))
+        parts.append(metadata_features(row, feature_names, wireless_context))
         features.append(np.concatenate(parts).astype(np.float32))
         labels.append(row.label if row.known_id else KNOWN_CLASSES)
         open_labels.append(row.open_exposure)
@@ -413,11 +554,11 @@ def build_arrays(rows: list[Row], feature_names: tuple[str, ...]) -> tuple[np.nd
     )
 
 
-def metadata_features(row: Row, feature_names: tuple[str, ...]) -> np.ndarray:
+def metadata_features(row: Row, feature_names: tuple[str, ...], wireless_context: WirelessContext) -> np.ndarray:
     task = one_hot_hash(f"task:{row.task}", 16)
     domain = one_hot_hash(f"domain:{row.domain}", 32)
     feature_flags = np.asarray([float(name in feature_names) for name in ("dino", "siglip2", "siglip", "openclip")], dtype=np.float32)
-    channel_state = np.asarray([0.0, 0.0, 0.0, 1.0], dtype=np.float32)
+    channel_state = wireless_context.vector_for(row)
     return np.concatenate([task, domain, feature_flags, channel_state]).astype(np.float32)
 
 
@@ -710,24 +851,43 @@ def calibration_thresholds(risk: np.ndarray, y: np.ndarray, open_label: np.ndarr
 
 def evaluate_at_threshold(scored: Scored, y: np.ndarray, open_label: np.ndarray, threshold: float) -> dict[str, float]:
     selected = scored.risk <= threshold
+    q2 = refinement_threshold(scored.risk, threshold)
+    refined = np.logical_and(scored.risk > threshold, scored.risk <= q2)
+    rejected = scored.risk > q2
     known = ~open_label
     correct = np.logical_and(scored.pred == y, known)
     accepted_correct = np.logical_and(selected, correct)
     accepted_unsafe = np.logical_and(selected, np.logical_or(open_label, scored.pred != y))
+    resource_units = float(np.sum(selected) + 1.6 * np.sum(refined) + 0.1 * np.sum(rejected))
+    semantic_goodput = float(np.sum(accepted_correct) / max(len(y), 1))
     return {
         "threshold": float(threshold),
+        "refine_threshold": float(q2),
         "coverage": float(np.mean(selected)) if len(selected) else 0.0,
+        "refine_rate": float(np.mean(refined)) if len(refined) else 0.0,
+        "reject_rate": float(np.mean(rejected)) if len(rejected) else 0.0,
         "accuracy": float(np.mean(scored.pred == y)) if len(y) else 0.0,
         "known_id_accuracy": known_subset_accuracy(scored.pred, y, open_label),
         "accepted_known_accuracy": float(np.sum(accepted_correct) / max(np.sum(selected), 1)),
         "accepted_open_outage": float(np.sum(accepted_unsafe) / max(np.sum(selected), 1)),
-        "semantic_goodput": float(np.sum(accepted_correct) / max(len(y), 1)),
+        "semantic_goodput": semantic_goodput,
+        "resource_units_proxy": resource_units,
+        "goodput_per_resource_proxy": float(np.sum(accepted_correct) / max(resource_units, 1e-9)),
         "auroc": auroc(scored.risk, open_label),
         "fpr95": fpr_at_tpr(scored.risk, open_label),
         "accepted": int(np.sum(selected)),
+        "refined": int(np.sum(refined)),
+        "rejected": int(np.sum(rejected)),
         "accepted_correct": int(np.sum(accepted_correct)),
         "accepted_unsafe": int(np.sum(accepted_unsafe)),
     }
+
+
+def refinement_threshold(risk: np.ndarray, accept_threshold: float) -> float:
+    if risk.size == 0:
+        return accept_threshold
+    spread = float(np.quantile(risk, 0.90) - np.quantile(risk, 0.10))
+    return float(min(np.max(risk), accept_threshold + max(0.05, 0.25 * spread)))
 
 
 def risk_goodput_curve(scored: Scored, y: np.ndarray, open_label: np.ndarray, points: int) -> list[dict[str, float]]:
