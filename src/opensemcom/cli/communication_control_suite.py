@@ -150,17 +150,32 @@ def run_task(task_name: str, split: SplitData, specs: dict[str, Path], channel: 
     ens_ch = fit_model(arrays["ensemble_channel"][0], train_y, train_open, n_classes, detector_open=(task_name == "full-open"))
     jscc = fit_deepjscc(arrays["dino"][0], train_y, train_open, n_classes, detector_open=(task_name == "full-open"))
 
+    dino_cal = score_model(dino, arrays["dino"][1])
+    dino_eval = score_model(dino, arrays["dino"][2])
+    ens_cal = score_model(ens, arrays["ensemble"][1])
+    ens_eval = score_model(ens, arrays["ensemble"][2])
+    ens_ch_cal = score_model(ens_ch, arrays["ensemble_channel"][1])
+    ens_ch_eval = score_model(ens_ch, arrays["ensemble_channel"][2])
+    jscc_cal = score_deepjscc(jscc, arrays["dino"][1])
+    jscc_eval = score_deepjscc(jscc, arrays["dino"][2])
+
     methods = {
-        "dino_detector": (score_model(dino, arrays["dino"][1]), score_model(dino, arrays["dino"][2]), 1.0),
-        "ensemble_detector": (score_model(ens, arrays["ensemble"][1]), score_model(ens, arrays["ensemble"][2]), 1.2),
-        "deepjscc_pca": (score_deepjscc(jscc, arrays["dino"][1]), score_deepjscc(jscc, arrays["dino"][2]), 0.7),
-        "witt_context_style": (score_model(ens_ch, arrays["ensemble_channel"][1]), score_model(ens_ch, arrays["ensemble_channel"][2]), 1.4),
-        "fixed_refine_all": (score_model(ens_ch, arrays["ensemble_channel"][1]), score_model(ens_ch, arrays["ensemble_channel"][2]), 1.6),
+        "dino_detector": (dino_cal, dino_eval, 1.0),
+        "ensemble_detector": (ens_cal, ens_eval, 1.2),
+        "deepjscc_pca": (jscc_cal, jscc_eval, 0.7),
+        "witt_context_style": (ens_ch_cal, ens_ch_eval, 1.4),
+        "fixed_refine_all": (ens_ch_cal, ens_ch_eval, 1.6),
     }
-    core_cal = score_model(dino, arrays["dino"][1])
-    core_eval = score_model(dino, arrays["dino"][2])
-    refine_cal = score_model(ens_ch, arrays["ensemble_channel"][1])
-    refine_eval = score_model(ens_ch, arrays["ensemble_channel"][2])
+    dino_channel_cal = fuse_scores(dino_cal, ens_ch_cal, disagreement_penalty=0.04)
+    dino_channel_eval = fuse_scores(dino_eval, ens_ch_eval, disagreement_penalty=0.04)
+    ensemble_channel_cal = fuse_scores(ens_cal, ens_ch_cal, disagreement_penalty=0.04)
+    ensemble_channel_eval = fuse_scores(ens_eval, ens_ch_eval, disagreement_penalty=0.04)
+    progressive_candidates = {
+        "dino_core": (dino_cal, dino_eval, ens_ch_cal, ens_ch_eval),
+        "ensemble_core": (ens_cal, ens_eval, ens_ch_cal, ens_ch_eval),
+        "dino_channel_fusion_core": (dino_channel_cal, dino_channel_eval, ens_ch_cal, ens_ch_eval),
+        "ensemble_channel_fusion_core": (ensemble_channel_cal, ensemble_channel_eval, ens_ch_cal, ens_ch_eval),
+    }
 
     rows: list[dict] = []
     for target in targets:
@@ -169,7 +184,9 @@ def run_task(task_name: str, split: SplitData, specs: dict[str, Path], channel: 
                 policy = select_single_policy(cal_score, cal_y, cal_open, target, budget, accept_cost)
                 policy_rows.append({"task": task_name, "method": name, "seed": seed, "target_openout": target, "resource_budget": budget, **policy})
                 rows.append({"task": task_name, "method": name, "seed": seed, "target_openout": target, "resource_budget": budget, **eval_single(eval_score, eval_y, eval_open, policy["threshold"], accept_cost)})
-            policy = select_progressive_policy(core_cal, refine_cal, cal_y, cal_open, target, budget)
+            policy = select_best_progressive_policy(progressive_candidates, cal_y, cal_open, target, budget)
+            route = policy["route"]
+            _, core_eval, _, refine_eval = progressive_candidates[route]
             policy_rows.append({"task": task_name, "method": "opensemcom_progressive", "seed": seed, "target_openout": target, "resource_budget": budget, **policy})
             rows.append({"task": task_name, "method": "opensemcom_progressive", "seed": seed, "target_openout": target, "resource_budget": budget, **eval_progressive(core_eval, refine_eval, eval_y, eval_open, policy)})
     return rows
@@ -385,6 +402,14 @@ def score_model(model, x: np.ndarray) -> Scored:
     return Scored(pred=pred.astype(np.int64), risk=risk.astype(np.float64))
 
 
+def fuse_scores(left: Scored, right: Scored, disagreement_penalty: float) -> Scored:
+    choose_left = left.risk <= right.risk
+    pred = np.where(choose_left, left.pred, right.pred)
+    risk = np.minimum(left.risk, right.risk)
+    risk = risk + disagreement_penalty * (left.pred != right.pred)
+    return Scored(pred=pred.astype(np.int64), risk=np.clip(risk, 0.0, 1.0).astype(np.float64))
+
+
 def fit_deepjscc(x: np.ndarray, y: np.ndarray, open_label: np.ndarray, n_classes: int, detector_open: bool):
     from sklearn.decomposition import PCA
     from sklearn.linear_model import LogisticRegression
@@ -441,6 +466,18 @@ def eval_single(scored: Scored, y: np.ndarray, open_label: np.ndarray, threshold
     return metrics_dict(selected, np.zeros_like(selected, dtype=bool), rejected, accepted_correct, accepted_unsafe, y, scored.pred, resource)
 
 
+def select_best_progressive_policy(candidates: dict[str, tuple[Scored, Scored, Scored, Scored]], y: np.ndarray, open_label: np.ndarray, target: float, budget: float) -> dict:
+    best = None
+    for route, (core_cal, _core_eval, refine_cal, _refine_eval) in candidates.items():
+        policy = select_progressive_policy(core_cal, refine_cal, y, open_label, target, budget)
+        score = (policy["cal_goodput"], policy.get("cal_goodput_per_resource", 0.0), -policy.get("cal_openout_upper", 0.0))
+        if best is None or score > best[0]:
+            best = (score, route, policy)
+    if best is None:
+        raise ValueError("No progressive candidate policies were evaluated")
+    return {"route": best[1], **best[2]}
+
+
 def select_progressive_policy(core: Scored, refine: Scored, y: np.ndarray, open_label: np.ndarray, target: float, budget: float) -> dict:
     thresholds = candidate_thresholds(np.concatenate([core.risk, refine.risk]))
     best = None
@@ -456,8 +493,8 @@ def select_progressive_policy(core: Scored, refine: Scored, y: np.ndarray, open_
                     if best is None or score > best[0]:
                         best = (score, q1, q2, qr, metrics, upper)
     if best is None:
-        return {"q1": float(np.min(core.risk) - 1e-6), "q2": float(np.min(core.risk) - 1e-6), "qr": float(np.min(refine.risk) - 1e-6), "cal_goodput": 0.0, "cal_openout": 0.0, "cal_openout_upper": 0.0}
-    return {"q1": float(best[1]), "q2": float(best[2]), "qr": float(best[3]), "cal_goodput": best[4]["semantic_goodput"], "cal_openout": best[4]["accepted_open_outage"], "cal_openout_upper": best[5]}
+        return {"q1": float(np.min(core.risk) - 1e-6), "q2": float(np.min(core.risk) - 1e-6), "qr": float(np.min(refine.risk) - 1e-6), "cal_goodput": 0.0, "cal_openout": 0.0, "cal_openout_upper": 0.0, "cal_goodput_per_resource": 0.0, "cal_resource_per_sample": 0.0, "cal_refine_rate": 0.0}
+    return {"q1": float(best[1]), "q2": float(best[2]), "qr": float(best[3]), "cal_goodput": best[4]["semantic_goodput"], "cal_openout": best[4]["accepted_open_outage"], "cal_openout_upper": best[5], "cal_goodput_per_resource": best[4]["goodput_per_resource"], "cal_resource_per_sample": best[4]["resource_per_sample"], "cal_refine_rate": best[4]["refine_rate"]}
 
 
 def eval_progressive(core: Scored, refine: Scored, y: np.ndarray, open_label: np.ndarray, policy: dict) -> dict:
