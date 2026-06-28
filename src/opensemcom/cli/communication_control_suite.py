@@ -149,6 +149,8 @@ def run_task(task_name: str, split: SplitData, specs: dict[str, Path], channel: 
     ens = fit_model(arrays["ensemble"][0], train_y, train_open, n_classes, detector_open=(task_name == "full-open"))
     ens_ch = fit_model(arrays["ensemble_channel"][0], train_y, train_open, n_classes, detector_open=(task_name == "full-open"))
     jscc = fit_deepjscc(arrays["dino"][0], train_y, train_open, n_classes, detector_open=(task_name == "full-open"))
+    receiver_ch = fit_receiver(arrays["ensemble_channel"][0], train_y, train_open, n_classes, has_open_class=(task_name == "full-open"), seed=seed)
+    receiver_ens = fit_receiver(arrays["ensemble"][0], train_y, train_open, n_classes, has_open_class=(task_name == "full-open"), seed=seed + 1000)
 
     dino_cal = score_model(dino, arrays["dino"][1])
     dino_eval = score_model(dino, arrays["dino"][2])
@@ -158,6 +160,10 @@ def run_task(task_name: str, split: SplitData, specs: dict[str, Path], channel: 
     ens_ch_eval = score_model(ens_ch, arrays["ensemble_channel"][2])
     jscc_cal = score_deepjscc(jscc, arrays["dino"][1])
     jscc_eval = score_deepjscc(jscc, arrays["dino"][2])
+    recv_ch_cal = score_receiver(receiver_ch, arrays["ensemble_channel"][1])
+    recv_ch_eval = score_receiver(receiver_ch, arrays["ensemble_channel"][2])
+    recv_ens_cal = score_receiver(receiver_ens, arrays["ensemble"][1])
+    recv_ens_eval = score_receiver(receiver_ens, arrays["ensemble"][2])
 
     methods = {
         "dino_detector": (dino_cal, dino_eval, 1.0),
@@ -165,16 +171,26 @@ def run_task(task_name: str, split: SplitData, specs: dict[str, Path], channel: 
         "deepjscc_pca": (jscc_cal, jscc_eval, 0.7),
         "witt_context_style": (ens_ch_cal, ens_ch_eval, 1.4),
         "fixed_refine_all": (ens_ch_cal, ens_ch_eval, 1.6),
+        "opensemcom_receiver_only": (recv_ch_cal, recv_ch_eval, 1.2),
+        "opensemcom_no_channel": (recv_ens_cal, recv_ens_eval, 1.2),
     }
     dino_channel_cal = fuse_scores(dino_cal, ens_ch_cal, disagreement_penalty=0.04)
     dino_channel_eval = fuse_scores(dino_eval, ens_ch_eval, disagreement_penalty=0.04)
     ensemble_channel_cal = fuse_scores(ens_cal, ens_ch_cal, disagreement_penalty=0.04)
     ensemble_channel_eval = fuse_scores(ens_eval, ens_ch_eval, disagreement_penalty=0.04)
+    receiver_channel_cal = fuse_scores(recv_ch_cal, ens_ch_cal, disagreement_penalty=0.03)
+    receiver_channel_eval = fuse_scores(recv_ch_eval, ens_ch_eval, disagreement_penalty=0.03)
+    receiver_dino_cal = fuse_scores(recv_ch_cal, dino_channel_cal, disagreement_penalty=0.03)
+    receiver_dino_eval = fuse_scores(recv_ch_eval, dino_channel_eval, disagreement_penalty=0.03)
     progressive_candidates = {
         "dino_core": (dino_cal, dino_eval, ens_ch_cal, ens_ch_eval),
         "ensemble_core": (ens_cal, ens_eval, ens_ch_cal, ens_ch_eval),
         "dino_channel_fusion_core": (dino_channel_cal, dino_channel_eval, ens_ch_cal, ens_ch_eval),
         "ensemble_channel_fusion_core": (ensemble_channel_cal, ensemble_channel_eval, ens_ch_cal, ens_ch_eval),
+        "trained_receiver_core": (recv_ch_cal, recv_ch_eval, ens_ch_cal, ens_ch_eval),
+        "trained_receiver_channel_fusion_core": (receiver_channel_cal, receiver_channel_eval, ens_ch_cal, ens_ch_eval),
+        "trained_receiver_dino_fusion_core": (receiver_dino_cal, receiver_dino_eval, ens_ch_cal, ens_ch_eval),
+        "trained_receiver_no_channel_core": (recv_ens_cal, recv_ens_eval, ens_ch_cal, ens_ch_eval),
     }
 
     rows: list[dict] = []
@@ -410,6 +426,129 @@ def fuse_scores(left: Scored, right: Scored, disagreement_penalty: float) -> Sco
     return Scored(pred=pred.astype(np.int64), risk=np.clip(risk, 0.0, 1.0).astype(np.float64))
 
 
+class TrainedReceiver:
+    def __init__(self, input_dim: int, n_classes: int, has_open_class: bool, seed: int, hidden_dim: int = 256, epochs: int = 45, lr: float = 1e-3):
+        import torch
+
+        self.torch = torch
+        self.n_classes = int(n_classes)
+        self.has_open_class = bool(has_open_class)
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.device = torch.device(device)
+        torch.manual_seed(seed)
+        if self.device.type == "cuda":
+            torch.cuda.manual_seed_all(seed)
+        self.model = torch.nn.Sequential(
+            torch.nn.Linear(input_dim, hidden_dim),
+            torch.nn.LayerNorm(hidden_dim),
+            torch.nn.GELU(),
+            torch.nn.Dropout(0.12),
+            torch.nn.Linear(hidden_dim, hidden_dim),
+            torch.nn.GELU(),
+            torch.nn.Dropout(0.08),
+        ).to(self.device)
+        self.class_head = torch.nn.Linear(hidden_dim, self.n_classes).to(self.device)
+        self.unsafe_head = torch.nn.Linear(hidden_dim, 1).to(self.device)
+        self.accept_head = torch.nn.Linear(hidden_dim, 1).to(self.device)
+        self.epochs = int(epochs)
+        self.lr = float(lr)
+        self.mean = None
+        self.std = None
+
+    def fit(self, x: np.ndarray, y: np.ndarray, open_label: np.ndarray) -> None:
+        torch = self.torch
+        x_np = np.asarray(x, dtype=np.float32)
+        self.mean = x_np.mean(axis=0, keepdims=True)
+        self.std = np.maximum(x_np.std(axis=0, keepdims=True), 1e-6)
+        x_np = (x_np - self.mean) / self.std
+        open_class = self.n_classes - 1 if self.has_open_class else -1
+        unsafe = np.logical_or(open_label, y == open_class).astype(np.float32)
+        accept = (unsafe < 0.5).astype(np.float32)
+        xt = torch.as_tensor(x_np, dtype=torch.float32, device=self.device)
+        yt = torch.as_tensor(y, dtype=torch.long, device=self.device)
+        ut = torch.as_tensor(unsafe.reshape(-1, 1), dtype=torch.float32, device=self.device)
+        at = torch.as_tensor(accept.reshape(-1, 1), dtype=torch.float32, device=self.device)
+        counts = np.bincount(y, minlength=self.n_classes).astype(np.float32)
+        class_weights = np.sum(counts) / np.maximum(counts * self.n_classes, 1.0)
+        class_loss = torch.nn.CrossEntropyLoss(weight=torch.as_tensor(class_weights, dtype=torch.float32, device=self.device))
+        pos_unsafe = max(float(np.sum(unsafe == 1)), 1.0)
+        neg_unsafe = max(float(np.sum(unsafe == 0)), 1.0)
+        unsafe_loss = torch.nn.BCEWithLogitsLoss(pos_weight=torch.tensor([neg_unsafe / pos_unsafe], device=self.device))
+        pos_accept = max(float(np.sum(accept == 1)), 1.0)
+        neg_accept = max(float(np.sum(accept == 0)), 1.0)
+        accept_loss = torch.nn.BCEWithLogitsLoss(pos_weight=torch.tensor([neg_accept / pos_accept], device=self.device))
+        params = list(self.model.parameters()) + list(self.class_head.parameters()) + list(self.unsafe_head.parameters()) + list(self.accept_head.parameters())
+        opt = torch.optim.AdamW(params, lr=self.lr, weight_decay=1e-4)
+        generator = torch.Generator(device=self.device)
+        generator.manual_seed(2031)
+        batch_size = min(512, max(64, xt.shape[0]))
+        self.model.train()
+        for _ in range(self.epochs):
+            order = torch.randperm(xt.shape[0], generator=generator, device=self.device)
+            for start in range(0, xt.shape[0], batch_size):
+                idx = order[start : start + batch_size]
+                h = self.model(xt[idx])
+                logits = self.class_head(h)
+                unsafe_logits = self.unsafe_head(h)
+                accept_logits = self.accept_head(h)
+                loss = (
+                    class_loss(logits, yt[idx])
+                    + 1.35 * unsafe_loss(unsafe_logits, ut[idx])
+                    + 0.90 * accept_loss(accept_logits, at[idx])
+                    + ranking_loss(unsafe_logits, ut[idx], torch)
+                    - 0.04 * torch.mean(torch.sigmoid(accept_logits) * at[idx])
+                )
+                opt.zero_grad(set_to_none=True)
+                loss.backward()
+                opt.step()
+        self.model.eval()
+
+    def score(self, x: np.ndarray) -> Scored:
+        torch = self.torch
+        x_np = (np.asarray(x, dtype=np.float32) - self.mean) / self.std
+        with torch.inference_mode():
+            xt = torch.as_tensor(x_np, dtype=torch.float32, device=self.device)
+            h = self.model(xt)
+            probs = torch.softmax(self.class_head(h), dim=-1)
+            unsafe_prob = torch.sigmoid(self.unsafe_head(h)).reshape(-1)
+            accept_prob = torch.sigmoid(self.accept_head(h)).reshape(-1)
+        probs_np = probs.detach().cpu().numpy().astype(np.float64)
+        if self.has_open_class:
+            pred = np.argmax(probs_np[:, : self.n_classes - 1], axis=1)
+            unknown_prob = probs_np[:, self.n_classes - 1]
+        else:
+            pred = np.argmax(probs_np, axis=1)
+            unknown_prob = np.zeros(probs_np.shape[0], dtype=np.float64)
+        entropy = -np.sum(probs_np * np.log(np.maximum(probs_np, 1e-12)), axis=1) / math.log(max(self.n_classes, 2))
+        unsafe_np = unsafe_prob.detach().cpu().numpy().astype(np.float64)
+        accept_np = accept_prob.detach().cpu().numpy().astype(np.float64)
+        if self.has_open_class:
+            risk = 0.40 * unsafe_np + 0.25 * (1.0 - accept_np) + 0.25 * unknown_prob + 0.10 * entropy
+        else:
+            risk = 0.45 * unsafe_np + 0.35 * entropy + 0.20 * (1.0 - accept_np)
+        return Scored(pred=pred.astype(np.int64), risk=np.clip(risk, 0.0, 1.0).astype(np.float64))
+
+
+def fit_receiver(x: np.ndarray, y: np.ndarray, open_label: np.ndarray, n_classes: int, has_open_class: bool, seed: int) -> TrainedReceiver:
+    receiver = TrainedReceiver(input_dim=x.shape[1], n_classes=n_classes, has_open_class=has_open_class, seed=seed)
+    receiver.fit(x, y, open_label)
+    return receiver
+
+
+def score_receiver(receiver: TrainedReceiver, x: np.ndarray) -> Scored:
+    return receiver.score(x)
+
+
+def ranking_loss(logits, unsafe, torch):
+    safe_scores = logits[unsafe.reshape(-1) < 0.5]
+    unsafe_scores = logits[unsafe.reshape(-1) >= 0.5]
+    if safe_scores.numel() == 0 or unsafe_scores.numel() == 0:
+        return torch.tensor(0.0, device=logits.device)
+    safe = safe_scores[: min(safe_scores.numel(), 128)]
+    uns = unsafe_scores[: min(unsafe_scores.numel(), 128)]
+    return torch.relu(0.2 + safe.reshape(-1, 1) - uns.reshape(1, -1)).mean()
+
+
 def fit_deepjscc(x: np.ndarray, y: np.ndarray, open_label: np.ndarray, n_classes: int, detector_open: bool):
     from sklearn.decomposition import PCA
     from sklearn.linear_model import LogisticRegression
@@ -441,7 +580,7 @@ def score_deepjscc(model, x: np.ndarray) -> Scored:
 def select_single_policy(cal: Scored, y: np.ndarray, open_label: np.ndarray, target: float, budget: float, accept_cost: float) -> dict:
     best = None
     for threshold in candidate_thresholds(cal.risk):
-        metrics = eval_single(cal, y, open_label, threshold, accept_cost)
+        metrics = eval_single(cal, y, open_label, threshold, accept_cost, include_detection=False)
         upper = wilson_upper(metrics["accepted_unsafe"], metrics["accepted"])
         if upper <= target and metrics["resource_per_sample"] <= budget:
             score = (metrics["semantic_goodput"], metrics["goodput_per_resource"], -upper)
@@ -449,13 +588,13 @@ def select_single_policy(cal: Scored, y: np.ndarray, open_label: np.ndarray, tar
                 best = (score, threshold, metrics, upper)
     if best is None:
         threshold = float(np.min(cal.risk) - 1e-6)
-        metrics = eval_single(cal, y, open_label, threshold, accept_cost)
+        metrics = eval_single(cal, y, open_label, threshold, accept_cost, include_detection=False)
         upper = wilson_upper(metrics["accepted_unsafe"], metrics["accepted"])
         return {"threshold": threshold, "cal_goodput": metrics["semantic_goodput"], "cal_openout": metrics["accepted_open_outage"], "cal_openout_upper": upper}
     return {"threshold": float(best[1]), "cal_goodput": best[2]["semantic_goodput"], "cal_openout": best[2]["accepted_open_outage"], "cal_openout_upper": best[3]}
 
 
-def eval_single(scored: Scored, y: np.ndarray, open_label: np.ndarray, threshold: float, accept_cost: float) -> dict:
+def eval_single(scored: Scored, y: np.ndarray, open_label: np.ndarray, threshold: float, accept_cost: float, include_detection: bool = True) -> dict:
     selected = scored.risk <= threshold
     rejected = ~selected
     unsafe = np.logical_or(open_label, scored.pred != y)
@@ -463,7 +602,7 @@ def eval_single(scored: Scored, y: np.ndarray, open_label: np.ndarray, threshold
     accepted_correct = np.logical_and(selected, correct)
     accepted_unsafe = np.logical_and(selected, unsafe)
     resource = float(accept_cost * np.sum(selected) + 0.1 * np.sum(rejected))
-    return metrics_dict(selected, np.zeros_like(selected, dtype=bool), rejected, accepted_correct, accepted_unsafe, y, scored.pred, resource)
+    return metrics_dict(selected, np.zeros_like(selected, dtype=bool), rejected, accepted_correct, accepted_unsafe, y, scored.pred, scored.risk, unsafe, resource, include_detection)
 
 
 def select_best_progressive_policy(candidates: dict[str, tuple[Scored, Scored, Scored, Scored]], y: np.ndarray, open_label: np.ndarray, target: float, budget: float) -> dict:
@@ -486,7 +625,7 @@ def select_progressive_policy(core: Scored, refine: Scored, y: np.ndarray, open_
             if q2 < q1:
                 continue
             for qr in thresholds:
-                metrics = eval_progressive(core, refine, y, open_label, {"q1": q1, "q2": q2, "qr": qr})
+                metrics = eval_progressive(core, refine, y, open_label, {"q1": q1, "q2": q2, "qr": qr}, include_detection=False)
                 upper = wilson_upper(metrics["accepted_unsafe"], metrics["accepted"])
                 if upper <= target and metrics["resource_per_sample"] <= budget:
                     score = (metrics["semantic_goodput"], metrics["goodput_per_resource"], -upper)
@@ -497,7 +636,7 @@ def select_progressive_policy(core: Scored, refine: Scored, y: np.ndarray, open_
     return {"q1": float(best[1]), "q2": float(best[2]), "qr": float(best[3]), "cal_goodput": best[4]["semantic_goodput"], "cal_openout": best[4]["accepted_open_outage"], "cal_openout_upper": best[5], "cal_goodput_per_resource": best[4]["goodput_per_resource"], "cal_resource_per_sample": best[4]["resource_per_sample"], "cal_refine_rate": best[4]["refine_rate"]}
 
 
-def eval_progressive(core: Scored, refine: Scored, y: np.ndarray, open_label: np.ndarray, policy: dict) -> dict:
+def eval_progressive(core: Scored, refine: Scored, y: np.ndarray, open_label: np.ndarray, policy: dict, include_detection: bool = True) -> dict:
     q1, q2, qr = policy["q1"], policy["q2"], policy["qr"]
     core_accept = core.risk <= q1
     refine_mask = np.logical_and(core.risk > q1, core.risk <= q2)
@@ -510,14 +649,15 @@ def eval_progressive(core: Scored, refine: Scored, y: np.ndarray, open_label: np
     correct = ~unsafe
     accepted_correct = np.logical_and(selected, correct)
     accepted_unsafe = np.logical_and(selected, unsafe)
+    final_risk = np.where(refine_mask, refine.risk, core.risk)
     resource = float(np.sum(core_accept) + 1.6 * np.sum(refine_mask) + 0.1 * np.sum(resource_rejected))
-    return metrics_dict(selected, refine_mask, rejected, accepted_correct, accepted_unsafe, y, final_pred, resource)
+    return metrics_dict(selected, refine_mask, rejected, accepted_correct, accepted_unsafe, y, final_pred, final_risk, unsafe, resource, include_detection)
 
 
-def metrics_dict(selected, refined, rejected, accepted_correct, accepted_unsafe, y, pred, resource: float) -> dict:
+def metrics_dict(selected, refined, rejected, accepted_correct, accepted_unsafe, y, pred, risk, unsafe, resource: float, include_detection: bool) -> dict:
     n = len(y)
     accepted = int(np.sum(selected))
-    return {
+    metrics = {
         "semantic_goodput": float(np.sum(accepted_correct) / max(n, 1)),
         "coverage": float(np.mean(selected)) if n else 0.0,
         "accepted_known_accuracy": float(np.sum(accepted_correct) / max(accepted, 1)),
@@ -532,6 +672,37 @@ def metrics_dict(selected, refined, rejected, accepted_correct, accepted_unsafe,
         "goodput_per_resource": float(np.sum(accepted_correct) / max(resource, 1e-9)),
         "accuracy": float(np.mean(pred == y)) if n else 0.0,
     }
+    if include_detection:
+        metrics["auroc"] = auroc(np.asarray(risk, dtype=np.float64), np.asarray(unsafe, dtype=bool))
+        metrics["fpr95"] = fpr_at_tpr(np.asarray(risk, dtype=np.float64), np.asarray(unsafe, dtype=bool))
+    return metrics
+
+
+def auroc(scores: np.ndarray, labels: np.ndarray) -> float:
+    pos = scores[labels]
+    neg = scores[~labels]
+    if len(pos) == 0 or len(neg) == 0:
+        return 0.5
+    wins = 0.0
+    for p_score in pos:
+        wins += float(np.sum(p_score > neg)) + 0.5 * float(np.sum(p_score == neg))
+    return float(wins / max(len(pos) * len(neg), 1))
+
+
+def fpr_at_tpr(scores: np.ndarray, labels: np.ndarray, target: float = 0.95) -> float:
+    thresholds = np.unique(scores)[::-1]
+    best = 1.0
+    for threshold in thresholds:
+        pred = scores >= threshold
+        tp = np.sum(np.logical_and(pred, labels))
+        fn = np.sum(np.logical_and(~pred, labels))
+        fp = np.sum(np.logical_and(pred, ~labels))
+        tn = np.sum(np.logical_and(~pred, ~labels))
+        tpr = tp / max(tp + fn, 1)
+        fpr = fp / max(fp + tn, 1)
+        if tpr >= target:
+            best = min(best, fpr)
+    return float(best)
 
 
 def wilson_upper(errors: int, total: int, z: float = 1.64) -> float:
@@ -545,7 +716,7 @@ def wilson_upper(errors: int, total: int, z: float = 1.64) -> float:
 
 
 def candidate_thresholds(risk: np.ndarray) -> np.ndarray:
-    return np.unique(np.quantile(risk, np.linspace(0.0, 1.0, 41)))
+    return np.unique(np.quantile(risk, np.linspace(0.0, 1.0, 25)))
 
 
 def scale01(values: np.ndarray) -> np.ndarray:
