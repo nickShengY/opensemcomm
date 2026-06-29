@@ -1,0 +1,34 @@
+{
+  "common_rows": 11392,
+  "datasets": {
+    "bdd100k": 512,
+    "cifar10": 2432,
+    "cifar100": 6400,
+    "cityscapes": 512,
+    "coco": 512,
+    "deepsense6g": 512,
+    "nuscenes": 512
+  },
+  "deepsense_feature_rows": 512,
+  "features": [
+    "dino",
+    "openclip",
+    "siglip2"
+  ],
+  "regimes": {
+    "channel-open": 384,
+    "class-open": 3264,
+    "closed-id": 768,
+    "full-open": 4344,
+    "resource-open": 384,
+    "source-open": 1204,
+    "task-open": 1044
+  },
+  "tasks": {
+    "beam-prediction": 512,
+    "classification": 8832,
+    "detection": 512,
+    "driving-detection": 1024,
+    "segmentation": 512
+  }
+}

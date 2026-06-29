@@ -102,6 +102,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--train-open", type=int, default=1024)
     p.add_argument("--cal-known-per-class", type=int, default=64)
     p.add_argument("--cal-open", type=int, default=768)
+    p.add_argument("--full-open-severity", default="mild:0.25,medium:0.50,hard:0.75,extreme:0.91")
     return p
 
 
@@ -115,14 +116,18 @@ def main() -> None:
     budgets = [float(x) for x in args.resource_budgets.split(",") if x.strip()]
     output_prefix = Path(args.output_prefix).expanduser().resolve()
     output_prefix.parent.mkdir(parents=True, exist_ok=True)
+    severities = parse_severities(args.full_open_severity)
 
     summary_rows: list[dict] = []
     policy_rows: list[dict] = []
     for seed in seeds:
-        full_split = make_fullopen_split(rows, seed, args)
-        summary_rows.extend(run_task("full-open", full_split, specs, channel, targets, budgets, seed, policy_rows))
-        beam_split = make_deepsense_split(rows, seed)
-        summary_rows.extend(run_task("deepsense-beam", beam_split, specs, channel, targets, budgets, seed, policy_rows))
+        for severity_name, open_fraction in severities:
+            full_split = make_fullopen_split(rows, seed, args, open_fraction)
+            summary_rows.extend(run_task(f"full-open-{severity_name}", full_split, specs, channel, targets, budgets, seed, policy_rows))
+        sector_split = make_deepsense_split(rows, seed, sectors=True)
+        summary_rows.extend(run_task("deepsense-sector", sector_split, specs, channel, targets, budgets, seed, policy_rows))
+        exact_split = make_deepsense_split(rows, seed, sectors=False)
+        summary_rows.extend(run_task("deepsense-exact", exact_split, specs, channel, targets, budgets, seed, policy_rows))
 
     write_csv(output_prefix.with_name(output_prefix.name + "_summary.csv"), summary_rows)
     write_csv(output_prefix.with_name(output_prefix.name + "_policies.csv"), policy_rows)
@@ -145,12 +150,12 @@ def run_task(task_name: str, split: SplitData, specs: dict[str, Path], channel: 
         "ensemble_channel": (make_features(split.train, tuple(specs), channel, True), make_features(split.calibration, tuple(specs), channel, True), make_features(split.eval, tuple(specs), channel, True)),
     }
 
-    dino = fit_model(arrays["dino"][0], train_y, train_open, n_classes, detector_open=(task_name == "full-open"))
-    ens = fit_model(arrays["ensemble"][0], train_y, train_open, n_classes, detector_open=(task_name == "full-open"))
-    ens_ch = fit_model(arrays["ensemble_channel"][0], train_y, train_open, n_classes, detector_open=(task_name == "full-open"))
-    jscc = fit_deepjscc(arrays["dino"][0], train_y, train_open, n_classes, detector_open=(task_name == "full-open"))
-    receiver_ch = fit_receiver(arrays["ensemble_channel"][0], train_y, train_open, n_classes, has_open_class=(task_name == "full-open"), seed=seed)
-    receiver_ens = fit_receiver(arrays["ensemble"][0], train_y, train_open, n_classes, has_open_class=(task_name == "full-open"), seed=seed + 1000)
+    dino = fit_model(arrays["dino"][0], train_y, train_open, n_classes, detector_open=task_name.startswith("full-open"))
+    ens = fit_model(arrays["ensemble"][0], train_y, train_open, n_classes, detector_open=task_name.startswith("full-open"))
+    ens_ch = fit_model(arrays["ensemble_channel"][0], train_y, train_open, n_classes, detector_open=task_name.startswith("full-open"))
+    jscc = fit_deepjscc(arrays["dino"][0], train_y, train_open, n_classes, detector_open=task_name.startswith("full-open"))
+    receiver_ch = fit_receiver(arrays["ensemble_channel"][0], train_y, train_open, n_classes, has_open_class=task_name.startswith("full-open"), seed=seed)
+    receiver_ens = fit_receiver(arrays["ensemble"][0], train_y, train_open, n_classes, has_open_class=task_name.startswith("full-open"), seed=seed + 1000)
 
     dino_cal = score_model(dino, arrays["dino"][1])
     dino_eval = score_model(dino, arrays["dino"][2])
@@ -206,6 +211,22 @@ def run_task(task_name: str, split: SplitData, specs: dict[str, Path], channel: 
             policy_rows.append({"task": task_name, "method": "opensemcom_progressive", "seed": seed, "target_openout": target, "resource_budget": budget, **policy})
             rows.append({"task": task_name, "method": "opensemcom_progressive", "seed": seed, "target_openout": target, "resource_budget": budget, **eval_progressive(core_eval, refine_eval, eval_y, eval_open, policy)})
     return rows
+
+
+def parse_severities(value: str) -> list[tuple[str, float]]:
+    severities: list[tuple[str, float]] = []
+    for item in value.split(","):
+        item = item.strip()
+        if not item:
+            continue
+        name, raw_fraction = item.split(":", 1)
+        fraction = float(raw_fraction)
+        if not 0.0 <= fraction <= 1.0:
+            raise ValueError(f"Invalid severity open fraction: {item}")
+        severities.append((name.strip(), fraction))
+    if not severities:
+        raise ValueError("At least one full-open severity is required")
+    return severities
 
 
 def parse_manifest_specs(values: list[str]) -> dict[str, Path]:
@@ -272,7 +293,7 @@ def row_key(row: dict[str, str]) -> tuple[str, ...]:
     )
 
 
-def make_fullopen_split(rows: list[Row], seed: int, args) -> SplitData:
+def make_fullopen_split(rows: list[Row], seed: int, args, open_fraction: float = 0.50) -> SplitData:
     rng = np.random.default_rng(seed)
     known_all = [r for r in rows if r.known_id]
     open_all = [r for r in rows if r.regime == "full-open" and r.open_exposure]
@@ -289,11 +310,13 @@ def make_fullopen_split(rows: list[Row], seed: int, args) -> SplitData:
     train += open_values[: args.train_open]
     cal += open_values[args.train_open : args.train_open + args.cal_open]
     eval_open = open_values[args.train_open + args.cal_open :]
-    eval_rows = shuffled(eval_known, rng)[: args.eval_size // 2] + shuffled(eval_open, rng)[: args.eval_size // 2]
+    open_n = min(len(eval_open), int(round(args.eval_size * float(open_fraction))))
+    known_n = min(len(eval_known), max(0, args.eval_size - open_n))
+    eval_rows = shuffled(eval_known, rng)[:known_n] + shuffled(eval_open, rng)[:open_n]
     return SplitData(shuffled(train, rng), shuffled(cal, rng), shuffled(eval_rows, rng))
 
 
-def make_deepsense_split(rows: list[Row], seed: int) -> SplitData:
+def make_deepsense_split(rows: list[Row], seed: int, sectors: bool = True) -> SplitData:
     rng = np.random.default_rng(seed)
     ds = [r for r in rows if r.dataset == "deepsense6g" and r.task == "beam-prediction"]
     if len(ds) < 100:
@@ -302,8 +325,11 @@ def make_deepsense_split(rows: list[Row], seed: int) -> SplitData:
     label_rank = {label: idx for idx, label in enumerate(raw_labels)}
     remapped = []
     for r in ds:
-        sector = min(DEEPSENSE_BEAM_SECTORS - 1, int(label_rank[r.label] * DEEPSENSE_BEAM_SECTORS / max(len(raw_labels), 1)))
-        remapped.append(Row(r.key, r.paths, r.raw_source_path, r.dataset, sector, r.task, r.domain, False, r.split, r.regime))
+        if sectors:
+            label = min(DEEPSENSE_BEAM_SECTORS - 1, int(label_rank[r.label] * DEEPSENSE_BEAM_SECTORS / max(len(raw_labels), 1)))
+        else:
+            label = label_rank[r.label]
+        remapped.append(Row(r.key, r.paths, r.raw_source_path, r.dataset, label, r.task, r.domain, False, r.split, r.regime))
     by_label: dict[int, list[Row]] = {}
     for row in remapped:
         by_label.setdefault(row.label, []).append(row)
@@ -318,7 +344,7 @@ def make_deepsense_split(rows: list[Row], seed: int) -> SplitData:
 
 
 def labels_for(task_name: str, rows: list[Row]) -> tuple[np.ndarray, np.ndarray]:
-    if task_name == "full-open":
+    if task_name.startswith("full-open"):
         y = np.asarray([r.label if r.known_id else KNOWN_CLASSES for r in rows], dtype=np.int64)
         open_label = np.asarray([r.open_exposure for r in rows], dtype=bool)
     else:
@@ -602,7 +628,8 @@ def eval_single(scored: Scored, y: np.ndarray, open_label: np.ndarray, threshold
     accepted_correct = np.logical_and(selected, correct)
     accepted_unsafe = np.logical_and(selected, unsafe)
     resource = float(accept_cost * np.sum(selected) + 0.1 * np.sum(rejected))
-    return metrics_dict(selected, np.zeros_like(selected, dtype=bool), rejected, accepted_correct, accepted_unsafe, y, scored.pred, scored.risk, unsafe, resource, include_detection)
+    latency = float(np.sum(selected) + 0.2 * np.sum(rejected))
+    return metrics_dict(selected, np.zeros_like(selected, dtype=bool), rejected, accepted_correct, accepted_unsafe, y, scored.pred, scored.risk, unsafe, resource, latency, include_detection)
 
 
 def select_best_progressive_policy(candidates: dict[str, tuple[Scored, Scored, Scored, Scored]], y: np.ndarray, open_label: np.ndarray, target: float, budget: float) -> dict:
@@ -651,10 +678,11 @@ def eval_progressive(core: Scored, refine: Scored, y: np.ndarray, open_label: np
     accepted_unsafe = np.logical_and(selected, unsafe)
     final_risk = np.where(refine_mask, refine.risk, core.risk)
     resource = float(np.sum(core_accept) + 1.6 * np.sum(refine_mask) + 0.1 * np.sum(resource_rejected))
-    return metrics_dict(selected, refine_mask, rejected, accepted_correct, accepted_unsafe, y, final_pred, final_risk, unsafe, resource, include_detection)
+    latency = float(np.sum(core_accept) + 2.0 * np.sum(refine_mask) + 0.2 * np.sum(resource_rejected))
+    return metrics_dict(selected, refine_mask, rejected, accepted_correct, accepted_unsafe, y, final_pred, final_risk, unsafe, resource, latency, include_detection)
 
 
-def metrics_dict(selected, refined, rejected, accepted_correct, accepted_unsafe, y, pred, risk, unsafe, resource: float, include_detection: bool) -> dict:
+def metrics_dict(selected, refined, rejected, accepted_correct, accepted_unsafe, y, pred, risk, unsafe, resource: float, latency: float, include_detection: bool) -> dict:
     n = len(y)
     accepted = int(np.sum(selected))
     metrics = {
@@ -670,6 +698,10 @@ def metrics_dict(selected, refined, rejected, accepted_correct, accepted_unsafe,
         "resource_units": resource,
         "resource_per_sample": float(resource / max(n, 1)),
         "goodput_per_resource": float(np.sum(accepted_correct) / max(resource, 1e-9)),
+        "latency_units": latency,
+        "latency_per_sample": float(latency / max(n, 1)),
+        "goodput_per_latency": float(np.sum(accepted_correct) / max(latency, 1e-9)),
+        "retransmission_rate": float(np.mean(refined)) if n else 0.0,
         "accuracy": float(np.mean(pred == y)) if n else 0.0,
     }
     if include_detection:
@@ -716,7 +748,7 @@ def wilson_upper(errors: int, total: int, z: float = 1.64) -> float:
 
 
 def candidate_thresholds(risk: np.ndarray) -> np.ndarray:
-    return np.unique(np.quantile(risk, np.linspace(0.0, 1.0, 25)))
+    return np.unique(np.quantile(risk, np.linspace(0.0, 1.0, 11)))
 
 
 def scale01(values: np.ndarray) -> np.ndarray:
