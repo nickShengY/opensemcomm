@@ -21,8 +21,13 @@ class MetricsAccumulator:
     prediction_set_sizes: list[int] = field(default_factory=list)
     channel_uses: int = 0
     correct_accepted: int = 0
+    accepted_samples: int = 0
+    total_bandwidth: float = 0.0
+    total_power: float = 0.0
     total_energy: float = 0.0
     total_latency: float = 0.0
+    total_compute: float = 0.0
+    total_repetitions: int = 0
     decision_counts: Counter[str] = field(default_factory=Counter)
     ood_scores: list[tuple[float, bool]] = field(default_factory=list)
 
@@ -40,6 +45,7 @@ class MetricsAccumulator:
         self.resource_costs.append(breakdown.resource_cost)
         self.task_errors.append(error)
         if accepted:
+            self.accepted_samples += 1
             self.accepted_errors.append(error)
             self.accepted_open_errors.append(float(error > 0.0 or breakdown.unknown_acceptance > 0.0 or breakdown.task_mismatch > 0.0))
             if error == 0.0:
@@ -47,13 +53,19 @@ class MetricsAccumulator:
         self.covered.append(sample.y in output.prediction_set)
         self.prediction_set_sizes.append(len(output.prediction_set))
         self.channel_uses += max(1, len(output.action.layers)) * max(1, output.action.repetitions)
+        self.total_bandwidth += output.action.bandwidth
+        self.total_power += output.action.power
         self.total_energy += output.action.energy
         self.total_latency += output.action.latency
+        self.total_compute += output.action.compute
+        self.total_repetitions += max(1, output.action.repetitions)
         self.decision_counts[output.decision.value] += 1
         self.ood_scores.append((output.risk_score, sample.is_unknown if ood_label is None else ood_label))
 
     def summarize(self, adaptation_harm_rate: float = 0.0, certified_accept_rate: float = 0.0) -> dict[str, float]:
         open_risk = mean(self.risks)
+        num_samples = max(len(self.risks), 1)
+        total_resource_cost = float(np.sum(self.resource_costs))
         return {
             "open_semantic_risk": open_risk,
             "semantic_outage": mean([float(e > 0.0) for e in self.task_errors]),
@@ -62,8 +74,29 @@ class MetricsAccumulator:
             "coverage": mean([float(x) for x in self.covered]),
             "prediction_set_size": mean([float(x) for x in self.prediction_set_sizes]),
             "semantic_goodput": self.correct_accepted / max(self.channel_uses, 1),
+            "accepted_samples": float(self.accepted_samples),
+            "correct_accepted_samples": float(self.correct_accepted),
+            "total_bandwidth": self.total_bandwidth,
+            "avg_bandwidth": self.total_bandwidth / num_samples,
+            "bandwidth_per_accepted": self.total_bandwidth / self.accepted_samples if self.accepted_samples else 0.0,
+            "bandwidth_per_correct_accepted": self.total_bandwidth / self.correct_accepted if self.correct_accepted else 0.0,
+            "goodput_per_bandwidth": self.correct_accepted / max(self.total_bandwidth, 1e-9),
+            "total_resource_cost": total_resource_cost,
+            "avg_resource_cost": mean(self.resource_costs),
+            "resource_cost_per_correct_accepted": total_resource_cost / self.correct_accepted if self.correct_accepted else 0.0,
+            "goodput_per_resource_cost": self.correct_accepted / max(total_resource_cost, 1e-9),
+            "total_power": self.total_power,
+            "avg_power": self.total_power / num_samples,
             "risk_per_joule": open_risk / max(self.total_energy, 1e-9),
-            "risk_latency_product": open_risk * (self.total_latency / max(len(self.risks), 1)),
+            "total_energy": self.total_energy,
+            "avg_energy": self.total_energy / num_samples,
+            "risk_latency_product": open_risk * (self.total_latency / num_samples),
+            "total_latency": self.total_latency,
+            "avg_latency": self.total_latency / num_samples,
+            "total_compute": self.total_compute,
+            "avg_compute": self.total_compute / num_samples,
+            "total_repetitions": float(self.total_repetitions),
+            "avg_repetitions": self.total_repetitions / num_samples,
             "adaptation_harm_rate": adaptation_harm_rate,
             "certified_accept_rate": certified_accept_rate,
             "auroc_ood": auroc(self.ood_scores),
@@ -117,3 +150,4 @@ def open_set_f1(scores_and_labels: list[tuple[float, bool]]) -> float:
     precision = tp / max(tp + fp, 1)
     recall = tp / max(tp + fn, 1)
     return 2 * precision * recall / max(precision + recall, 1e-9)
+

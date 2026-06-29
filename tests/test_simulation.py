@@ -65,3 +65,31 @@ def test_manifest_with_utf8_bom_runs_from_windows_tools(tmp_path):
         dataset_manifest=str(manifest),
     )
     assert len(result.traces) == 2
+
+def test_experiment_reports_resource_usage_metrics(tmp_path):
+    manifest = write_manifest(tmp_path)
+    result = run_experiment(
+        regime=BenchmarkRegime.FULL_OPEN,
+        samples=4,
+        calibration_samples=2,
+        users=2,
+        seed=3,
+        dataset_manifest=str(manifest),
+    )
+    for key in (
+        "total_bandwidth",
+        "avg_bandwidth",
+        "bandwidth_per_accepted",
+        "bandwidth_per_correct_accepted",
+        "goodput_per_bandwidth",
+        "total_resource_cost",
+        "avg_resource_cost",
+        "total_latency",
+        "avg_latency",
+        "total_repetitions",
+        "avg_repetitions",
+    ):
+        assert key in result.metrics
+    assert result.metrics["total_bandwidth"] >= 0.0
+    assert result.metrics["total_resource_cost"] >= 0.0
+    assert result.metrics["total_repetitions"] >= 4.0
