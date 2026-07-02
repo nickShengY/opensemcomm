@@ -52,6 +52,9 @@ def test_closed_id_experiment_has_traces(tmp_path):
     )
     assert len(result.traces) == 2
     assert all("decision" in trace for trace in result.traces)
+    assert all("harq_refinement_rounds" in trace for trace in result.traces)
+    assert all("harq_transmissions" in trace for trace in result.traces)
+    assert all("harq_hit_max_refinements" in trace for trace in result.traces)
 
 
 def test_manifest_with_utf8_bom_runs_from_windows_tools(tmp_path):
@@ -88,8 +91,20 @@ def test_experiment_reports_resource_usage_metrics(tmp_path):
         "avg_latency",
         "total_repetitions",
         "avg_repetitions",
+        "total_harq_refinement_rounds",
+        "avg_harq_refinement_rounds",
+        "harq_refined_sample_rate",
+        "total_harq_transmissions",
+        "avg_harq_transmissions",
+        "total_harq_full_payload_rounds",
+        "avg_harq_full_payload_rounds",
+        "harq_full_payload_sample_rate",
+        "harq_hit_max_refinements_rate",
     ):
         assert key in result.metrics
     assert result.metrics["total_bandwidth"] >= 0.0
     assert result.metrics["total_resource_cost"] >= 0.0
     assert result.metrics["total_repetitions"] >= 4.0
+    assert result.metrics["total_harq_transmissions"] >= 4.0
+    assert 0.0 <= result.metrics["harq_refined_sample_rate"] <= 1.0
+    assert 0.0 <= result.metrics["harq_hit_max_refinements_rate"] <= 1.0

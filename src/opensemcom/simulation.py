@@ -148,7 +148,7 @@ class OpenSemComSystem:
 
     def run(self, samples: list[SemanticSample], channel: WirelessChannel) -> ExperimentResult:
         metrics = MetricsAccumulator()
-        harq = SemanticHARQ(self.encoder, channel, self.receiver)
+        harq = SemanticHARQ(self.encoder, channel, self.receiver, max_refinements=self.config.calibration.max_refinements)
         traces = []
         covered_so_far: list[bool] = []
         adaptation_harm = 0.0
@@ -207,6 +207,9 @@ class OpenSemComSystem:
                     "repetitions": output.action.repetitions,
                     "confidence": float(np.max(output.probabilities)) if output.probabilities.size else 0.0,
                     "features": output.features,
+                    "harq_refinement_rounds": int(output.features.get("harq_refinement_rounds", 0.0)),
+                    "harq_transmissions": int(output.features.get("harq_transmissions", 1.0)),
+                    "harq_hit_max_refinements": bool(int(output.features.get("harq_hit_max_refinements", 0.0))),
                 }
             )
 
@@ -292,3 +295,4 @@ def run_experiment(
     calibration_stream = bench.calibration_samples(calibration_samples)
     system.calibrate(calibration_stream, channel)
     return system.run(bench.samples(samples, users=users), channel)
+

@@ -48,6 +48,7 @@ class CalibrationConfig:
     epsilon_task: float = 0.0
     accept_quantile: float = 0.45
     refine_quantile: float = 0.65
+    max_refinements: int = 3
     min_accept_confidence: float = 0.0
     mixed_open: bool = False
     open_split: str = "open-calibration"
@@ -117,3 +118,4 @@ class OpenSemComConfig:
     resource_weights: ResourceWeights = field(default_factory=ResourceWeights)
     resource_budget: ResourceBudget = field(default_factory=ResourceBudget)
     ablation: AblationConfig = field(default_factory=AblationConfig)
+

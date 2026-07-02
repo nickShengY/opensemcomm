@@ -28,6 +28,10 @@ class MetricsAccumulator:
     total_latency: float = 0.0
     total_compute: float = 0.0
     total_repetitions: int = 0
+    harq_refinement_rounds: list[float] = field(default_factory=list)
+    harq_transmissions: list[float] = field(default_factory=list)
+    harq_full_payload_rounds: list[float] = field(default_factory=list)
+    harq_hit_max_refinements: list[float] = field(default_factory=list)
     decision_counts: Counter[str] = field(default_factory=Counter)
     ood_scores: list[tuple[float, bool]] = field(default_factory=list)
 
@@ -59,6 +63,10 @@ class MetricsAccumulator:
         self.total_latency += output.action.latency
         self.total_compute += output.action.compute
         self.total_repetitions += max(1, output.action.repetitions)
+        self.harq_refinement_rounds.append(float(output.features.get("harq_refinement_rounds", 0.0)))
+        self.harq_transmissions.append(float(output.features.get("harq_transmissions", 1.0)))
+        self.harq_full_payload_rounds.append(float(output.features.get("harq_full_payload_rounds", 0.0)))
+        self.harq_hit_max_refinements.append(float(output.features.get("harq_hit_max_refinements", 0.0)))
         self.decision_counts[output.decision.value] += 1
         self.ood_scores.append((output.risk_score, sample.is_unknown if ood_label is None else ood_label))
 
@@ -97,6 +105,15 @@ class MetricsAccumulator:
             "avg_compute": self.total_compute / num_samples,
             "total_repetitions": float(self.total_repetitions),
             "avg_repetitions": self.total_repetitions / num_samples,
+            "total_harq_refinement_rounds": float(np.sum(self.harq_refinement_rounds)),
+            "avg_harq_refinement_rounds": mean(self.harq_refinement_rounds),
+            "harq_refined_sample_rate": mean([float(x > 0.0) for x in self.harq_refinement_rounds]),
+            "total_harq_transmissions": float(np.sum(self.harq_transmissions)),
+            "avg_harq_transmissions": mean(self.harq_transmissions),
+            "total_harq_full_payload_rounds": float(np.sum(self.harq_full_payload_rounds)),
+            "avg_harq_full_payload_rounds": mean(self.harq_full_payload_rounds),
+            "harq_full_payload_sample_rate": mean([float(x > 0.0) for x in self.harq_full_payload_rounds]),
+            "harq_hit_max_refinements_rate": mean(self.harq_hit_max_refinements),
             "adaptation_harm_rate": adaptation_harm_rate,
             "certified_accept_rate": certified_accept_rate,
             "auroc_ood": auroc(self.ood_scores),
