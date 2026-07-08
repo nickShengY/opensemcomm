@@ -19,6 +19,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Download accessible OpenSemCom datasets to scratch.")
     parser.add_argument("--data-root", default="/home/nickyun/links/scratch/new_study/opensemcom/data")
     parser.add_argument("--ag-news-per-split", type=int, default=512)
+    parser.add_argument("--skip-ag-news", action="store_true")
+    parser.add_argument("--skip-bdd-parquet", action="store_true")
     parser.add_argument("--bdd-images", type=int, default=256)
     parser.add_argument("--skip-bdd-images", action="store_true")
     return parser
@@ -28,9 +30,11 @@ def main() -> None:
     args = build_parser().parse_args()
     data_root = Path(args.data_root).expanduser().resolve()
     data_root.mkdir(parents=True, exist_ok=True)
-    download_hf_parquet(AG_NEWS, data_root / "ag_news" / "parquet")
-    materialize_ag_news_samples(data_root / "ag_news", args.ag_news_per_split)
-    download_hf_parquet(BDD100K, data_root / "bdd100k_hf" / "parquet")
+    if not args.skip_ag_news:
+        download_hf_parquet(AG_NEWS, data_root / "ag_news" / "parquet")
+        materialize_ag_news_samples(data_root / "ag_news", args.ag_news_per_split)
+    if not args.skip_bdd_parquet:
+        download_hf_parquet(BDD100K, data_root / "bdd100k_hf" / "parquet")
     if not args.skip_bdd_images:
         download_bdd_images(data_root / "bdd100k_hf" / "images", args.bdd_images)
 
