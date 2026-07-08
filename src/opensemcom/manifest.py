@@ -13,7 +13,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Iterable
 
-SCRATCH_PREFIXES = ("/scratch/", "/home/nickyun/links/scratch/")
+SCRATCH_PREFIXES = ("/scratch/", "/home/nickyun/links/scratch/", "/lustre10/scratch/")
 REQUIRED_COLUMNS = ("source_path", "label", "task", "domain", "is_unknown", "split", "regime")
 OPTIONAL_COLUMNS = ("dataset", "label_name", "artifact_index", "artifact_key")
 MANIFEST_COLUMNS = REQUIRED_COLUMNS + OPTIONAL_COLUMNS
