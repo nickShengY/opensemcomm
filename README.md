@@ -31,6 +31,8 @@ Goodput is the fraction of all evaluated samples that were both accepted and sem
 
 These figures come from [the latest experiment report](results/final_opensemcom_extra_experiments_20260629.report.md). The report also contains the 1%, 2%, 5%, and 10% risk-goodput operating points, resource budgets, ablations, DeepSense beam-sector results, and exact-beam top-k results.
 
+The complete suite was trained again with checkpoint persistence on July 11, 2026. The regenerated summaries and selected policies are byte-for-byte identical to the published run. All 30 task/seed bundles are versioned under `models/checkpoints/communication_control_20260711/`; see [the reproduction report](results/checkpoint_reproduction_20260711.report.md) for hashes and verification details.
+
 The measured DeepSense evidence is useful but not complete. Scenario 1 contains 2,411 camera/mmWave/GPS rows, while the common DINOv3, SigLIP2, and OpenCLIP feature set currently covers 512 of those rows. Exact top-5 beam accuracy reaches 0.7958 with the DINOv3 logistic model, but safety-calibrated exact-beam goodput is still low. Expanding foundation-feature coverage to all 2,411 rows is the next required wireless experiment.
 
 ## What the System Contains
@@ -56,7 +58,7 @@ Every experiment starts from a CSV manifest. Each row must resolve to a non-empt
 source_path,label,task,domain,is_unknown,split,regime
 ```
 
-The pipeline has no generated-sample path and no placeholder-data path. A run must fail when its manifest is absent, malformed, or points to missing files. Dataset licenses still apply: datasets and model weights remain in scratch storage and are not committed to GitHub.
+The pipeline has no generated-sample path and no placeholder-data path. A run must fail when its manifest is absent, malformed, or points to missing files. Dataset licenses still apply: datasets and downloaded foundation-model weights remain in scratch storage and are not committed to GitHub. Project-trained heads are versioned separately under `models/checkpoints/`.
 
 Validate a manifest before any training or evaluation:
 
@@ -123,6 +125,7 @@ python -m opensemcom.cli.communication_control_suite \
   --feature-manifest siglip2=manifests/opensemcom_real_siglip2_base.csv \
   --feature-manifest openclip=manifests/opensemcom_real_openclip_dfn5b.csv \
   --output-prefix runs/comm_control_extra_experiments_20260629 \
+  --checkpoint-dir models/checkpoints/communication_control_20260711 \
   --seeds 0,1,2,3,4 \
   --targets 0.01,0.02,0.05,0.10 \
   --resource-budgets 0.30,0.45,0.60,0.80,1.00 \
@@ -167,8 +170,9 @@ An accepted-outage target is a constraint, not a score. For example, a row label
 - `runs/` contains seed-level metrics, selected policies, traces, developmental outcomes, and aggregate JSON/CSV files.
 - `logs/` contains Slurm standard output and error logs.
 - `manifests/` contains experiment row definitions and feature-manifest metadata. Paths are Trillium-specific and must be validated after moving the scratch tree.
+- `models/checkpoints/` contains project-trained receiver heads and fitted comparison components. Downloaded backbone weights remain excluded.
 
-The Git repository intentionally excludes datasets, model weights, caches, checkpoints, virtual environments, and temporary files.
+The Git repository intentionally excludes datasets, downloaded foundation-model weights, feature arrays, caches, virtual environments, and temporary files. Project-trained checkpoints under `models/checkpoints/` are versioned for reproducibility.
 
 ## Repository Layout
 
@@ -176,6 +180,7 @@ The Git repository intentionally excludes datasets, model weights, caches, check
 configs/              experiment configurations by open condition
 logs/                 Slurm stdout/stderr retained with the run record
 manifests/             source and feature manifests
+models/checkpoints/    project-trained receiver and comparison model state
 results/               reader-facing reports, tables, plots, and audits
 runs/                  raw and seed-level experiment outputs
 scripts/               setup, download, audit, and exact-beam utilities

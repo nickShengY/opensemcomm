@@ -133,6 +133,7 @@ python -m opensemcom.cli.communication_control_suite \
   --feature-manifest siglip2=manifests/opensemcom_real_siglip2_base.csv \
   --feature-manifest openclip=manifests/opensemcom_real_openclip_dfn5b.csv \
   --output-prefix runs/comm_control_extra_experiments_20260629 \
+  --checkpoint-dir models/checkpoints/communication_control_20260711 \
   --seeds 0,1,2,3,4 \
   --targets 0.01,0.02,0.05,0.10 \
   --resource-budgets 0.30,0.45,0.60,0.80,1.00 \
@@ -150,9 +151,28 @@ Expected raw outputs:
 runs/comm_control_extra_experiments_20260629_summary.csv
 runs/comm_control_extra_experiments_20260629_policies.csv
 runs/comm_control_extra_experiments_20260629_manifest_summary.json
+models/checkpoints/communication_control_20260711/checkpoint_index.json
 ```
 
 The summary contains 4,800 rows: five seeds, six tasks/conditions, four outage targets, five resource budgets, and eight evaluated method/control variants. The policy file records the selected route and thresholds so every reported operating point can be audited.
+
+With `--checkpoint-dir`, each task/seed also saves two OpenSemCom PyTorch receivers, one fitted classical-model bundle, and provenance metadata. Checkpoint writes are atomic: a completed filename is installed only after serialization succeeds.
+
+Load a saved receiver:
+
+```python
+from pathlib import Path
+
+from opensemcom.cli.communication_control_suite import TrainedReceiver
+
+checkpoint = Path(
+    "models/checkpoints/communication_control_20260711/"
+    "full-open-hard/seed_0/receiver_channel.pt"
+)
+receiver = TrainedReceiver.load_checkpoint(checkpoint, device="cpu")
+```
+
+The root `checkpoint_index.json` records every file size and SHA-256 value. See the README inside the checkpoint directory for the complete bundle schema and classical-model loading instructions.
 
 ## 7. DeepSense Exact-Beam Top-k Run
 
@@ -230,6 +250,7 @@ Before declaring a run complete, verify all of the following:
 - Every requested severity, outage target, and resource budget exists.
 - Accepted-outage constraints are checked on evaluation values, not inferred from the requested target name.
 - Aggregate CSV/JSON and report files exist under `results/`.
+- Every saved checkpoint matches the size and SHA-256 recorded in `checkpoint_index.json` and can be loaded.
 - `pytest` passes after code changes.
 
 Useful checks:

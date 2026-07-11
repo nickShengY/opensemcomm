@@ -5,11 +5,12 @@ This directory contains compact, reader-facing outputs derived from the raw file
 ## Recommended Reading Order
 
 1. `final_opensemcom_extra_experiments_20260629.report.md` - current five-seed result, severity ladder, communication metrics, ablations, and DeepSense exact-beam evidence.
-2. `final_opensemcom_extra_experiments_20260629.headline_005.csv` - machine-readable headline points at accepted outage 0.05.
-3. `final_opensemcom_extra_experiments_20260629.ablation_005.csv` - component ablations at the same target.
-4. `final_opensemcom_extra_experiments_20260629.curve_compact.csv` - compact risk-goodput curve values.
-5. `final_opensemcom_deepsense_exact_topk_20260629.csv` - exact beam top-1/top-3/top-5 results.
-6. `final_opensemcom_wireless_report.md` - earlier measured-channel calibration analysis and resource-normalized results.
+2. `checkpoint_reproduction_20260711.report.md` - exact checkpointed reproduction, model inventory, and hash verification.
+3. `final_opensemcom_extra_experiments_20260629.headline_005.csv` - machine-readable headline points at accepted outage 0.05.
+4. `final_opensemcom_extra_experiments_20260629.ablation_005.csv` - component ablations at the same target.
+5. `final_opensemcom_extra_experiments_20260629.curve_compact.csv` - compact risk-goodput curve values.
+6. `final_opensemcom_deepsense_exact_topk_20260629.csv` - exact beam top-1/top-3/top-5 results.
+7. `final_opensemcom_wireless_report.md` - earlier measured-channel calibration analysis and resource-normalized results.
 
 ## Latest Report to Raw-File Mapping
 
@@ -24,6 +25,8 @@ This directory contains compact, reader-facing outputs derived from the raw file
 | `deepsense_scenario1_wireless.csv` and `.json` | Scenario 1 source audit | Counts and completeness of camera/mmWave/GPS artifacts |
 
 The selected policy for each seed, safety target, resource budget, and task is in `../runs/comm_control_extra_experiments_20260629_policies.csv`. This file is necessary to audit the thresholds and route selected on calibration data.
+
+The July 11 checkpointed rerun is in `../runs/comm_control_checkpointed_20260711_*`. Its summary, policies, and manifest summary are byte-for-byte identical to the June 29 files. The corresponding loadable models are under `../models/checkpoints/communication_control_20260711/`.
 
 ## Metric Glossary
 
@@ -56,7 +59,7 @@ Some old raw paths contain development labels that are no longer used in paper l
 - `../runs/` includes seed-level summaries, metrics, traces, diagnostics, selected policies, smoke tests, failed-development outcomes, and aggregate files.
 - `../logs/` includes Slurm standard output and standard error files, including empty error files from successful jobs.
 - `../manifests/` includes the source/feature row definitions used by the experiments. These contain scratch-local paths and must be revalidated on another system.
-- Dataset files, feature arrays, model weights, checkpoints, and caches are intentionally absent from GitHub because of size and licensing constraints.
+- Dataset files, feature arrays, downloaded backbone weights, and caches are intentionally absent from GitHub because of size and licensing constraints. Project-trained checkpoints are versioned under `../models/checkpoints/`.
 - A file being present does not make its experiment a final result. Use the dated report and verification checklist in `../EXPERIMENTS.md` to distinguish complete runs from smoke tests or superseded trials.
 
 ## Integrity Checks

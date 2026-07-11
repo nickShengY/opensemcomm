@@ -12,5 +12,7 @@ dist/
 # reported results can be audited from seed-level outputs and Slurm logs.
 cache/
 data/
-models/
+models/*
+!models/checkpoints/
+!models/checkpoints/**
 tmp/

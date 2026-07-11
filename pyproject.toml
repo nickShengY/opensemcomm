@@ -9,6 +9,7 @@ description = "Risk-certified open-environment semantic communication prototype 
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+  "joblib>=1.3",
   "numpy>=1.24",
   "PyYAML>=6.0",
   "scikit-learn>=1.3",
