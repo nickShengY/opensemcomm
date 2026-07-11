@@ -1,0 +1,97 @@
+{
+  "aggregate": {
+    "accepted": [
+      265.3333333333333,
+      5.686240703077327
+    ],
+    "accepted_known_accuracy": [
+      0.9612612077031554,
+      0.014500235178996
+    ],
+    "accepted_open_outage": [
+      0.03873879229684473,
+      0.014500235178995992
+    ],
+    "auroc": [
+      0.9993709988064237,
+      0.0006957281519689347
+    ],
+    "coverage": [
+      0.2591145833333333,
+      0.005552969436598952
+    ],
+    "fpr95": [
+      0.0,
+      0.0
+    ],
+    "semantic_goodput": [
+      0.2490234375,
+      0.0016914558667664816
+    ]
+  },
+  "rows": [
+    {
+      "accepted": 267.0,
+      "accepted_correct": 256.0,
+      "accepted_known_accuracy": 0.9588014981273408,
+      "accepted_open_outage": 0.04119850187265917,
+      "accepted_unsafe": 11.0,
+      "accuracy": 0.25,
+      "auroc": 0.9985758463541666,
+      "backbone": "dino+siglip2+openclip",
+      "coverage": 0.2607421875,
+      "detector_control": "learned_selective_risk+confirmed_fallback",
+      "fpr95": 0.0,
+      "known_id_accuracy": 1.0,
+      "method": "opensemcom",
+      "open_fraction": 0.75,
+      "seed": 0.0,
+      "semantic_goodput": 0.25,
+      "severity": "hard",
+      "target_openout": "openout<=0.04",
+      "threshold": 0.47711040025030255
+    },
+    {
+      "accepted": 259.0,
+      "accepted_correct": 253.0,
+      "accepted_known_accuracy": 0.9768339768339769,
+      "accepted_open_outage": 0.023166023166023165,
+      "accepted_unsafe": 6.0,
+      "accuracy": 0.2490234375,
+      "auroc": 0.9996693929036459,
+      "backbone": "dino+siglip2+openclip",
+      "coverage": 0.2529296875,
+      "detector_control": "learned_selective_risk+confirmed_fallback",
+      "fpr95": 0.0,
+      "known_id_accuracy": 0.99609375,
+      "method": "opensemcom",
+      "open_fraction": 0.75,
+      "seed": 1.0,
+      "semantic_goodput": 0.2470703125,
+      "severity": "hard",
+      "target_openout": "openout<=0.04",
+      "threshold": 0.3949456852746866
+    },
+    {
+      "accepted": 270.0,
+      "accepted_correct": 256.0,
+      "accepted_known_accuracy": 0.9481481481481482,
+      "accepted_open_outage": 0.05185185185185185,
+      "accepted_unsafe": 14.0,
+      "accuracy": 0.25,
+      "auroc": 0.9998677571614584,
+      "backbone": "dino+siglip2+openclip",
+      "coverage": 0.263671875,
+      "detector_control": "learned_selective_risk+confirmed_fallback",
+      "fpr95": 0.0,
+      "known_id_accuracy": 1.0,
+      "method": "opensemcom",
+      "open_fraction": 0.75,
+      "seed": 2.0,
+      "semantic_goodput": 0.25,
+      "severity": "hard",
+      "target_openout": "openout<=0.04",
+      "threshold": 0.7893091117297426
+    }
+  ]
+}

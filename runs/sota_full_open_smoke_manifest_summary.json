@@ -1,0 +1,24 @@
+{
+  "common_rows": 6784,
+  "features": [
+    "dino",
+    "openclip",
+    "siglip2"
+  ],
+  "regimes": {
+    "closed-id": 384,
+    "full-open": 4344,
+    "source-open": 1012,
+    "task-open": 1044
+  },
+  "rows_by_feature": {
+    "dino": 6784,
+    "openclip": 6784,
+    "siglip2": 6784
+  },
+  "splits": {
+    "calibration": 384,
+    "eval": 5376,
+    "open-calibration": 1024
+  }
+}

@@ -8,15 +8,9 @@ build/
 dist/
 *.egg-info/
 
-# Scratch-local experiment artifacts and downloaded assets.
+# Scratch-local downloaded assets. Experiment records are versioned so that
+# reported results can be audited from seed-level outputs and Slurm logs.
 cache/
 data/
-logs/
 models/
-runs/
 tmp/
-
-# Large generated manifests/results are reproducible from scratch data.
-manifests/*.csv
-manifests/*.json
-!manifests/.gitkeep

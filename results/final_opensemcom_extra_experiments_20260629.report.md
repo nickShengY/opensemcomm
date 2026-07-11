@@ -6,6 +6,42 @@ Scope: 5 seeds, targets 0.01/0.02/0.05/0.10, resource budgets 0.30/0.45/0.60/0.8
 
 Decision rule: accept low-risk samples, refine medium-risk samples once, and reject/open high-risk samples. There is no fallback acceptance rule.
 
+## What This Experiment Asks
+
+The experiment holds the safety requirement fixed and asks how many correct semantic decisions each method can still deliver. A method does not succeed merely by rejecting almost everything: it must keep accepted errors below the requested limit while preserving useful coverage and goodput.
+
+The four full-open settings change only the fraction of evaluation rows exposed to an unknown class, source/domain change, or task change:
+
+| Setting | Open exposure | Plain-language interpretation |
+|---|---:|---|
+| mild | 25% | Most samples resemble the known training setting |
+| medium | 50% | Known and open-exposure samples are balanced |
+| hard | 75% | Open exposure is the majority condition |
+| extreme | 91% | Almost every sample carries at least one open exposure |
+
+The reported OpenSemCom row uses the trained receiver and risk head, the DINOv3/SigLIP2/OpenCLIP feature routes available to the controller, measured DeepSense metadata when applicable, and calibrated accept/refine/reject control. The code calls this row `opensemcom_progressive`; “progressive” describes the low-risk accept, medium-risk refine, and high-risk reject sequence.
+
+## Metric Definitions
+
+For `N` evaluation samples:
+
+```text
+Coverage = accepted / N
+Accepted OpenOut = unsafe accepted / accepted
+Semantic goodput = correct accepted / N
+Accepted accuracy = correct accepted / accepted
+```
+
+An unsafe accepted decision is either an accepted open-exposure sample or an accepted incorrect semantic prediction. AUROC measures risk-score ranking before a threshold is selected; FPR95 measures how many safe samples are incorrectly flagged when 95% of unsafe samples are detected. Resource, latency, and retransmission values are controlled communication-cost units from the experiment, not physical joules or measured milliseconds.
+
+To compare rows at `Accepted OpenOut <= 0.05`, first verify that the observed OpenOut is no greater than 0.05, then compare goodput. Coverage and accepted count explain how aggressively a method rejects; accepted accuracy explains the quality of what remains.
+
+## Headline Interpretation
+
+At the 5% limit, OpenSemCom has higher goodput than the best listed comparison in every severity level: 0.5816 versus 0.5384 in mild, 0.4154 versus 0.3846 in medium, 0.2416 versus 0.2234 in hard, and 0.0879 versus 0.0818 in extreme. The absolute goodput declines with severity because the maximum safe coverage shrinks as open exposure rises. The extreme result remains feasible, but only about 9% of inputs are accepted.
+
+The result supports the narrower technical observation that learned risk-aware control recovers additional correct accepted decisions at matched safety in this manifest and split design. It does not by itself establish generalization to every wireless deployment, and the exact-beam experiment remains limited by the 512-row common feature subset.
+
 ## Headline at target accepted outage <= 0.05
 
 ### full-open-mild, resource budget 0.45

@@ -1,0 +1,57 @@
+{
+  "indexed_rows": 0,
+  "regimes": {
+    "channel-open": 384,
+    "class-open": 3264,
+    "closed-id": 1024,
+    "full-open": 4344,
+    "resource-open": 384,
+    "source-open": 1204,
+    "task-open": 1300
+  },
+  "rows": 11904,
+  "splits": {
+    "calibration": 640,
+    "eval": 11264
+  }
+}
+
+scontrol show job 604988
+JobId=604988 JobName=osc-clip-full
+   UserId=nickyun(3149997) GroupId=nickyun(3149997) MCS_label=N/A
+   Priority=10474194 Nice=0 Account=def-pingw QOS=normal
+   JobState=COMPLETING Reason=NonZeroExitCode Dependency=(null)
+   Requeue=0 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=1:0
+   RunTime=00:00:19 TimeLimit=01:00:00 TimeMin=N/A
+   SubmitTime=2026-06-17T17:33:35 EligibleTime=2026-06-17T17:33:35
+   AccrueTime=2026-06-17T17:33:35
+   StartTime=2026-06-17T17:33:36 EndTime=2026-06-17T17:33:55 Deadline=N/A
+   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-06-17T17:33:36 Scheduler=Main
+   Partition=debug AllocNode:Sid=trig-login01:451707
+   ReqNodeList=(null) ExcNodeList=(null)
+   NodeList=trig0001
+   BatchHost=trig0001
+   NumNodes=1 NumCPUs=4 NumTasks=1 CPUs/Task=4 ReqB:S:C:T=0:0:*:*
+   ReqTRES=cpu=4,mem=192500M,node=1,billing=1,gres/gpu=1
+   AllocTRES=cpu=4,mem=192500M,node=1,billing=1,gres/gpu=1
+   Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=*
+   MinCPUsNode=4 MinMemoryNode=192500M MinTmpDiskNode=0
+   Features=(null) DelayBoot=00:00:00
+   OverSubscribe=OK Contiguous=0 Licenses=(null) LicensesAlloc=(null) Network=(null)
+   Command=/scratch/nickyun/new_study/opensemcom/slurm/eval_opensemcom_clip_full.slurm
+   SubmitLine=SBATCH --comment /opt/slurm/bin/sbatch --export=NONE --get-user-env --partition=debug --time=01:00:00 slurm/eval_opensemcom_clip_full.slurm --export=NONE --get-user-env --partition=debug --time=01:00:00 slurm/eval_opensemcom_clip_full.slurm
+   WorkDir=/scratch/nickyun/new_study/opensemcom
+   Comment=/opt/slurm/bin/sbatch --export=NONE --get-user-env --partition=debug --time=01:00:00 slurm/eval_opensemcom_clip_full.slurm
+   StdErr=/home/nickyun/links/scratch/new_study/opensemcom/logs/osc-clip-full-604988.err
+   StdIn=/dev/null
+   StdOut=/home/nickyun/links/scratch/new_study/opensemcom/logs/osc-clip-full-604988.out
+   TresPerNode=gres/gpu:1
+   TresPerTask=cpu=4
+
+sacct -j 604988
+JobID           JobName    Account    Elapsed  MaxVMSize     MaxRSS  SystemCPU    UserCPU ExitCode 
+------------ ---------- ---------- ---------- ---------- ---------- ---------- ---------- -------- 
+604988       osc-clip-+  def-pingw   00:00:19                        00:01.548  00:01.688      1:0 
+604988.batch      batch  def-pingw   00:00:19          0    131896K  00:01.548  00:01.688      1:0 
+604988.exte+     extern  def-pingw   00:00:19                         00:00:00   00:00:00      0:0 
+

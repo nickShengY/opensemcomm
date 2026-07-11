@@ -1,0 +1,44 @@
+initializing model=openai/clip-vit-base-patch32 device=cpu
+loading processor from local cache
+loading model from local cache
+initialized model=openai/clip-vit-base-patch32 resolved_device=cpu
+
+scontrol show job 604978
+JobId=604978 JobName=osc-clip-feats
+   UserId=nickyun(3149997) GroupId=nickyun(3149997) MCS_label=N/A
+   Priority=10475973 Nice=0 Account=def-pingw QOS=normal
+   JobState=COMPLETING Reason=NonZeroExitCode Dependency=(null)
+   Requeue=0 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=1:0
+   RunTime=00:00:16 TimeLimit=01:00:00 TimeMin=N/A
+   SubmitTime=2026-06-17T17:20:38 EligibleTime=2026-06-17T17:20:38
+   AccrueTime=2026-06-17T17:20:38
+   StartTime=2026-06-17T17:20:41 EndTime=2026-06-17T17:20:57 Deadline=N/A
+   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-06-17T17:20:41 Scheduler=Main
+   Partition=debug AllocNode:Sid=trig-login01:301783
+   ReqNodeList=(null) ExcNodeList=(null)
+   NodeList=trig0001
+   BatchHost=trig0001
+   NumNodes=1 NumCPUs=4 NumTasks=1 CPUs/Task=4 ReqB:S:C:T=0:0:*:*
+   ReqTRES=cpu=4,mem=192500M,node=1,billing=1,gres/gpu=1
+   AllocTRES=cpu=4,mem=192500M,node=1,billing=1,gres/gpu=1
+   Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=*
+   MinCPUsNode=4 MinMemoryNode=192500M MinTmpDiskNode=0
+   Features=(null) DelayBoot=00:00:00
+   OverSubscribe=OK Contiguous=0 Licenses=(null) LicensesAlloc=(null) Network=(null)
+   Command=/scratch/nickyun/new_study/opensemcom/slurm/extract_clip_features.slurm
+   SubmitLine=SBATCH --comment /opt/slurm/bin/sbatch --export=NONE --get-user-env --partition=debug --time=01:00:00 --export=ALL,OPENSEMCOM_FEATURE_BATCH_SIZE=16,OPENSEMCOM_FEATURE_DEVICE=cpu,HF_HUB_OFFLINE=1 slurm/extract_clip_features.slurm --export=NONE --get-user-env --partition=debug --time=01:00:00 --export=ALL,OPENSEMCOM_FEATURE_BATCH_SIZE=16,OPENSEMCOM_FEATURE_DEVICE=cpu,HF_HUB_OFFLINE=1 slurm/extract_clip_features.slurm
+   WorkDir=/scratch/nickyun/new_study/opensemcom
+   Comment=/opt/slurm/bin/sbatch --export=NONE --get-user-env --partition=debug --time=01:00:00 --export=ALL,OPENSEMCOM_FEATURE_BATCH_SIZE=16,OPENSEMCOM_FEATURE_DEVICE=cpu,HF_HUB_OFFLINE=1 slurm/extract_clip_features.slurm
+   StdErr=/home/nickyun/links/scratch/new_study/opensemcom/logs/osc-clip-feats-604978.err
+   StdIn=/dev/null
+   StdOut=/home/nickyun/links/scratch/new_study/opensemcom/logs/osc-clip-feats-604978.out
+   TresPerNode=gres/gpu:1
+   TresPerTask=cpu=4
+
+sacct -j 604978
+JobID           JobName    Account    Elapsed  MaxVMSize     MaxRSS  SystemCPU    UserCPU ExitCode 
+------------ ---------- ---------- ---------- ---------- ---------- ---------- ---------- -------- 
+604978       osc-clip-+  def-pingw   00:00:16                         00:00:00   00:00:00      0:0 
+604978.batch      batch  def-pingw   00:00:16                         00:00:00   00:00:00      0:0 
+604978.exte+     extern  def-pingw   00:00:16                         00:00:00   00:00:00      0:0 
+

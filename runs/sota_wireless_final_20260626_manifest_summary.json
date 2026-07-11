@@ -1,0 +1,32 @@
+{
+  "common_rows": 11392,
+  "features": [
+    "dino",
+    "openclip",
+    "siglip2"
+  ],
+  "regimes": {
+    "channel-open": 384,
+    "class-open": 3264,
+    "closed-id": 768,
+    "full-open": 4344,
+    "resource-open": 384,
+    "source-open": 1204,
+    "task-open": 1044
+  },
+  "rows_by_feature": {
+    "dino": 11392,
+    "openclip": 11392,
+    "siglip2": 11392
+  },
+  "splits": {
+    "calibration": 384,
+    "eval": 9984,
+    "open-calibration": 1024
+  },
+  "wireless_context": {
+    "camera_indexed_samples": 2411,
+    "enabled": true,
+    "samples": 2411
+  }
+}

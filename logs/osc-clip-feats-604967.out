@@ -1,0 +1,40 @@
+
+scontrol show job 604967
+JobId=604967 JobName=osc-clip-feats
+   UserId=nickyun(3149997) GroupId=nickyun(3149997) MCS_label=N/A
+   Priority=10475973 Nice=0 Account=def-pingw QOS=normal
+   JobState=COMPLETING Reason=None Dependency=(null)
+   Requeue=0 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:15
+   RunTime=00:04:08 TimeLimit=01:00:00 TimeMin=N/A
+   SubmitTime=2026-06-17T17:06:05 EligibleTime=2026-06-17T17:06:05
+   AccrueTime=2026-06-17T17:06:05
+   StartTime=2026-06-17T17:07:15 EndTime=2026-06-17T17:11:23 Deadline=N/A
+   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-06-17T17:07:15 Scheduler=Main
+   Partition=debug AllocNode:Sid=trig-login01:188799
+   ReqNodeList=(null) ExcNodeList=(null)
+   NodeList=trig0001
+   BatchHost=trig0001
+   NumNodes=1 NumCPUs=4 NumTasks=1 CPUs/Task=4 ReqB:S:C:T=0:0:*:*
+   ReqTRES=cpu=4,mem=192500M,node=1,billing=1,gres/gpu=1
+   AllocTRES=cpu=4,mem=192500M,node=1,billing=1,gres/gpu=1
+   Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=*
+   MinCPUsNode=4 MinMemoryNode=192500M MinTmpDiskNode=0
+   Features=(null) DelayBoot=00:00:00
+   OverSubscribe=OK Contiguous=0 Licenses=(null) LicensesAlloc=(null) Network=(null)
+   Command=/scratch/nickyun/new_study/opensemcom/slurm/extract_clip_features.slurm
+   SubmitLine=SBATCH --comment /opt/slurm/bin/sbatch --export=NONE --get-user-env --partition=debug --time=01:00:00 slurm/extract_clip_features.slurm --export=NONE --get-user-env --partition=debug --time=01:00:00 slurm/extract_clip_features.slurm
+   WorkDir=/scratch/nickyun/new_study/opensemcom
+   Comment=/opt/slurm/bin/sbatch --export=NONE --get-user-env --partition=debug --time=01:00:00 slurm/extract_clip_features.slurm
+   StdErr=/home/nickyun/links/scratch/new_study/opensemcom/logs/osc-clip-feats-604967.err
+   StdIn=/dev/null
+   StdOut=/home/nickyun/links/scratch/new_study/opensemcom/logs/osc-clip-feats-604967.out
+   TresPerNode=gres/gpu:1
+   TresPerTask=cpu=4
+
+sacct -j 604967
+JobID           JobName    Account    Elapsed  MaxVMSize     MaxRSS  SystemCPU    UserCPU ExitCode 
+------------ ---------- ---------- ---------- ---------- ---------- ---------- ---------- -------- 
+604967       osc-clip-+  def-pingw   00:04:08                        00:01.017  00:02.012      0:0 
+604967.batch      batch  def-pingw   00:04:09          0   1116880K  00:01.017  00:02.012     0:15 
+604967.exte+     extern  def-pingw   00:04:10                         00:00:00   00:00:00      0:0 
+
