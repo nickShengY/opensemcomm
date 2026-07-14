@@ -1,0 +1,46 @@
+{
+  "calibration_samples": 16,
+  "dataset_manifest": "/scratch/nickyun/new_study/opensemcom/manifests/opensemcom_real.csv",
+  "decisions": {
+    "accept": 16
+  },
+  "evaluated_samples": 16,
+  "manifest_summary": {
+    "indexed_rows": 8832,
+    "regimes": {
+      "channel-open": 384,
+      "class-open": 3264,
+      "closed-id": 1024,
+      "full-open": 4344,
+      "resource-open": 384,
+      "source-open": 1204,
+      "task-open": 1300
+    },
+    "rows": 11904,
+    "splits": {
+      "calibration": 640,
+      "eval": 11264
+    }
+  },
+  "metrics": {
+    "accuracy": 0.125,
+    "adaptation_harm_rate": 0.0,
+    "auroc_ood": 0.5,
+    "certified_accept_rate": 0.0,
+    "coverage": 0.625,
+    "fpr95": 1.0,
+    "open_semantic_outage": 0.875,
+    "open_semantic_risk": 1.2935199730824731,
+    "open_set_f1": 0.0,
+    "prediction_set_size": 4.1875,
+    "risk_latency_product": 2.328335951548452,
+    "risk_per_joule": 0.04755588136332623,
+    "semantic_goodput": 0.041666666666666664,
+    "semantic_outage": 0.875
+  },
+  "name": "smoke_train_604543",
+  "regime": "closed-id",
+  "samples": 16,
+  "seed": 0,
+  "users": 2
+}

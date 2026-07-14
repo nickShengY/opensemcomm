@@ -1,0 +1,47 @@
+{
+  "feature_manifests": {
+    "dino": {
+      "bytes": 4537996,
+      "path": "/scratch/nickyun/new_study/opensemcom/manifests/opensemcom_real_dinov3_mixed_open_calibration.csv",
+      "sha256": "24c6481a739788f84f9046986f1e71adef20ba533504d93625a9031dbd8729de"
+    },
+    "openclip": {
+      "bytes": 3400493,
+      "path": "/scratch/nickyun/new_study/opensemcom/manifests/opensemcom_real_openclip_dfn5b.csv",
+      "sha256": "857fa7b4f6e1ad2c9833fe19271f7bb8c980055a71311435830974cbffef5a89"
+    },
+    "siglip2": {
+      "bytes": 3448109,
+      "path": "/scratch/nickyun/new_study/opensemcom/manifests/opensemcom_real_siglip2_base.csv",
+      "sha256": "686100be6aafef26f96592c5299ae2b480629c85eed66d6973e4637be612d91b"
+    }
+  },
+  "files": {
+    "classical_models.joblib": {
+      "bytes": 613133,
+      "sha256": "2649b6eb54dfc78e210b005201af856dec64ea7a4c6357d009eba3527c51aa34"
+    },
+    "receiver_channel.pt": {
+      "bytes": 2929961,
+      "sha256": "97712a296f2bbd24184ad29f8e98aba9ed1c0f626ee68fff0f02eee7399f0418"
+    },
+    "receiver_no_channel.pt": {
+      "bytes": 2922917,
+      "sha256": "0aae6682601de414980df02eb28c1a868e33cd8b0d998753610adec0d5eefd8f"
+    }
+  },
+  "format_version": 1,
+  "n_classes": 7,
+  "seed": 1,
+  "split_key_sha256": {
+    "calibration": "d2ffe37894144c6dd735ef5ca02fde73e693014dbb72ba9126801a0a0f1b31db",
+    "eval": "d1a79d9c5261f2d9292ab4c1fe752bab2fe66a5c1c7ee07b80cef2cc558c8075",
+    "train": "adebe504057f6c266af9f013d39ad04fc78da3cf21e6694f00bbdd65e1f93b2d"
+  },
+  "split_rows": {
+    "calibration": 1152,
+    "eval": 1024,
+    "train": 2176
+  },
+  "task": "full-open-hard"
+}

@@ -1,0 +1,7138 @@
+[
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 0,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.21999999999999997,
+    "repetitions": 1,
+    "risk_score": 0.2488153013067919,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 1,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2575,
+    "repetitions": 1,
+    "risk_score": 0.2339871240589737,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 2,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.21999999999999997,
+    "repetitions": 1,
+    "risk_score": 0.23545930273826668,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 3,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2375,
+    "repetitions": 1,
+    "risk_score": 0.20837970569131717,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 4,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.21999999999999997,
+    "repetitions": 1,
+    "risk_score": 0.39338480396819453,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 5,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20416666666666666,
+    "repetitions": 1,
+    "risk_score": 0.22345509242770228,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 6,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.18035714285714294,
+    "repetitions": 1,
+    "risk_score": 0.25946321248815546,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 7,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.16250000000000003,
+    "repetitions": 1,
+    "risk_score": 0.22310425690252522,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 8,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.1486111111111112,
+    "repetitions": 1,
+    "risk_score": 0.21511701810812617,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 9,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.1375,
+    "repetitions": 1,
+    "risk_score": 0.24184643862545455,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 10,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20181818181818179,
+    "repetitions": 1,
+    "risk_score": 0.3822257996238767,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 11,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.27,
+    "repetitions": 1,
+    "risk_score": 0.29359581052229866,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 12,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.26826923076923076,
+    "repetitions": 1,
+    "risk_score": 0.2450973313809457,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 13,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.25178571428571433,
+    "repetitions": 1,
+    "risk_score": 0.21105034332489225,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 14,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.28666666666666674,
+    "repetitions": 1,
+    "risk_score": 0.23856034947917173,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 15,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.28750000000000003,
+    "repetitions": 1,
+    "risk_score": 0.22944128861016563,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 16,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2552941176470589,
+    "repetitions": 1,
+    "risk_score": 0.25115276542125525,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 17,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2977777777777778,
+    "repetitions": 1,
+    "risk_score": 0.3427187278821322,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 18,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.3006578947368422,
+    "repetitions": 1,
+    "risk_score": 0.21496329029484335,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 19,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.32000000000000006,
+    "repetitions": 1,
+    "risk_score": 0.27178497359649195,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 20,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.32321428571428573,
+    "repetitions": 1,
+    "risk_score": 0.21511357794900124,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 21,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.31022727272727274,
+    "repetitions": 1,
+    "risk_score": 0.2227684390346046,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 22,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.32434782608695656,
+    "repetitions": 1,
+    "risk_score": 0.3292798928111621,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 23,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.32916666666666666,
+    "repetitions": 1,
+    "risk_score": 0.21150077782112178,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 24,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.33999999999999997,
+    "repetitions": 1,
+    "risk_score": 0.23809446488494349,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 25,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.34519230769230774,
+    "repetitions": 1,
+    "risk_score": 0.22677370551263218,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 26,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.3337962962962963,
+    "repetitions": 1,
+    "risk_score": 0.21125394104029285,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 27,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.37892857142857145,
+    "repetitions": 1,
+    "risk_score": 0.41671452551926047,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 28,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.3823275862068966,
+    "repetitions": 1,
+    "risk_score": 0.25841653700655026,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 29,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.3533333333333334,
+    "repetitions": 1,
+    "risk_score": 0.22750950976720782,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 30,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.3600806451612904,
+    "repetitions": 1,
+    "risk_score": 0.230653140344214,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 31,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.40125000000000005,
+    "repetitions": 1,
+    "risk_score": 0.3003712196191357,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 32,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.3708333333333334,
+    "repetitions": 1,
+    "risk_score": 0.22772151629244114,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 33,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.34352941176470586,
+    "repetitions": 1,
+    "risk_score": 0.23281989743152778,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 34,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.3517857142857143,
+    "repetitions": 1,
+    "risk_score": 0.23183906567823956,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 35,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.3533333333333334,
+    "repetitions": 1,
+    "risk_score": 0.37571214110547646,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 36,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.3618243243243244,
+    "repetitions": 1,
+    "risk_score": 0.21478737016430569,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 37,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.35328947368421054,
+    "repetitions": 1,
+    "risk_score": 0.21438322806523782,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 38,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.34519230769230774,
+    "repetitions": 1,
+    "risk_score": 0.23691478062612115,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 39,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.3375000000000001,
+    "repetitions": 1,
+    "risk_score": 0.2184207361156769,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 40,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.33018292682926836,
+    "repetitions": 1,
+    "risk_score": 0.22695410687672765,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 41,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.32321428571428573,
+    "repetitions": 1,
+    "risk_score": 0.21186129217530855,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 42,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.31656976744186055,
+    "repetitions": 1,
+    "risk_score": 0.22134769088964598,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 43,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.31545454545454543,
+    "repetitions": 1,
+    "risk_score": 0.41100926185778797,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 44,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.3463888888888889,
+    "repetitions": 1,
+    "risk_score": 0.22934313942353374,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 45,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.30260869565217396,
+    "repetitions": 1,
+    "risk_score": 0.23147198796580076,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 46,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.31409574468085105,
+    "repetitions": 1,
+    "risk_score": 0.20995124019292993,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 47,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.3083333333333334,
+    "repetitions": 1,
+    "risk_score": 0.21542134651321437,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 48,
+    "layers": [
+      "core"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.26530612244897955,
+    "repetitions": 1,
+    "risk_score": 0.22082128761880235,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 49,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.29750000000000004,
+    "repetitions": 1,
+    "risk_score": 0.20914678572614379,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 50,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.29450980392156867,
+    "repetitions": 1,
+    "risk_score": 0.40619061695372993,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 51,
+    "layers": [
+      "core"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2692307692307693,
+    "repetitions": 1,
+    "risk_score": 0.22261937976324717,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 52,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2841509433962265,
+    "repetitions": 1,
+    "risk_score": 0.23672498617611884,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 53,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.29675925925925933,
+    "repetitions": 1,
+    "risk_score": 0.23030104131378484,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 54,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.29204545454545455,
+    "repetitions": 1,
+    "risk_score": 0.21779926696595764,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 55,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.28750000000000003,
+    "repetitions": 1,
+    "risk_score": 0.23581495310115583,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 56,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2656140350877193,
+    "repetitions": 1,
+    "risk_score": 0.23877590526035056,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 57,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.27887931034482766,
+    "repetitions": 1,
+    "risk_score": 0.22034084325954167,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 58,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2947881355932204,
+    "repetitions": 1,
+    "risk_score": 0.23522546731083444,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 59,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2708333333333333,
+    "repetitions": 1,
+    "risk_score": 0.21593440802549868,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 60,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.26700819672131154,
+    "repetitions": 1,
+    "risk_score": 0.22667020671468074,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 61,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2833064516129033,
+    "repetitions": 1,
+    "risk_score": 0.2309606024311369,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 62,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.25972222222222224,
+    "repetitions": 1,
+    "risk_score": 0.22880476943293923,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 63,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.25625000000000003,
+    "repetitions": 1,
+    "risk_score": 0.21048330591805509,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 64,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.23538461538461541,
+    "repetitions": 1,
+    "risk_score": 0.25210596614271585,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 65,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2472727272727273,
+    "repetitions": 1,
+    "risk_score": 0.2781557320024353,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 66,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2613805970149254,
+    "repetitions": 1,
+    "risk_score": 0.235848930551857,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 67,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2552941176470589,
+    "repetitions": 1,
+    "risk_score": 0.2959103654486211,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 68,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2838768115942029,
+    "repetitions": 1,
+    "risk_score": 0.250769892956359,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 69,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2803571428571429,
+    "repetitions": 1,
+    "risk_score": 0.21315836005343564,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 70,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2769366197183099,
+    "repetitions": 1,
+    "risk_score": 0.2077500240197393,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 71,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.27,
+    "repetitions": 1,
+    "risk_score": 0.34859374190297465,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 72,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.28407534246575344,
+    "repetitions": 1,
+    "risk_score": 0.22954759960912155,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 73,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.28074324324324323,
+    "repetitions": 1,
+    "risk_score": 0.23162741854643862,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 74,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2775,
+    "repetitions": 1,
+    "risk_score": 0.21287247628099418,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 75,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2943421052631579,
+    "repetitions": 1,
+    "risk_score": 0.2307637791439731,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 76,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.27126623376623377,
+    "repetitions": 1,
+    "risk_score": 0.21019266731581587,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 77,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.26358974358974363,
+    "repetitions": 1,
+    "risk_score": 0.3714864429878194,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 78,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.27800632911392403,
+    "repetitions": 1,
+    "risk_score": 0.23382944588781496,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 79,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.27,
+    "repetitions": 1,
+    "risk_score": 0.2886639074367311,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 80,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2844135802469136,
+    "repetitions": 1,
+    "risk_score": 0.2128628331337196,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 81,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.26390243902439026,
+    "repetitions": 1,
+    "risk_score": 0.244151439671359,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 82,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.27301204819277114,
+    "repetitions": 1,
+    "risk_score": 0.30747646630408887,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 83,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.28750000000000003,
+    "repetitions": 1,
+    "risk_score": 0.23562500270430015,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 84,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2788235294117647,
+    "repetitions": 1,
+    "risk_score": 0.3125404218133574,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 85,
+    "layers": [
+      "core"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2558139534883721,
+    "repetitions": 1,
+    "risk_score": 0.2204099387232276,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 86,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.28436781609195405,
+    "repetitions": 1,
+    "risk_score": 0.29783065428904365,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 87,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2988636363636364,
+    "repetitions": 1,
+    "risk_score": 0.21674573963982366,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 88,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2784269662921348,
+    "repetitions": 1,
+    "risk_score": 0.23310530880218813,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 89,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.29305555555555557,
+    "repetitions": 1,
+    "risk_score": 0.22045978491000562,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 90,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.32123626373626374,
+    "repetitions": 1,
+    "risk_score": 0.3427516826738056,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 91,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2983695652173914,
+    "repetitions": 1,
+    "risk_score": 0.22162801378906646,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 92,
+    "layers": [
+      "core"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.25806451612903225,
+    "repetitions": 1,
+    "risk_score": 0.22250957699922128,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 93,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.3234574468085107,
+    "repetitions": 1,
+    "risk_score": 0.3740779665711355,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 94,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.28315789473684216,
+    "repetitions": 1,
+    "risk_score": 0.24994040173211426,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 95,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.29791666666666666,
+    "repetitions": 1,
+    "risk_score": 0.22225933859937644,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 96,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2777319587628866,
+    "repetitions": 1,
+    "risk_score": 0.24865611262156467,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 97,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2926020408163265,
+    "repetitions": 1,
+    "risk_score": 0.21509230132576432,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 98,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2900252525252525,
+    "repetitions": 1,
+    "risk_score": 0.2184520519449801,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 99,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.28750000000000003,
+    "repetitions": 1,
+    "risk_score": 0.2091649598945436,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 100,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.28502475247524756,
+    "repetitions": 1,
+    "risk_score": 0.21300677574386925,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 101,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2650980392156863,
+    "repetitions": 1,
+    "risk_score": 0.24264425036225015,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 102,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2802184466019418,
+    "repetitions": 1,
+    "risk_score": 0.21961596881348258,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 103,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.27788461538461545,
+    "repetitions": 1,
+    "risk_score": 0.21692132000192832,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 104,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.27559523809523817,
+    "repetitions": 1,
+    "risk_score": 0.2127697531977765,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 105,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.27334905660377357,
+    "repetitions": 1,
+    "risk_score": 0.2144640381621218,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 106,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.27114485981308417,
+    "repetitions": 1,
+    "risk_score": 0.22857538441502304,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 107,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2607407407407407,
+    "repetitions": 1,
+    "risk_score": 0.2562561601093625,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 108,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.27603211009174317,
+    "repetitions": 1,
+    "risk_score": 0.23245783583243027,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 109,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.27386363636363636,
+    "repetitions": 1,
+    "risk_score": 0.23275318816351423,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 110,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2717342342342343,
+    "repetitions": 1,
+    "risk_score": 0.2197213499138752,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 111,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.26964285714285713,
+    "repetitions": 1,
+    "risk_score": 0.22355488501862114,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 112,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2500884955752213,
+    "repetitions": 1,
+    "risk_score": 0.2645443568492325,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 113,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.26557017543859657,
+    "repetitions": 1,
+    "risk_score": 0.21092703864557588,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 114,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2635869565217392,
+    "repetitions": 1,
+    "risk_score": 0.21735120464843824,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 115,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2616379310344828,
+    "repetitions": 1,
+    "risk_score": 0.24381357887674523,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 116,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.25076923076923074,
+    "repetitions": 1,
+    "risk_score": 0.34461302047721,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 117,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2663135593220339,
+    "repetitions": 1,
+    "risk_score": 0.22217821322381984,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 118,
+    "layers": [
+      "core"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.226890756302521,
+    "repetitions": 1,
+    "risk_score": 0.2232041076893454,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 119,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2625,
+    "repetitions": 1,
+    "risk_score": 0.230616885535553,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 120,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.26064049586776866,
+    "repetitions": 1,
+    "risk_score": 0.23741683834567145,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 121,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2588114754098361,
+    "repetitions": 1,
+    "risk_score": 0.21251198008907254,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 122,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2570121951219512,
+    "repetitions": 1,
+    "risk_score": 0.23792446184556645,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 123,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.25524193548387103,
+    "repetitions": 1,
+    "risk_score": 0.2396331897745004,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 124,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2535,
+    "repetitions": 1,
+    "risk_score": 0.22225829784311743,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 125,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.25178571428571433,
+    "repetitions": 1,
+    "risk_score": 0.2491870704164321,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 126,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.24047244094488196,
+    "repetitions": 1,
+    "risk_score": 0.2839418132480029,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 127,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.25625000000000003,
+    "repetitions": 1,
+    "risk_score": 0.23592115008519757,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 128,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2745542635658916,
+    "repetitions": 1,
+    "risk_score": 0.24449769072731165,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 129,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.24307692307692308,
+    "repetitions": 1,
+    "risk_score": 0.4183186076718123,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 130,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.28650763358778636,
+    "repetitions": 1,
+    "risk_score": 0.3277606862605108,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 131,
+    "layers": [
+      "core"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.22727272727272732,
+    "repetitions": 1,
+    "risk_score": 0.22116176438567392,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 132,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2630639097744361,
+    "repetitions": 1,
+    "risk_score": 0.23534414150677516,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 133,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.25134328358208957,
+    "repetitions": 1,
+    "risk_score": 0.28646733672641006,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 134,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.26712962962962966,
+    "repetitions": 1,
+    "risk_score": 0.21952376268251927,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 135,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2552941176470589,
+    "repetitions": 1,
+    "risk_score": 0.27494152584389514,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 136,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2710766423357665,
+    "repetitions": 1,
+    "risk_score": 0.21371958335099892,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 137,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.26938405797101456,
+    "repetitions": 1,
+    "risk_score": 0.2213969566233533,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 138,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2502158273381295,
+    "repetitions": 1,
+    "risk_score": 0.24050189119071066,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 139,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.26607142857142857,
+    "repetitions": 1,
+    "risk_score": 0.2247594403859659,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 140,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2644503546099291,
+    "repetitions": 1,
+    "risk_score": 0.2195411733689431,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 141,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2628521126760564,
+    "repetitions": 1,
+    "risk_score": 0.21070595496906702,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 142,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2612762237762238,
+    "repetitions": 1,
+    "risk_score": 0.21619050852303504,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 143,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.25972222222222224,
+    "repetitions": 1,
+    "risk_score": 0.22298924727655056,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 144,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2581896551724138,
+    "repetitions": 1,
+    "risk_score": 0.2114632436293264,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 145,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.25667808219178084,
+    "repetitions": 1,
+    "risk_score": 0.2468005535927336,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 146,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.255187074829932,
+    "repetitions": 1,
+    "risk_score": 0.23899107067258848,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 147,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.23621621621621625,
+    "repetitions": 1,
+    "risk_score": 0.24148706418807578,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 148,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.252265100671141,
+    "repetitions": 1,
+    "risk_score": 0.21218679524293743,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 149,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.24,
+    "repetitions": 1,
+    "risk_score": 0.33835768662353216,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 150,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.25604304635761593,
+    "repetitions": 1,
+    "risk_score": 0.23967160179619743,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 151,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.24368421052631584,
+    "repetitions": 1,
+    "risk_score": 0.3768167772252847,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 152,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.25972222222222224,
+    "repetitions": 1,
+    "risk_score": 0.23133978221636128,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 153,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.24077922077922076,
+    "repetitions": 1,
+    "risk_score": 0.2525697263254287,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 154,
+    "layers": [
+      "core"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.21935483870967745,
+    "repetitions": 1,
+    "risk_score": 0.2214191182548824,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 155,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.255448717948718,
+    "repetitions": 1,
+    "risk_score": 0.23194719577507644,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 156,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2540605095541401,
+    "repetitions": 1,
+    "risk_score": 0.21466304506325834,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 157,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2526898734177216,
+    "repetitions": 1,
+    "risk_score": 0.2360139417194296,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 158,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.25133647798742137,
+    "repetitions": 1,
+    "risk_score": 0.23004337313048184,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 159,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.23250000000000004,
+    "repetitions": 1,
+    "risk_score": 0.23484720025215194,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 160,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2643051242236025,
+    "repetitions": 1,
+    "risk_score": 0.2221228655935513,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 161,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.28300154320987664,
+    "repetitions": 1,
+    "risk_score": 0.23099275303477773,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 162,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2503489263803681,
+    "repetitions": 1,
+    "risk_score": 0.3151821377917988,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 163,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.26653963414634146,
+    "repetitions": 1,
+    "risk_score": 0.2157800107231892,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 164,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2652462121212122,
+    "repetitions": 1,
+    "risk_score": 0.21077189142652414,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 165,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2639683734939759,
+    "repetitions": 1,
+    "risk_score": 0.24261828819560602,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 166,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2627058383233533,
+    "repetitions": 1,
+    "risk_score": 0.24131897889609144,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 167,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2614583333333334,
+    "repetitions": 1,
+    "risk_score": 0.21489311319292434,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 168,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2602255917159763,
+    "repetitions": 1,
+    "risk_score": 0.21360666847317283,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 169,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.24738970588235298,
+    "repetitions": 1,
+    "risk_score": 0.35211936989130227,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 170,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2636513157894737,
+    "repetitions": 1,
+    "risk_score": 0.21387992012696075,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 171,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2624273255813954,
+    "repetitions": 1,
+    "risk_score": 0.2212350583527391,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 172,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.261217485549133,
+    "repetitions": 1,
+    "risk_score": 0.23151166316490698,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 173,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.26002155172413793,
+    "repetitions": 1,
+    "risk_score": 0.22279568880968265,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 174,
+    "layers": [
+      "core"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.22133928571428577,
+    "repetitions": 1,
+    "risk_score": 0.2227038198111182,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 175,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.24585227272727272,
+    "repetitions": 1,
+    "risk_score": 0.3832491952444214,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 176,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.26216454802259886,
+    "repetitions": 1,
+    "risk_score": 0.23805270783220192,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 177,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.26099016853932583,
+    "repetitions": 1,
+    "risk_score": 0.25860747688065844,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 178,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2598289106145251,
+    "repetitions": 1,
+    "risk_score": 0.2186926704940897,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 179,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.25868055555555564,
+    "repetitions": 1,
+    "risk_score": 0.23560292136725536,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 180,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2575448895027625,
+    "repetitions": 1,
+    "risk_score": 0.21609302971653785,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 181,
+    "layers": [
+      "core"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.21892170329670338,
+    "repetitions": 1,
+    "risk_score": 0.22302528408959163,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 182,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2553107923497268,
+    "repetitions": 1,
+    "risk_score": 0.23682937914200985,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 183,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.25421195652173917,
+    "repetitions": 1,
+    "risk_score": 0.22342641851232167,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 184,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.253125,
+    "repetitions": 1,
+    "risk_score": 0.22080757338887438,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 185,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2520497311827958,
+    "repetitions": 1,
+    "risk_score": 0.24101522372869166,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 186,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.23883355614973267,
+    "repetitions": 1,
+    "risk_score": 0.28711671623164875,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 187,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.25525265957446813,
+    "repetitions": 1,
+    "risk_score": 0.23067862600005895,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 188,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2541832010582011,
+    "repetitions": 1,
+    "risk_score": 0.22229285928392092,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 189,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.253125,
+    "repetitions": 1,
+    "risk_score": 0.223238662008757,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 190,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.27207787958115187,
+    "repetitions": 1,
+    "risk_score": 0.2690816603022737,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 191,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.23875000000000002,
+    "repetitions": 1,
+    "risk_score": 0.3278117331022362,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 192,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2551975388601037,
+    "repetitions": 1,
+    "risk_score": 0.24732570873578866,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 193,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.25415592783505153,
+    "repetitions": 1,
+    "risk_score": 0.21631076578893157,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 194,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.253125,
+    "repetitions": 1,
+    "risk_score": 0.22761386440054346,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 195,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2521045918367348,
+    "repetitions": 1,
+    "risk_score": 0.21288451221358098,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 196,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2510945431472082,
+    "repetitions": 1,
+    "risk_score": 0.21361715035077752,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 197,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.25009469696969705,
+    "repetitions": 1,
+    "risk_score": 0.2331842687881169,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 198,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.23663002512562814,
+    "repetitions": 1,
+    "risk_score": 0.28920490819138933,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 199,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.253125,
+    "repetitions": 1,
+    "risk_score": 0.23026347616182338,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 200,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2521299751243781,
+    "repetitions": 1,
+    "risk_score": 0.21710570624825576,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 201,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.23859529702970295,
+    "repetitions": 1,
+    "risk_score": 0.3016414308849418,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 202,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2550954433497537,
+    "repetitions": 1,
+    "risk_score": 0.222522051103367,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 203,
+    "layers": [
+      "core"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.21660539215686272,
+    "repetitions": 1,
+    "risk_score": 0.22215675632008897,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 204,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.23562499999999997,
+    "repetitions": 1,
+    "risk_score": 0.23328255715422289,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 205,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.23465412621359227,
+    "repetitions": 1,
+    "risk_score": 0.2523665823926948,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 206,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.23369263285024156,
+    "repetitions": 1,
+    "risk_score": 0.26041083705375034,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 207,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2502403846153846,
+    "repetitions": 1,
+    "risk_score": 0.24920392085231108,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 208,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2336722488038278,
+    "repetitions": 1,
+    "risk_score": 0.21784752059062687,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 209,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.23273809523809524,
+    "repetitions": 1,
+    "risk_score": 0.22902584588123692,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 210,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.23181279620853085,
+    "repetitions": 1,
+    "risk_score": 0.2106941797168851,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 211,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.21339622641509437,
+    "repetitions": 1,
+    "risk_score": 0.236473723929893,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 212,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.24998826291079818,
+    "repetitions": 1,
+    "risk_score": 0.22193893685846336,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 213,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.22908878504672897,
+    "repetitions": 1,
+    "risk_score": 0.22996270084579165,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 214,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.22819767441860467,
+    "repetitions": 1,
+    "risk_score": 0.21441094071770544,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 215,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.21444444444444444,
+    "repetitions": 1,
+    "risk_score": 0.2537426877263941,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 216,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.21815668202764982,
+    "repetitions": 1,
+    "risk_score": 0.36568532439609214,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 217,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.23474770642201842,
+    "repetitions": 1,
+    "risk_score": 0.2168548925669406,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 218,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2338470319634704,
+    "repetitions": 1,
+    "risk_score": 0.23356808713676938,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 219,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.23295454545454547,
+    "repetitions": 1,
+    "risk_score": 0.22623994205575565,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 220,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.21457013574660633,
+    "repetitions": 1,
+    "risk_score": 0.2735998978768739,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 221,
+    "layers": [
+      "core"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.19369369369369374,
+    "repetitions": 1,
+    "risk_score": 0.22319678130983978,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 222,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.23032511210762335,
+    "repetitions": 1,
+    "risk_score": 0.2324196773921194,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 223,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.22946428571428573,
+    "repetitions": 1,
+    "risk_score": 0.22081196274881135,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 224,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.25305555555555564,
+    "repetitions": 1,
+    "risk_score": 0.35575032763461323,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 225,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.23219026548672567,
+    "repetitions": 1,
+    "risk_score": 0.22923008959733215,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 226,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.23133259911894272,
+    "repetitions": 1,
+    "risk_score": 0.21166392042675794,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 227,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.23048245614035096,
+    "repetitions": 1,
+    "risk_score": 0.21377445595010952,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 228,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2296397379912664,
+    "repetitions": 1,
+    "risk_score": 0.22185419740709092,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 229,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.228804347826087,
+    "repetitions": 1,
+    "risk_score": 0.24059303069386076,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 230,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2279761904761905,
+    "repetitions": 1,
+    "risk_score": 0.253673414746229,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 231,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.22715517241379318,
+    "repetitions": 1,
+    "risk_score": 0.2270754709597628,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 232,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.22634120171673827,
+    "repetitions": 1,
+    "risk_score": 0.2160858733113341,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 233,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2123076923076923,
+    "repetitions": 1,
+    "risk_score": 0.37874754839313923,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 234,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.22898936170212775,
+    "repetitions": 1,
+    "risk_score": 0.2367200399666503,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 235,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.228177966101695,
+    "repetitions": 1,
+    "risk_score": 0.2228975412780083,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 236,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20987341772151902,
+    "repetitions": 1,
+    "risk_score": 0.26100531364598534,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 237,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.21327731092436975,
+    "repetitions": 1,
+    "risk_score": 0.2940730986086261,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 238,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2299686192468619,
+    "repetitions": 1,
+    "risk_score": 0.2182661953668764,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 239,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.22916666666666669,
+    "repetitions": 1,
+    "risk_score": 0.22108970702223377,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 240,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.21087136929460581,
+    "repetitions": 1,
+    "risk_score": 0.24342177731433998,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 241,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.22758264462809924,
+    "repetitions": 1,
+    "risk_score": 0.213037671557437,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 242,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2268004115226338,
+    "repetitions": 1,
+    "risk_score": 0.2190732429140848,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 243,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.22602459016393445,
+    "repetitions": 1,
+    "risk_score": 0.2249612420680006,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 244,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2252551020408164,
+    "repetitions": 1,
+    "risk_score": 0.21777759501373292,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 245,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.22449186991869924,
+    "repetitions": 1,
+    "risk_score": 0.22598485128564372,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 246,
+    "layers": [
+      "core"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.1862348178137652,
+    "repetitions": 1,
+    "risk_score": 0.22193217794113462,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 247,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.22298387096774192,
+    "repetitions": 1,
+    "risk_score": 0.23647462620351498,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 248,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20473895582329316,
+    "repetitions": 1,
+    "risk_score": 0.24504149275683088,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 249,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20400000000000007,
+    "repetitions": 1,
+    "risk_score": 0.2423024550390049,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 250,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.22076693227091632,
+    "repetitions": 1,
+    "risk_score": 0.22417428956503854,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 251,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2200396825396826,
+    "repetitions": 1,
+    "risk_score": 0.24079162919756267,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 252,
+    "layers": [
+      "core"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.1818181818181818,
+    "repetitions": 1,
+    "risk_score": 0.22036365206239472,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 253,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.21860236220472445,
+    "repetitions": 1,
+    "risk_score": 0.22617639372698906,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 254,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.21789215686274516,
+    "repetitions": 1,
+    "risk_score": 0.2363182579736076,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 255,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.23718750000000005,
+    "repetitions": 1,
+    "risk_score": 0.24930935046475863,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 256,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.19898832684824908,
+    "repetitions": 1,
+    "risk_score": 0.22772330618642722,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 257,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.21579457364341087,
+    "repetitions": 1,
+    "risk_score": 0.2270084726644193,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 258,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2389671814671815,
+    "repetitions": 1,
+    "risk_score": 0.33737283956192166,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 259,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2007692307692308,
+    "repetitions": 1,
+    "risk_score": 0.2458368442394295,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 260,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2039080459770115,
+    "repetitions": 1,
+    "risk_score": 0.3207401635740656,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 261,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.220706106870229,
+    "repetitions": 1,
+    "risk_score": 0.22107150593137714,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 262,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2200095057034221,
+    "repetitions": 1,
+    "risk_score": 0.2416501422982159,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 263,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2193181818181818,
+    "repetitions": 1,
+    "risk_score": 0.22269820587740932,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 264,
+    "layers": [
+      "core"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.1811320754716981,
+    "repetitions": 1,
+    "risk_score": 0.22285487061023931,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 265,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2179511278195489,
+    "repetitions": 1,
+    "risk_score": 0.2241125179836043,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 266,
+    "layers": [
+      "core"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.17977528089887643,
+    "repetitions": 1,
+    "risk_score": 0.2208898421050843,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 267,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2166044776119403,
+    "repetitions": 1,
+    "risk_score": 0.22083471373078914,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 268,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.21593866171003723,
+    "repetitions": 1,
+    "risk_score": 0.22934482200859982,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 269,
+    "layers": [
+      "core"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.17777777777777784,
+    "repetitions": 1,
+    "risk_score": 0.22233348034503123,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 270,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.21462177121771225,
+    "repetitions": 1,
+    "risk_score": 0.227283989142849,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 271,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2139705882352942,
+    "repetitions": 1,
+    "risk_score": 0.22887993527391454,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 272,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2133241758241759,
+    "repetitions": 1,
+    "risk_score": 0.2278850235251006,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 273,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.21268248175182486,
+    "repetitions": 1,
+    "risk_score": 0.22051414971656105,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 274,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2120454545454546,
+    "repetitions": 1,
+    "risk_score": 0.23636261274872652,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 275,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2114130434782609,
+    "repetitions": 1,
+    "risk_score": 0.22163046499873634,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 276,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2343953068592058,
+    "repetitions": 1,
+    "risk_score": 0.27830157966046704,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 277,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.21375899280575544,
+    "repetitions": 1,
+    "risk_score": 0.251264720173101,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 278,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2131272401433692,
+    "repetitions": 1,
+    "risk_score": 0.22364417638849235,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 279,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.21250000000000008,
+    "repetitions": 1,
+    "risk_score": 0.22421661299976967,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 280,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.21187722419928828,
+    "repetitions": 1,
+    "risk_score": 0.22063276254281064,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 281,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.21125886524822696,
+    "repetitions": 1,
+    "risk_score": 0.21397574791653176,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 282,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.21064487632508838,
+    "repetitions": 1,
+    "risk_score": 0.23212162510622636,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 283,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.21003521126760566,
+    "repetitions": 1,
+    "risk_score": 0.22528336403991978,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 284,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20942982456140352,
+    "repetitions": 1,
+    "risk_score": 0.21916454947130382,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 285,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2088286713286714,
+    "repetitions": 1,
+    "risk_score": 0.2327290818827853,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 286,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20823170731707324,
+    "repetitions": 1,
+    "risk_score": 0.20857542918514274,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 287,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.19361111111111118,
+    "repetitions": 1,
+    "risk_score": 0.27956553845024545,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 288,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2105103806228374,
+    "repetitions": 1,
+    "risk_score": 0.23713327185120583,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 289,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20991379310344832,
+    "repetitions": 1,
+    "risk_score": 0.2384596460143095,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 290,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20932130584192438,
+    "repetitions": 1,
+    "risk_score": 0.20877049378393966,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 291,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.1946575342465754,
+    "repetitions": 1,
+    "risk_score": 0.3223283457352797,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 292,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.21156143344709905,
+    "repetitions": 1,
+    "risk_score": 0.23613941658773505,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 293,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.19346938775510203,
+    "repetitions": 1,
+    "risk_score": 0.24266534346666782,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 294,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.19288135593220346,
+    "repetitions": 1,
+    "risk_score": 0.22506866390082206,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 295,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.19567567567567568,
+    "repetitions": 1,
+    "risk_score": 0.31910997224676874,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 296,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2125841750841751,
+    "repetitions": 1,
+    "risk_score": 0.22499544774436903,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 297,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.21199664429530202,
+    "repetitions": 1,
+    "risk_score": 0.22411852622214487,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 298,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2114130434782609,
+    "repetitions": 1,
+    "risk_score": 0.21607777022285346,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 299,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.21083333333333337,
+    "repetitions": 1,
+    "risk_score": 0.22302622909382946,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 300,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.21025747508305653,
+    "repetitions": 1,
+    "risk_score": 0.2110701832959114,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 301,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20968543046357618,
+    "repetitions": 1,
+    "risk_score": 0.2315460529457243,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 302,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20911716171617162,
+    "repetitions": 1,
+    "risk_score": 0.2228093282904353,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 303,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.19105263157894736,
+    "repetitions": 1,
+    "risk_score": 0.2427042425160957,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 304,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.22799180327868857,
+    "repetitions": 1,
+    "risk_score": 0.24989282681991318,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 305,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2074346405228758,
+    "repetitions": 1,
+    "risk_score": 0.21771103384941995,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 306,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20688110749185668,
+    "repetitions": 1,
+    "risk_score": 0.21639095157575858,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 307,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.1888311688311688,
+    "repetitions": 1,
+    "risk_score": 0.2378522590309621,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 308,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.18828478964401296,
+    "repetitions": 1,
+    "risk_score": 0.23727923715368188,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 309,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20524193548387099,
+    "repetitions": 1,
+    "risk_score": 0.21123360769846022,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 310,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.1872025723472669,
+    "repetitions": 1,
+    "risk_score": 0.2588120135758215,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 311,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.18987179487179484,
+    "repetitions": 1,
+    "risk_score": 0.38109308704835365,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 312,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20682907348242813,
+    "repetitions": 1,
+    "risk_score": 0.21722521724471205,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 313,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20628980891719745,
+    "repetitions": 1,
+    "risk_score": 0.23471864721658772,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 314,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20575396825396824,
+    "repetitions": 1,
+    "risk_score": 0.25832043217646167,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 315,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2052215189873418,
+    "repetitions": 1,
+    "risk_score": 0.22703181313238097,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 316,
+    "layers": [
+      "core"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.167192429022082,
+    "repetitions": 1,
+    "risk_score": 0.2211647924379366,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 317,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20416666666666666,
+    "repetitions": 1,
+    "risk_score": 0.23014339359100502,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 318,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20364420062695926,
+    "repetitions": 1,
+    "risk_score": 0.24043443886704813,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 319,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20312500000000006,
+    "repetitions": 1,
+    "risk_score": 0.2110721479699703,
+    "task": "classification",
+    "unknown": false,
+    "y": 0,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 320,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.1882242990654206,
+    "repetitions": 1,
+    "risk_score": 0.40155678605985456,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 321,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.19080745341614913,
+    "repetitions": 1,
+    "risk_score": 0.3437050545632925,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 322,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.22777863777089785,
+    "repetitions": 1,
+    "risk_score": 0.24685913643180366,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 323,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2072530864197531,
+    "repetitions": 1,
+    "risk_score": 0.22119221731965474,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 324,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.22673076923076924,
+    "repetitions": 1,
+    "risk_score": 0.22870844658752684,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 325,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20621165644171785,
+    "repetitions": 1,
+    "risk_score": 0.24132537007832425,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 326,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.19125382262996948,
+    "repetitions": 1,
+    "risk_score": 0.3380293537024416,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 327,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20823170731707324,
+    "repetitions": 1,
+    "risk_score": 0.22921968623289446,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 328,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20771276595744687,
+    "repetitions": 1,
+    "risk_score": 0.20895547955136523,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 329,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2071969696969697,
+    "repetitions": 1,
+    "risk_score": 0.23959086029026214,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 330,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.18918429003021153,
+    "repetitions": 1,
+    "risk_score": 0.24380286939825566,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 331,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20617469879518074,
+    "repetitions": 1,
+    "risk_score": 0.2406806478839684,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 332,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2056681681681682,
+    "repetitions": 1,
+    "risk_score": 0.22049786617455108,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 333,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.22516467065868268,
+    "repetitions": 1,
+    "risk_score": 0.23045678050120857,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 334,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2046641791044776,
+    "repetitions": 1,
+    "risk_score": 0.21574702090112013,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 335,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.22714285714285715,
+    "repetitions": 1,
+    "risk_score": 0.299620714043281,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 336,
+    "layers": [
+      "core"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.1691394658753709,
+    "repetitions": 1,
+    "risk_score": 0.22077894397343398,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 337,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20613905325443788,
+    "repetitions": 1,
+    "risk_score": 0.21510707061286602,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 338,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20564159292035405,
+    "repetitions": 1,
+    "risk_score": 0.21877849164594512,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 339,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.1876470588235294,
+    "repetitions": 1,
+    "risk_score": 0.23404457016989458,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 340,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20465542521994134,
+    "repetitions": 1,
+    "risk_score": 0.23080195556459834,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 341,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20416666666666666,
+    "repetitions": 1,
+    "risk_score": 0.21818932127571458,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 342,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2036807580174927,
+    "repetitions": 1,
+    "risk_score": 0.23563296920431884,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 343,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20319767441860465,
+    "repetitions": 1,
+    "risk_score": 0.2231065951986116,
+    "task": "classification",
+    "unknown": false,
+    "y": 5,
+    "y_hat": 5
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 344,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2027173913043479,
+    "repetitions": 1,
+    "risk_score": 0.235459164128325,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 345,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20223988439306356,
+    "repetitions": 1,
+    "risk_score": 0.2111332546911215,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 346,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.18714697406340064,
+    "repetitions": 1,
+    "risk_score": 0.35580290341838344,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 347,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.18666666666666665,
+    "repetitions": 1,
+    "risk_score": 0.2666785742637419,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 348,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20368911174785104,
+    "repetitions": 1,
+    "risk_score": 0.21345279770200767,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 349,
+    "layers": [
+      "core"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.16571428571428573,
+    "repetitions": 1,
+    "risk_score": 0.22088179680205836,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 350,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20274216524216532,
+    "repetitions": 1,
+    "risk_score": 0.21184980375287402,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 351,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2251136363636364,
+    "repetitions": 1,
+    "risk_score": 0.3593614795380108,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 352,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20463881019830027,
+    "repetitions": 1,
+    "risk_score": 0.2208244568241506,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 353,
+    "layers": [
+      "core"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.16666666666666666,
+    "repetitions": 1,
+    "risk_score": 0.2203371908149744,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 354,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.18901408450704227,
+    "repetitions": 1,
+    "risk_score": 0.23687693135722615,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 0
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 355,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20603932584269663,
+    "repetitions": 1,
+    "risk_score": 0.24029584580094637,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 356,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2255672268907563,
+    "repetitions": 1,
+    "risk_score": 0.22749150500499823,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 357,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20509776536312857,
+    "repetitions": 1,
+    "risk_score": 0.23293364481782833,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 358,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20463091922005577,
+    "repetitions": 1,
+    "risk_score": 0.21839367297721443,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 359,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.18944444444444442,
+    "repetitions": 1,
+    "risk_score": 0.23480666182434737,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 360,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20647506925207765,
+    "repetitions": 1,
+    "risk_score": 0.2308107401168485,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 361,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20600828729281767,
+    "repetitions": 1,
+    "risk_score": 0.21213457476186146,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 362,
+    "layers": [
+      "core"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.16804407713498629,
+    "repetitions": 1,
+    "risk_score": 0.21974679016343013,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 363,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20508241758241758,
+    "repetitions": 1,
+    "risk_score": 0.2122948701658931,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 364,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2046232876712329,
+    "repetitions": 1,
+    "risk_score": 0.2334896754748435,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 365,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20416666666666666,
+    "repetitions": 1,
+    "risk_score": 0.24632302184497382,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 366,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20371253405994555,
+    "repetitions": 1,
+    "risk_score": 0.21138326571924446,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 367,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20326086956521744,
+    "repetitions": 1,
+    "risk_score": 0.22094740696723694,
+    "task": "classification",
+    "unknown": false,
+    "y": 3,
+    "y_hat": 3
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 368,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.1880216802168022,
+    "repetitions": 1,
+    "risk_score": 0.3216629005282886,
+    "task": "classification",
+    "unknown": false,
+    "y": 2,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 369,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20506756756756755,
+    "repetitions": 1,
+    "risk_score": 0.23481954541652603,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 370,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20461590296495963,
+    "repetitions": 1,
+    "risk_score": 0.2256186755722877,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 371,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20416666666666666,
+    "repetitions": 1,
+    "risk_score": 0.2140839995519284,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 372,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20371983914209119,
+    "repetitions": 1,
+    "risk_score": 0.24900518409578123,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 373,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.1884491978609626,
+    "repetitions": 1,
+    "risk_score": 0.4182218408768167,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 374,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20550000000000007,
+    "repetitions": 1,
+    "risk_score": 0.2310255185109075,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 375,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20505319148936169,
+    "repetitions": 1,
+    "risk_score": 0.22653604961020804,
+    "task": "classification",
+    "unknown": false,
+    "y": 4,
+    "y_hat": 4
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 376,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20460875331564993,
+    "repetitions": 1,
+    "risk_score": 0.2349102865432535,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "refine",
+    "domain": "cifar10",
+    "index": 377,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.18666666666666665,
+    "repetitions": 1,
+    "risk_score": 0.24710230759319216,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "semantic-HARQ",
+    "domain": "cifar10",
+    "index": 378,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20372691292875994,
+    "repetitions": 1,
+    "risk_score": 0.22856893413507998,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 379,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.18842105263157893,
+    "repetitions": 1,
+    "risk_score": 0.36459292471671517,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 2
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 380,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.20547900262467195,
+    "repetitions": 1,
+    "risk_score": 0.21636554285602796,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 381,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2050392670157068,
+    "repetitions": 1,
+    "risk_score": 0.20985127247030527,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "accept",
+    "domain": "cifar10",
+    "index": 382,
+    "layers": [
+      "core",
+      "refinement",
+      "evidence"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.2046018276762402,
+    "repetitions": 1,
+    "risk_score": 0.21091632272369729,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 1
+  },
+  {
+    "codec_id": "fixed",
+    "decision": "fallback",
+    "domain": "cifar10",
+    "index": 383,
+    "layers": [
+      "core",
+      "fallback"
+    ],
+    "open_exposure": false,
+    "open_risk": 0.1892708333333334,
+    "repetitions": 1,
+    "risk_score": 0.3786748613208468,
+    "task": "classification",
+    "unknown": false,
+    "y": 1,
+    "y_hat": 0
+  }
+]

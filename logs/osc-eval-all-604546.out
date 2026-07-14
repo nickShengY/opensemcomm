@@ -1,0 +1,384 @@
+{
+  "indexed_rows": 8832,
+  "regimes": {
+    "channel-open": 384,
+    "class-open": 3264,
+    "closed-id": 1024,
+    "full-open": 4344,
+    "resource-open": 384,
+    "source-open": 1204,
+    "task-open": 1300
+  },
+  "rows": 11904,
+  "splits": {
+    "calibration": 640,
+    "eval": 11264
+  }
+}
+{
+  "calibration_samples": 256,
+  "dataset_manifest": "/scratch/nickyun/new_study/opensemcom/manifests/opensemcom_real.csv",
+  "decisions": {
+    "accept": 384
+  },
+  "evaluated_samples": 384,
+  "manifest_summary": {
+    "indexed_rows": 8832,
+    "regimes": {
+      "channel-open": 384,
+      "class-open": 3264,
+      "closed-id": 1024,
+      "full-open": 4344,
+      "resource-open": 384,
+      "source-open": 1204,
+      "task-open": 1300
+    },
+    "rows": 11904,
+    "splits": {
+      "calibration": 640,
+      "eval": 11264
+    }
+  },
+  "metrics": {
+    "accuracy": 0.17447916666666663,
+    "adaptation_harm_rate": 0.0,
+    "auroc_ood": 0.5,
+    "certified_accept_rate": 0.0,
+    "coverage": 0.90625,
+    "fpr95": 1.0,
+    "open_semantic_outage": 0.8255208333333334,
+    "open_semantic_risk": 1.0048784822006727,
+    "open_set_f1": 0.0,
+    "prediction_set_size": 5.268229166666667,
+    "risk_latency_product": 1.808781267961205,
+    "risk_per_joule": 0.0015393359102338704,
+    "semantic_goodput": 0.058159722222222224,
+    "semantic_outage": 0.8255208333333334
+  },
+  "name": "closed-id_604546",
+  "regime": "closed-id",
+  "samples": 512,
+  "seed": 0,
+  "users": 4
+}
+{
+  "calibration_samples": 256,
+  "dataset_manifest": "/scratch/nickyun/new_study/opensemcom/manifests/opensemcom_real.csv",
+  "decisions": {
+    "accept": 384
+  },
+  "evaluated_samples": 384,
+  "manifest_summary": {
+    "indexed_rows": 8832,
+    "regimes": {
+      "channel-open": 384,
+      "class-open": 3264,
+      "closed-id": 1024,
+      "full-open": 4344,
+      "resource-open": 384,
+      "source-open": 1204,
+      "task-open": 1300
+    },
+    "rows": 11904,
+    "splits": {
+      "calibration": 640,
+      "eval": 11264
+    }
+  },
+  "metrics": {
+    "accuracy": 0.1640625,
+    "adaptation_harm_rate": 0.0,
+    "auroc_ood": 0.5,
+    "certified_accept_rate": 0.0,
+    "coverage": 0.84375,
+    "fpr95": 1.0,
+    "open_semantic_outage": 0.8359375,
+    "open_semantic_risk": 1.064226858939528,
+    "open_set_f1": 0.0,
+    "prediction_set_size": 5.044270833333333,
+    "risk_latency_product": 1.9156083460911444,
+    "risk_per_joule": 0.0016302494775421658,
+    "semantic_goodput": 0.0546875,
+    "semantic_outage": 0.8359375
+  },
+  "name": "channel-open_604546",
+  "regime": "channel-open",
+  "samples": 512,
+  "seed": 0,
+  "users": 4
+}
+{
+  "calibration_samples": 256,
+  "dataset_manifest": "/scratch/nickyun/new_study/opensemcom/manifests/opensemcom_real.csv",
+  "decisions": {
+    "accept": 512
+  },
+  "evaluated_samples": 512,
+  "manifest_summary": {
+    "indexed_rows": 8832,
+    "regimes": {
+      "channel-open": 384,
+      "class-open": 3264,
+      "closed-id": 1024,
+      "full-open": 4344,
+      "resource-open": 384,
+      "source-open": 1204,
+      "task-open": 1300
+    },
+    "rows": 11904,
+    "splits": {
+      "calibration": 640,
+      "eval": 11264
+    }
+  },
+  "metrics": {
+    "accuracy": 0.587890625,
+    "adaptation_harm_rate": 0.0,
+    "auroc_ood": 0.5,
+    "certified_accept_rate": 0.0,
+    "coverage": 0.951171875,
+    "fpr95": 1.0,
+    "open_semantic_outage": 0.412109375,
+    "open_semantic_risk": 0.8290202982630857,
+    "open_set_f1": 0.0,
+    "prediction_set_size": 5.71484375,
+    "risk_latency_product": 1.492236536873541,
+    "risk_per_joule": 0.0009524589823794564,
+    "semantic_goodput": 0.19596354166666666,
+    "semantic_outage": 0.412109375
+  },
+  "name": "source-open_604546",
+  "regime": "source-open",
+  "samples": 512,
+  "seed": 0,
+  "users": 4
+}
+{
+  "calibration_samples": 256,
+  "dataset_manifest": "/scratch/nickyun/new_study/opensemcom/manifests/opensemcom_real.csv",
+  "decisions": {
+    "accept": 512
+  },
+  "evaluated_samples": 512,
+  "manifest_summary": {
+    "indexed_rows": 8832,
+    "regimes": {
+      "channel-open": 384,
+      "class-open": 3264,
+      "closed-id": 1024,
+      "full-open": 4344,
+      "resource-open": 384,
+      "source-open": 1204,
+      "task-open": 1300
+    },
+    "rows": 11904,
+    "splits": {
+      "calibration": 640,
+      "eval": 11264
+    }
+  },
+  "metrics": {
+    "accuracy": 0.0,
+    "adaptation_harm_rate": 0.0,
+    "auroc_ood": 0.5,
+    "certified_accept_rate": 0.0,
+    "coverage": 0.0,
+    "fpr95": 0.0,
+    "open_semantic_outage": 1.0,
+    "open_semantic_risk": 5.059500000000001,
+    "open_set_f1": 0.6666666666666666,
+    "prediction_set_size": 5.291015625,
+    "risk_latency_product": 9.107099999999923,
+    "risk_per_joule": 0.0058128446691176,
+    "semantic_goodput": 0.0,
+    "semantic_outage": 1.0
+  },
+  "name": "class-open_604546",
+  "regime": "class-open",
+  "samples": 512,
+  "seed": 0,
+  "users": 4
+}
+{
+  "calibration_samples": 256,
+  "dataset_manifest": "/scratch/nickyun/new_study/opensemcom/manifests/opensemcom_real.csv",
+  "decisions": {
+    "accept": 512
+  },
+  "evaluated_samples": 512,
+  "manifest_summary": {
+    "indexed_rows": 8832,
+    "regimes": {
+      "channel-open": 384,
+      "class-open": 3264,
+      "closed-id": 1024,
+      "full-open": 4344,
+      "resource-open": 384,
+      "source-open": 1204,
+      "task-open": 1300
+    },
+    "rows": 11904,
+    "splits": {
+      "calibration": 640,
+      "eval": 11264
+    }
+  },
+  "metrics": {
+    "accuracy": 0.07421875,
+    "adaptation_harm_rate": 0.0,
+    "auroc_ood": 0.5,
+    "certified_accept_rate": 0.0,
+    "coverage": 0.3828125,
+    "fpr95": 1.0,
+    "open_semantic_outage": 0.92578125,
+    "open_semantic_risk": 3.1813171210984255,
+    "open_set_f1": 0.0,
+    "prediction_set_size": 5.97265625,
+    "risk_latency_product": 5.726370817977116,
+    "risk_per_joule": 0.003655005883614889,
+    "semantic_goodput": 0.024739583333333332,
+    "semantic_outage": 0.92578125
+  },
+  "name": "task-open_604546",
+  "regime": "task-open",
+  "samples": 512,
+  "seed": 0,
+  "users": 4
+}
+{
+  "calibration_samples": 256,
+  "dataset_manifest": "/scratch/nickyun/new_study/opensemcom/manifests/opensemcom_real.csv",
+  "decisions": {
+    "accept": 384
+  },
+  "evaluated_samples": 384,
+  "manifest_summary": {
+    "indexed_rows": 8832,
+    "regimes": {
+      "channel-open": 384,
+      "class-open": 3264,
+      "closed-id": 1024,
+      "full-open": 4344,
+      "resource-open": 384,
+      "source-open": 1204,
+      "task-open": 1300
+    },
+    "rows": 11904,
+    "splits": {
+      "calibration": 640,
+      "eval": 11264
+    }
+  },
+  "metrics": {
+    "accuracy": 0.17708333333333337,
+    "adaptation_harm_rate": 0.0,
+    "auroc_ood": 0.5,
+    "certified_accept_rate": 0.0,
+    "coverage": 0.90625,
+    "fpr95": 1.0,
+    "open_semantic_outage": 0.8229166666666666,
+    "open_semantic_risk": 0.9948205816107052,
+    "open_set_f1": 0.0,
+    "prediction_set_size": 5.3046875,
+    "risk_latency_product": 1.7906770468992637,
+    "risk_per_joule": 0.0015239285870261997,
+    "semantic_goodput": 0.059027777777777776,
+    "semantic_outage": 0.8229166666666666
+  },
+  "name": "resource-open_604546",
+  "regime": "resource-open",
+  "samples": 512,
+  "seed": 0,
+  "users": 4
+}
+{
+  "calibration_samples": 256,
+  "dataset_manifest": "/scratch/nickyun/new_study/opensemcom/manifests/opensemcom_real.csv",
+  "decisions": {
+    "accept": 512
+  },
+  "evaluated_samples": 512,
+  "manifest_summary": {
+    "indexed_rows": 8832,
+    "regimes": {
+      "channel-open": 384,
+      "class-open": 3264,
+      "closed-id": 1024,
+      "full-open": 4344,
+      "resource-open": 384,
+      "source-open": 1204,
+      "task-open": 1300
+    },
+    "rows": 11904,
+    "splits": {
+      "calibration": 640,
+      "eval": 11264
+    }
+  },
+  "metrics": {
+    "accuracy": 0.095703125,
+    "adaptation_harm_rate": 0.0,
+    "auroc_ood": 0.4895703611457036,
+    "certified_accept_rate": 0.0,
+    "coverage": 0.50390625,
+    "fpr95": 0.9315068493150684,
+    "open_semantic_outage": 0.904296875,
+    "open_semantic_risk": 2.7785652100765965,
+    "open_set_f1": 0.4327731092436975,
+    "prediction_set_size": 5.302734375,
+    "risk_latency_product": 5.00141737813783,
+    "risk_per_joule": 0.0031922853976063576,
+    "semantic_goodput": 0.031901041666666664,
+    "semantic_outage": 0.904296875
+  },
+  "name": "full-open_604546",
+  "regime": "full-open",
+  "samples": 512,
+  "seed": 0,
+  "users": 4
+}
+{
+  "rows": 30,
+  "csv": "/scratch/nickyun/new_study/opensemcom/runs/aggregate_results.csv",
+  "json": "/scratch/nickyun/new_study/opensemcom/runs/aggregate_results.json"
+}
+
+scontrol show job 604546
+JobId=604546 JobName=osc-eval-all
+   UserId=nickyun(3149997) GroupId=nickyun(3149997) MCS_label=N/A
+   Priority=10478994 Nice=0 Account=def-pingw QOS=normal
+   JobState=COMPLETING Reason=None Dependency=(null)
+   Requeue=0 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0
+   RunTime=00:00:21 TimeLimit=01:00:00 TimeMin=N/A
+   SubmitTime=2026-06-17T16:08:48 EligibleTime=2026-06-17T16:08:48
+   AccrueTime=2026-06-17T16:08:48
+   StartTime=2026-06-17T16:08:50 EndTime=2026-06-17T16:09:11 Deadline=N/A
+   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-06-17T16:08:50 Scheduler=Main
+   Partition=debug AllocNode:Sid=trig-login01:3967279
+   ReqNodeList=(null) ExcNodeList=(null)
+   NodeList=trig0039
+   BatchHost=trig0039
+   NumNodes=1 NumCPUs=4 NumTasks=1 CPUs/Task=4 ReqB:S:C:T=0:0:*:*
+   ReqTRES=cpu=4,mem=192500M,node=1,billing=1,gres/gpu=1
+   AllocTRES=cpu=4,mem=192500M,node=1,billing=1,gres/gpu=1
+   Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=*
+   MinCPUsNode=4 MinMemoryNode=192500M MinTmpDiskNode=0
+   Features=(null) DelayBoot=00:00:00
+   OverSubscribe=OK Contiguous=0 Licenses=(null) LicensesAlloc=(null) Network=(null)
+   Command=/scratch/nickyun/new_study/opensemcom/slurm/eval_opensemcom_all.slurm
+   SubmitLine=SBATCH --comment /opt/slurm/bin/sbatch --export=NONE --get-user-env --partition=debug --time=01:00:00 slurm/eval_opensemcom_all.slurm --export=NONE --get-user-env --partition=debug --time=01:00:00 slurm/eval_opensemcom_all.slurm
+   WorkDir=/scratch/nickyun/new_study/opensemcom
+   Comment=/opt/slurm/bin/sbatch --export=NONE --get-user-env --partition=debug --time=01:00:00 slurm/eval_opensemcom_all.slurm
+   StdErr=/home/nickyun/links/scratch/new_study/opensemcom/logs/osc-eval-all-604546.err
+   StdIn=/dev/null
+   StdOut=/home/nickyun/links/scratch/new_study/opensemcom/logs/osc-eval-all-604546.out
+   TresPerNode=gres/gpu:1
+   TresPerTask=cpu=4
+
+sacct -j 604546
+JobID           JobName    Account    Elapsed  MaxVMSize     MaxRSS  SystemCPU    UserCPU ExitCode 
+------------ ---------- ---------- ---------- ---------- ---------- ---------- ---------- -------- 
+604546       osc-eval-+  def-pingw   00:00:21                         00:00:00   00:00:00      0:0 
+604546.batch      batch  def-pingw   00:00:21                         00:00:00   00:00:00      0:0 
+604546.exte+     extern  def-pingw   00:00:21                         00:00:00   00:00:00      0:0 
+
