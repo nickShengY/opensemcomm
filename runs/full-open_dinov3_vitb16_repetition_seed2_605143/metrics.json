@@ -1,0 +1,48 @@
+{
+  "calibration_samples": 384,
+  "dataset_manifest": "/scratch/nickyun/new_study/opensemcom/manifests/opensemcom_real_facebook__dinov3-vitb16-pretrain-lvd1689m.csv",
+  "decisions": {
+    "fallback": 3729,
+    "refine": 187,
+    "semantic-HARQ": 428
+  },
+  "evaluated_samples": 4344,
+  "manifest_summary": {
+    "indexed_rows": 0,
+    "regimes": {
+      "channel-open": 384,
+      "class-open": 3264,
+      "closed-id": 768,
+      "full-open": 4344,
+      "resource-open": 384,
+      "source-open": 1204,
+      "task-open": 1044
+    },
+    "rows": 11392,
+    "splits": {
+      "calibration": 384,
+      "eval": 11008
+    }
+  },
+  "metrics": {
+    "accuracy": 0.03153775322283614,
+    "adaptation_harm_rate": 0.0,
+    "auroc_ood": 0.9661543823653199,
+    "certified_accept_rate": 0.0,
+    "coverage": 0.12246777163904236,
+    "fpr95": 0.2421875,
+    "open_semantic_outage": 0.0,
+    "open_semantic_risk": 0.8389671209115782,
+    "open_set_f1": 0.7084148727984345,
+    "prediction_set_size": 5.452808471454881,
+    "risk_latency_product": 3.368422089276896,
+    "risk_per_joule": 6.318237157145598e-05,
+    "semantic_goodput": 0.0,
+    "semantic_outage": 0.9684622467771639
+  },
+  "name": "full-open_dinov3_vitb16_repetition_seed2_605143",
+  "regime": "full-open",
+  "samples": 20000,
+  "seed": 2,
+  "users": 4
+}

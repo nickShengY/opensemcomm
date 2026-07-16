@@ -1,0 +1,49 @@
+{
+  "calibration_samples": 1280,
+  "dataset_manifest": "/scratch/nickyun/new_study/opensemcom/manifests/opensemcom_real_dinov3_mixed_open_calibration.csv",
+  "decisions": {
+    "fallback": 1106,
+    "refine": 1020,
+    "semantic-HARQ": 1194
+  },
+  "evaluated_samples": 3320,
+  "manifest_summary": {
+    "indexed_rows": 0,
+    "regimes": {
+      "channel-open": 384,
+      "class-open": 3264,
+      "closed-id": 768,
+      "full-open": 4344,
+      "resource-open": 384,
+      "source-open": 1204,
+      "task-open": 1044
+    },
+    "rows": 11392,
+    "splits": {
+      "calibration": 384,
+      "eval": 9984,
+      "open-calibration": 1024
+    }
+  },
+  "metrics": {
+    "accuracy": 0.031626506024096335,
+    "adaptation_harm_rate": 0.0,
+    "auroc_ood": 0.7018273515554042,
+    "certified_accept_rate": 0.0,
+    "coverage": 0.03162650602409638,
+    "fpr95": 0.7682291666666666,
+    "open_semantic_outage": 0.0,
+    "open_semantic_risk": 1.042464399569098,
+    "open_set_f1": 0.6827676240208878,
+    "prediction_set_size": 1.0,
+    "risk_latency_product": 4.441463533706293,
+    "risk_per_joule": 9.486003908904847e-05,
+    "semantic_goodput": 0.0,
+    "semantic_outage": 0.9683734939759037
+  },
+  "name": "full-open_dinov3_unknown_noconformal_login_seed0_login_20260617203514",
+  "regime": "full-open",
+  "samples": 20000,
+  "seed": 0,
+  "users": 4
+}

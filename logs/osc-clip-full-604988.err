@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/nickyun/links/scratch/new_study/opensemcom/src/opensemcom/cli/run_config.py", line 133, in <module>
+    main()
+  File "/home/nickyun/links/scratch/new_study/opensemcom/src/opensemcom/cli/run_config.py", line 54, in main
+    result = run_experiment(
+             ^^^^^^^^^^^^^^^
+  File "/home/nickyun/links/scratch/new_study/opensemcom/src/opensemcom/simulation.py", line 168, in run_experiment
+    system.calibrate(calibration_stream, channel)
+  File "/home/nickyun/links/scratch/new_study/opensemcom/src/opensemcom/simulation.py", line 57, in calibrate
+    self.decoder.fit_prototypes(latents)
+  File "/home/nickyun/links/scratch/new_study/opensemcom/src/opensemcom/semantic.py", line 144, in fit_prototypes
+    self._fit_logistic_head(latents)
+  File "/home/nickyun/links/scratch/new_study/opensemcom/src/opensemcom/semantic.py", line 163, in _fit_logistic_head
+    LogisticRegression(
+TypeError: LogisticRegression.__init__() got an unexpected keyword argument 'multi_class'

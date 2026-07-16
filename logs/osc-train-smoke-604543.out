@@ -1,0 +1,103 @@
+{
+  "indexed_rows": 8832,
+  "regimes": {
+    "channel-open": 384,
+    "class-open": 3264,
+    "closed-id": 1024,
+    "full-open": 4344,
+    "resource-open": 384,
+    "source-open": 1204,
+    "task-open": 1300
+  },
+  "rows": 11904,
+  "splits": {
+    "calibration": 640,
+    "eval": 11264
+  }
+}
+{
+  "calibration_samples": 16,
+  "dataset_manifest": "/scratch/nickyun/new_study/opensemcom/manifests/opensemcom_real.csv",
+  "decisions": {
+    "accept": 16
+  },
+  "evaluated_samples": 16,
+  "manifest_summary": {
+    "indexed_rows": 8832,
+    "regimes": {
+      "channel-open": 384,
+      "class-open": 3264,
+      "closed-id": 1024,
+      "full-open": 4344,
+      "resource-open": 384,
+      "source-open": 1204,
+      "task-open": 1300
+    },
+    "rows": 11904,
+    "splits": {
+      "calibration": 640,
+      "eval": 11264
+    }
+  },
+  "metrics": {
+    "accuracy": 0.125,
+    "adaptation_harm_rate": 0.0,
+    "auroc_ood": 0.5,
+    "certified_accept_rate": 0.0,
+    "coverage": 0.625,
+    "fpr95": 1.0,
+    "open_semantic_outage": 0.875,
+    "open_semantic_risk": 1.2935199730824731,
+    "open_set_f1": 0.0,
+    "prediction_set_size": 4.1875,
+    "risk_latency_product": 2.328335951548452,
+    "risk_per_joule": 0.04755588136332623,
+    "semantic_goodput": 0.041666666666666664,
+    "semantic_outage": 0.875
+  },
+  "name": "smoke_train_604543",
+  "regime": "closed-id",
+  "samples": 16,
+  "seed": 0,
+  "users": 2
+}
+
+scontrol show job 604543
+JobId=604543 JobName=osc-train-smoke
+   UserId=nickyun(3149997) GroupId=nickyun(3149997) MCS_label=N/A
+   Priority=10478983 Nice=0 Account=def-pingw QOS=normal
+   JobState=COMPLETING Reason=None Dependency=(null)
+   Requeue=0 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0
+   RunTime=00:00:08 TimeLimit=00:10:00 TimeMin=N/A
+   SubmitTime=2026-06-17T16:08:03 EligibleTime=2026-06-17T16:08:03
+   AccrueTime=2026-06-17T16:08:03
+   StartTime=2026-06-17T16:08:04 EndTime=2026-06-17T16:08:12 Deadline=N/A
+   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-06-17T16:08:04 Scheduler=Main
+   Partition=debug AllocNode:Sid=trig-login01:3962386
+   ReqNodeList=(null) ExcNodeList=(null)
+   NodeList=trig0039
+   BatchHost=trig0039
+   NumNodes=1 NumCPUs=2 NumTasks=1 CPUs/Task=2 ReqB:S:C:T=0:0:*:*
+   ReqTRES=cpu=2,mem=192500M,node=1,billing=1,gres/gpu=1
+   AllocTRES=cpu=2,mem=192500M,node=1,billing=1,gres/gpu=1
+   Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=*
+   MinCPUsNode=2 MinMemoryNode=192500M MinTmpDiskNode=0
+   Features=(null) DelayBoot=00:00:00
+   OverSubscribe=OK Contiguous=0 Licenses=(null) LicensesAlloc=(null) Network=(null)
+   Command=/scratch/nickyun/new_study/opensemcom/slurm/train_opensemcom_smoke.slurm
+   SubmitLine=SBATCH --comment /opt/slurm/bin/sbatch --export=NONE --get-user-env slurm/train_opensemcom_smoke.slurm --export=NONE --get-user-env slurm/train_opensemcom_smoke.slurm
+   WorkDir=/scratch/nickyun/new_study/opensemcom
+   Comment=/opt/slurm/bin/sbatch --export=NONE --get-user-env slurm/train_opensemcom_smoke.slurm
+   StdErr=/home/nickyun/links/scratch/new_study/opensemcom/logs/osc-train-smoke-604543.err
+   StdIn=/dev/null
+   StdOut=/home/nickyun/links/scratch/new_study/opensemcom/logs/osc-train-smoke-604543.out
+   TresPerNode=gres/gpu:1
+   TresPerTask=cpu=2
+
+sacct -j 604543
+JobID           JobName    Account    Elapsed  MaxVMSize     MaxRSS  SystemCPU    UserCPU ExitCode 
+------------ ---------- ---------- ---------- ---------- ---------- ---------- ---------- -------- 
+604543       osc-train+  def-pingw   00:00:08                         00:00:00   00:00:00      0:0 
+604543.batch      batch  def-pingw   00:00:08                         00:00:00   00:00:00      0:0 
+604543.exte+     extern  def-pingw   00:00:08                         00:00:00   00:00:00      0:0 
+

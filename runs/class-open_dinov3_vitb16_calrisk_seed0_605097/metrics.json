@@ -1,0 +1,49 @@
+{
+  "calibration_samples": 384,
+  "dataset_manifest": "/scratch/nickyun/new_study/opensemcom/manifests/opensemcom_real_facebook__dinov3-vitb16-pretrain-lvd1689m.csv",
+  "decisions": {
+    "accept": 278,
+    "fallback": 3344,
+    "refine": 10,
+    "semantic-HARQ": 16
+  },
+  "evaluated_samples": 3648,
+  "manifest_summary": {
+    "indexed_rows": 0,
+    "regimes": {
+      "channel-open": 384,
+      "class-open": 3264,
+      "closed-id": 768,
+      "full-open": 4344,
+      "resource-open": 384,
+      "source-open": 1204,
+      "task-open": 1044
+    },
+    "rows": 11392,
+    "splits": {
+      "calibration": 384,
+      "eval": 11008
+    }
+  },
+  "metrics": {
+    "accuracy": 0.09813596491228072,
+    "adaptation_harm_rate": 0.013215859030837005,
+    "auroc_ood": 0.9143680747038399,
+    "certified_accept_rate": 0.0,
+    "coverage": 0.07017543859649122,
+    "fpr95": 0.2708333333333333,
+    "open_semantic_outage": 0.12949640287769784,
+    "open_semantic_risk": 0.8989706875794953,
+    "open_set_f1": 0.7067610062893083,
+    "prediction_set_size": 0.08333333333333333,
+    "risk_latency_product": 2.45206083598984,
+    "risk_per_joule": 0.0001446080956760213,
+    "semantic_goodput": 0.03188405797101449,
+    "semantic_outage": 0.9018640350877193
+  },
+  "name": "class-open_dinov3_vitb16_calrisk_seed0_605097",
+  "regime": "class-open",
+  "samples": 20000,
+  "seed": 0,
+  "users": 4
+}

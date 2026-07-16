@@ -13,6 +13,8 @@ import csv
 import hashlib
 import json
 import math
+import os
+import platform
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -103,6 +105,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--cal-known-per-class", type=int, default=64)
     p.add_argument("--cal-open", type=int, default=768)
     p.add_argument("--full-open-severity", default="mild:0.25,medium:0.50,hard:0.75,extreme:0.91")
+    p.add_argument("--checkpoint-dir", help="Save trained task/seed model bundles under this directory")
     return p
 
 
@@ -116,18 +119,22 @@ def main() -> None:
     budgets = [float(x) for x in args.resource_budgets.split(",") if x.strip()]
     output_prefix = Path(args.output_prefix).expanduser().resolve()
     output_prefix.parent.mkdir(parents=True, exist_ok=True)
+    checkpoint_dir = Path(args.checkpoint_dir).expanduser().resolve() if args.checkpoint_dir else None
+    if checkpoint_dir is not None:
+        checkpoint_dir.mkdir(parents=True, exist_ok=True)
     severities = parse_severities(args.full_open_severity)
+    provenance = build_provenance(args, specs, manifest_summary, channel, seeds, targets, budgets, severities)
 
     summary_rows: list[dict] = []
     policy_rows: list[dict] = []
     for seed in seeds:
         for severity_name, open_fraction in severities:
             full_split = make_fullopen_split(rows, seed, args, open_fraction)
-            summary_rows.extend(run_task(f"full-open-{severity_name}", full_split, specs, channel, targets, budgets, seed, policy_rows))
+            summary_rows.extend(run_task(f"full-open-{severity_name}", full_split, specs, channel, targets, budgets, seed, policy_rows, checkpoint_dir, provenance))
         sector_split = make_deepsense_split(rows, seed, sectors=True)
-        summary_rows.extend(run_task("deepsense-sector", sector_split, specs, channel, targets, budgets, seed, policy_rows))
+        summary_rows.extend(run_task("deepsense-sector", sector_split, specs, channel, targets, budgets, seed, policy_rows, checkpoint_dir, provenance))
         exact_split = make_deepsense_split(rows, seed, sectors=False)
-        summary_rows.extend(run_task("deepsense-exact", exact_split, specs, channel, targets, budgets, seed, policy_rows))
+        summary_rows.extend(run_task("deepsense-exact", exact_split, specs, channel, targets, budgets, seed, policy_rows, checkpoint_dir, provenance))
 
     write_csv(output_prefix.with_name(output_prefix.name + "_summary.csv"), summary_rows)
     write_csv(output_prefix.with_name(output_prefix.name + "_policies.csv"), policy_rows)
@@ -135,10 +142,23 @@ def main() -> None:
         json.dumps({**manifest_summary, "channel_context": channel.summary()}, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
-    print(json.dumps({"summary_rows": len(summary_rows), "policy_rows": len(policy_rows), "channel_context": channel.summary()}, indent=2, sort_keys=True))
+    if checkpoint_dir is not None:
+        write_checkpoint_index(checkpoint_dir, provenance)
+    print(json.dumps({"summary_rows": len(summary_rows), "policy_rows": len(policy_rows), "channel_context": channel.summary(), "checkpoint_dir": str(checkpoint_dir) if checkpoint_dir else None}, indent=2, sort_keys=True))
 
 
-def run_task(task_name: str, split: SplitData, specs: dict[str, Path], channel: ChannelContext, targets: list[float], budgets: list[float], seed: int, policy_rows: list[dict]) -> list[dict]:
+def run_task(
+    task_name: str,
+    split: SplitData,
+    specs: dict[str, Path],
+    channel: ChannelContext,
+    targets: list[float],
+    budgets: list[float],
+    seed: int,
+    policy_rows: list[dict],
+    checkpoint_dir: Path | None = None,
+    provenance: dict | None = None,
+) -> list[dict]:
     train_y, train_open = labels_for(task_name, split.train)
     cal_y, cal_open = labels_for(task_name, split.calibration)
     eval_y, eval_open = labels_for(task_name, split.eval)
@@ -156,6 +176,19 @@ def run_task(task_name: str, split: SplitData, specs: dict[str, Path], channel: 
     jscc = fit_deepjscc(arrays["dino"][0], train_y, train_open, n_classes, detector_open=task_name.startswith("full-open"))
     receiver_ch = fit_receiver(arrays["ensemble_channel"][0], train_y, train_open, n_classes, has_open_class=task_name.startswith("full-open"), seed=seed)
     receiver_ens = fit_receiver(arrays["ensemble"][0], train_y, train_open, n_classes, has_open_class=task_name.startswith("full-open"), seed=seed + 1000)
+
+    if checkpoint_dir is not None:
+        save_task_checkpoint_bundle(
+            checkpoint_dir=checkpoint_dir,
+            task_name=task_name,
+            seed=seed,
+            split=split,
+            n_classes=n_classes,
+            models={"dino": dino, "ensemble": ens, "ensemble_channel": ens_ch, "deepjscc": jscc},
+            receiver_channel=receiver_ch,
+            receiver_no_channel=receiver_ens,
+            provenance=provenance or {},
+        )
 
     dino_cal = score_model(dino, arrays["dino"][1])
     dino_eval = score_model(dino, arrays["dino"][2])
@@ -453,14 +486,27 @@ def fuse_scores(left: Scored, right: Scored, disagreement_penalty: float) -> Sco
 
 
 class TrainedReceiver:
-    def __init__(self, input_dim: int, n_classes: int, has_open_class: bool, seed: int, hidden_dim: int = 256, epochs: int = 45, lr: float = 1e-3):
+    def __init__(
+        self,
+        input_dim: int,
+        n_classes: int,
+        has_open_class: bool,
+        seed: int,
+        hidden_dim: int = 256,
+        epochs: int = 45,
+        lr: float = 1e-3,
+        device: str | None = None,
+    ):
         import torch
 
         self.torch = torch
+        self.input_dim = int(input_dim)
         self.n_classes = int(n_classes)
         self.has_open_class = bool(has_open_class)
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-        self.device = torch.device(device)
+        self.seed = int(seed)
+        self.hidden_dim = int(hidden_dim)
+        selected_device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device(selected_device)
         torch.manual_seed(seed)
         if self.device.type == "cuda":
             torch.cuda.manual_seed_all(seed)
@@ -480,6 +526,58 @@ class TrainedReceiver:
         self.lr = float(lr)
         self.mean = None
         self.std = None
+
+    def save_checkpoint(self, path: Path) -> None:
+        torch = self.torch
+        if self.mean is None or self.std is None:
+            raise ValueError("Cannot save an unfitted receiver")
+        payload = {
+            "format_version": 1,
+            "model_type": "opensemcom_trained_receiver",
+            "input_dim": self.input_dim,
+            "n_classes": self.n_classes,
+            "has_open_class": self.has_open_class,
+            "seed": self.seed,
+            "hidden_dim": self.hidden_dim,
+            "epochs": self.epochs,
+            "lr": self.lr,
+            "mean": torch.as_tensor(self.mean, dtype=torch.float32),
+            "std": torch.as_tensor(self.std, dtype=torch.float32),
+            "encoder_state": cpu_state_dict(self.model),
+            "class_head_state": cpu_state_dict(self.class_head),
+            "unsafe_head_state": cpu_state_dict(self.unsafe_head),
+            "accept_head_state": cpu_state_dict(self.accept_head),
+        }
+        atomic_torch_save(payload, path, torch)
+
+    @classmethod
+    def load_checkpoint(cls, path: Path, device: str = "cpu") -> "TrainedReceiver":
+        import torch
+
+        payload = torch.load(path, map_location=device, weights_only=True)
+        if payload.get("format_version") != 1 or payload.get("model_type") != "opensemcom_trained_receiver":
+            raise ValueError(f"Unsupported receiver checkpoint: {path}")
+        receiver = cls(
+            input_dim=int(payload["input_dim"]),
+            n_classes=int(payload["n_classes"]),
+            has_open_class=bool(payload["has_open_class"]),
+            seed=int(payload["seed"]),
+            hidden_dim=int(payload["hidden_dim"]),
+            epochs=int(payload["epochs"]),
+            lr=float(payload["lr"]),
+            device=device,
+        )
+        receiver.model.load_state_dict(payload["encoder_state"])
+        receiver.class_head.load_state_dict(payload["class_head_state"])
+        receiver.unsafe_head.load_state_dict(payload["unsafe_head_state"])
+        receiver.accept_head.load_state_dict(payload["accept_head_state"])
+        receiver.mean = payload["mean"].cpu().numpy()
+        receiver.std = payload["std"].cpu().numpy()
+        receiver.model.eval()
+        receiver.class_head.eval()
+        receiver.unsafe_head.eval()
+        receiver.accept_head.eval()
+        return receiver
 
     def fit(self, x: np.ndarray, y: np.ndarray, open_label: np.ndarray) -> None:
         torch = self.torch
@@ -782,6 +880,162 @@ def count_by(rows: list[Row], fn) -> dict[str, int]:
         key = str(fn(row))
         counts[key] = counts.get(key, 0) + 1
     return dict(sorted(counts.items()))
+
+
+def build_provenance(args, specs: dict[str, Path], manifest_summary: dict, channel: ChannelContext, seeds: list[int], targets: list[float], budgets: list[float], severities: list[tuple[str, float]]) -> dict:
+    import sklearn
+    import torch
+
+    return {
+        "format_version": 1,
+        "suite": "communication_control_suite",
+        "python_version": platform.python_version(),
+        "numpy_version": np.__version__,
+        "sklearn_version": sklearn.__version__,
+        "torch_version": torch.__version__,
+        "platform": platform.platform(),
+        "feature_manifests": {
+            name: {
+                "path": str(path),
+                "bytes": path.stat().st_size,
+                "sha256": sha256_file(path),
+            }
+            for name, path in sorted(specs.items())
+        },
+        "manifest_summary": manifest_summary,
+        "channel_context": channel.summary(),
+        "configuration": {
+            "seeds": seeds,
+            "targets": targets,
+            "resource_budgets": budgets,
+            "eval_size": args.eval_size,
+            "train_known_per_class": args.train_known_per_class,
+            "train_open": args.train_open,
+            "cal_known_per_class": args.cal_known_per_class,
+            "cal_open": args.cal_open,
+            "full_open_severity": dict(severities),
+            "deepsense_scenario_root": str(Path(args.deepsense_scenario_root).expanduser().resolve()),
+        },
+    }
+
+
+def save_task_checkpoint_bundle(
+    checkpoint_dir: Path,
+    task_name: str,
+    seed: int,
+    split: SplitData,
+    n_classes: int,
+    models: dict,
+    receiver_channel: TrainedReceiver,
+    receiver_no_channel: TrainedReceiver,
+    provenance: dict,
+) -> None:
+    import joblib
+
+    bundle_dir = checkpoint_dir / task_name / f"seed_{seed}"
+    bundle_dir.mkdir(parents=True, exist_ok=True)
+    classical_path = bundle_dir / "classical_models.joblib"
+    receiver_channel_path = bundle_dir / "receiver_channel.pt"
+    receiver_no_channel_path = bundle_dir / "receiver_no_channel.pt"
+    atomic_joblib_dump(models, classical_path, joblib)
+    receiver_channel.save_checkpoint(receiver_channel_path)
+    receiver_no_channel.save_checkpoint(receiver_no_channel_path)
+
+    model_files = [classical_path, receiver_channel_path, receiver_no_channel_path]
+    metadata = {
+        "format_version": 1,
+        "task": task_name,
+        "seed": seed,
+        "n_classes": n_classes,
+        "split_rows": {
+            "train": len(split.train),
+            "calibration": len(split.calibration),
+            "eval": len(split.eval),
+        },
+        "split_key_sha256": {
+            "train": row_key_sha256(split.train),
+            "calibration": row_key_sha256(split.calibration),
+            "eval": row_key_sha256(split.eval),
+        },
+        "feature_manifests": provenance.get("feature_manifests", {}),
+        "files": {
+            path.name: {"bytes": path.stat().st_size, "sha256": sha256_file(path)}
+            for path in model_files
+        },
+    }
+    atomic_write_json(bundle_dir / "bundle.json", metadata)
+
+
+def write_checkpoint_index(checkpoint_dir: Path, provenance: dict) -> None:
+    files = sorted(path for path in checkpoint_dir.rglob("*") if path.is_file() and path.name != "checkpoint_index.json")
+    bundles = sorted(str(path.parent.relative_to(checkpoint_dir)) for path in checkpoint_dir.rglob("bundle.json"))
+    payload = {
+        **provenance,
+        "bundles": bundles,
+        "bundle_count": len(bundles),
+        "total_bytes": sum(path.stat().st_size for path in files),
+        "files": {
+            str(path.relative_to(checkpoint_dir)): {"bytes": path.stat().st_size, "sha256": sha256_file(path)}
+            for path in files
+        },
+    }
+    atomic_write_json(checkpoint_dir / "checkpoint_index.json", payload)
+
+
+def load_classical_checkpoint(path: Path) -> dict:
+    import joblib
+
+    return joblib.load(path)
+
+
+def cpu_state_dict(module) -> dict:
+    return {name: tensor.detach().cpu() for name, tensor in module.state_dict().items()}
+
+
+def atomic_torch_save(payload: dict, path: Path, torch_module) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(path.name + ".tmp")
+    try:
+        torch_module.save(payload, tmp)
+        os.replace(tmp, path)
+    finally:
+        tmp.unlink(missing_ok=True)
+
+
+def atomic_joblib_dump(payload, path: Path, joblib_module) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(path.name + ".tmp")
+    try:
+        joblib_module.dump(payload, tmp, compress=3)
+        os.replace(tmp, path)
+    finally:
+        tmp.unlink(missing_ok=True)
+
+
+def atomic_write_json(path: Path, payload: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(path.name + ".tmp")
+    try:
+        tmp.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        os.replace(tmp, path)
+    finally:
+        tmp.unlink(missing_ok=True)
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def row_key_sha256(rows: list[Row]) -> str:
+    digest = hashlib.sha256()
+    for row in rows:
+        digest.update("\0".join(row.key).encode("utf-8"))
+        digest.update(b"\n")
+    return digest.hexdigest()
 
 
 def write_csv(path: Path, rows: list[dict]) -> None:

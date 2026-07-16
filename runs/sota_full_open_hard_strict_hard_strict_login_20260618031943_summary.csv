@@ -1,0 +1,4 @@
+accepted,accepted_correct,accepted_known_accuracy,accepted_open_outage,accepted_unsafe,accuracy,auroc,backbone,coverage,detector_control,fpr95,known_id_accuracy,method,open_fraction,seed,semantic_goodput,severity,target_openout,threshold
+267,256,0.9588014981273408,0.04119850187265917,11,0.25,0.9985758463541666,dino+siglip2+openclip,0.2607421875,learned_selective_risk+confirmed_fallback,0.0,1.0,opensemcom,0.75,0,0.25,hard,openout<=0.04,0.47711040025030255
+259,253,0.9768339768339769,0.023166023166023165,6,0.2490234375,0.9996693929036459,dino+siglip2+openclip,0.2529296875,learned_selective_risk+confirmed_fallback,0.0,0.99609375,opensemcom,0.75,1,0.2470703125,hard,openout<=0.04,0.3949456852746866
+270,256,0.9481481481481482,0.05185185185185185,14,0.25,0.9998677571614584,dino+siglip2+openclip,0.263671875,learned_selective_risk+confirmed_fallback,0.0,1.0,opensemcom,0.75,2,0.25,hard,openout<=0.04,0.7893091117297426

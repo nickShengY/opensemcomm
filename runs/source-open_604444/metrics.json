@@ -1,0 +1,46 @@
+{
+  "calibration_samples": 256,
+  "dataset_manifest": "/scratch/nickyun/new_study/opensemcom/manifests/opensemcom_real.csv",
+  "decisions": {
+    "accept": 512
+  },
+  "evaluated_samples": 512,
+  "manifest_summary": {
+    "indexed_rows": 8832,
+    "regimes": {
+      "channel-open": 384,
+      "class-open": 3264,
+      "closed-id": 1024,
+      "full-open": 4202,
+      "resource-open": 384,
+      "source-open": 1204,
+      "task-open": 930
+    },
+    "rows": 11392,
+    "splits": {
+      "calibration": 640,
+      "eval": 10752
+    }
+  },
+  "metrics": {
+    "accuracy": 0.587890625,
+    "adaptation_harm_rate": 0.0,
+    "auroc_ood": 0.5,
+    "certified_accept_rate": 0.0,
+    "coverage": 0.951171875,
+    "fpr95": 1.0,
+    "open_semantic_outage": 0.412109375,
+    "open_semantic_risk": 0.8290202982630857,
+    "open_set_f1": 0.0,
+    "prediction_set_size": 5.71484375,
+    "risk_latency_product": 1.492236536873541,
+    "risk_per_joule": 0.0009524589823794564,
+    "semantic_goodput": 0.19596354166666666,
+    "semantic_outage": 0.412109375
+  },
+  "name": "source-open_604444",
+  "regime": "source-open",
+  "samples": 512,
+  "seed": 0,
+  "users": 4
+}

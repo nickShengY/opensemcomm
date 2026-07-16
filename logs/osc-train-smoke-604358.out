@@ -1,0 +1,40 @@
+
+scontrol show job 604358
+JobId=604358 JobName=osc-train-smoke
+   UserId=nickyun(3149997) GroupId=nickyun(3149997) MCS_label=N/A
+   Priority=10481754 Nice=0 Account=def-pingw QOS=normal
+   JobState=COMPLETING Reason=NonZeroExitCode Dependency=(null)
+   Requeue=0 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=1:0
+   RunTime=00:00:04 TimeLimit=00:10:00 TimeMin=N/A
+   SubmitTime=2026-06-17T14:34:55 EligibleTime=2026-06-17T14:34:55
+   AccrueTime=2026-06-17T14:34:55
+   StartTime=2026-06-17T14:35:23 EndTime=2026-06-17T14:35:27 Deadline=N/A
+   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-06-17T14:35:23 Scheduler=Main
+   Partition=debug AllocNode:Sid=trig-login01:3324852
+   ReqNodeList=(null) ExcNodeList=(null)
+   NodeList=trig0059
+   BatchHost=trig0059
+   NumNodes=1 NumCPUs=2 NumTasks=1 CPUs/Task=2 ReqB:S:C:T=0:0:*:*
+   ReqTRES=cpu=2,mem=192500M,node=1,billing=1,gres/gpu=1
+   AllocTRES=cpu=2,mem=192500M,node=1,billing=1,gres/gpu=1
+   Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=*
+   MinCPUsNode=2 MinMemoryNode=192500M MinTmpDiskNode=0
+   Features=(null) DelayBoot=00:00:00
+   OverSubscribe=OK Contiguous=0 Licenses=(null) LicensesAlloc=(null) Network=(null)
+   Command=/scratch/nickyun/new_study/opensemcom/slurm/train_opensemcom_smoke.slurm
+   SubmitLine=SBATCH --comment /opt/slurm/bin/sbatch --export=NONE --get-user-env slurm/train_opensemcom_smoke.slurm --export=NONE --get-user-env slurm/train_opensemcom_smoke.slurm
+   WorkDir=/scratch/nickyun/new_study/opensemcom
+   Comment=/opt/slurm/bin/sbatch --export=NONE --get-user-env slurm/train_opensemcom_smoke.slurm
+   StdErr=/home/nickyun/links/scratch/new_study/opensemcom/logs/osc-train-smoke-604358.err
+   StdIn=/dev/null
+   StdOut=/home/nickyun/links/scratch/new_study/opensemcom/logs/osc-train-smoke-604358.out
+   TresPerNode=gres/gpu:1
+   TresPerTask=cpu=2
+
+sacct -j 604358
+JobID           JobName    Account    Elapsed  MaxVMSize     MaxRSS  SystemCPU    UserCPU ExitCode 
+------------ ---------- ---------- ---------- ---------- ---------- ---------- ---------- -------- 
+604358       osc-train+  def-pingw   00:00:04                         00:00:00   00:00:00      0:0 
+604358.batch      batch  def-pingw   00:00:04                         00:00:00   00:00:00      0:0 
+604358.exte+     extern  def-pingw   00:00:04                         00:00:00   00:00:00      0:0 
+
