@@ -6,6 +6,7 @@ import argparse
 import csv
 import hashlib
 import json
+import os
 import pickle
 from pathlib import Path
 from typing import Any
@@ -104,13 +105,26 @@ class PretrainedExtractor:
         if device == "auto":
             device = "cuda" if torch.cuda.is_available() else "cpu"
         self.device = torch.device(device)
+        cache_dir = os.environ.get("TRANSFORMERS_CACHE")
         print("loading processor from local cache", flush=True)
         try:
-            self.processor = AutoProcessor.from_pretrained(model_id, local_files_only=True)
+            self.processor = AutoProcessor.from_pretrained(
+                model_id,
+                local_files_only=True,
+                cache_dir=cache_dir,
+            )
         except Exception:
-            self.processor = AutoImageProcessor.from_pretrained(model_id, local_files_only=True)
+            self.processor = AutoImageProcessor.from_pretrained(
+                model_id,
+                local_files_only=True,
+                cache_dir=cache_dir,
+            )
         print("loading model from local cache", flush=True)
-        self.model = AutoModel.from_pretrained(model_id, local_files_only=True).to(self.device)
+        self.model = AutoModel.from_pretrained(
+            model_id,
+            local_files_only=True,
+            cache_dir=cache_dir,
+        ).to(self.device)
         self.model.eval()
 
     def supports(self, modality: str) -> bool:
@@ -252,7 +266,6 @@ def _pooled_tensor(values):
     if isinstance(values, (tuple, list)) and values:
         return _pooled_tensor(values[0])
     raise TypeError(f"Could not extract tensor from model output type {type(values).__name__}")
-
 
 if __name__ == "__main__":
     main()
