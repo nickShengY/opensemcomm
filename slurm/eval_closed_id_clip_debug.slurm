@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+#SBATCH --job-name=osc-clip-debug
+#SBATCH --partition=gpubase_bygpu_b2
+#SBATCH --time=01:00:00
+#SBATCH --gpus-per-node=1
+#SBATCH --cpus-per-task=4
+#SBATCH --mail-user=amaghri@my.yorku.ca
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --output=/home/nickyun/links/scratch/scratch/ahmed/opensemcomm/logs/%x-%j.out
+#SBATCH --error=/home/nickyun/links/scratch/scratch/ahmed/opensemcomm/logs/%x-%j.err
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+export OPENSEMCOM_PROJECT_ROOT="$PROJECT_ROOT"
+export OPENSEMCOM_SCRATCH_ROOT="$PROJECT_ROOT"
+export OPENSEMCOM_CALIBRATION_DEBUG=1
+source "$PROJECT_ROOT/scripts/env_scratch.sh"
+
+MANIFEST="$PROJECT_ROOT/manifests/opensemcom_real_clip.csv"
+CONFIG="$PROJECT_ROOT/configs/experiments_features/closed-id.yaml"
+SAMPLES="${OPENSEMCOM_DEBUG_SAMPLES:-384}"
+CALIBRATION_SAMPLES="${OPENSEMCOM_DEBUG_CALIBRATION_SAMPLES:-256}"
+USERS="${OPENSEMCOM_DEBUG_USERS:-4}"
+SEED="${OPENSEMCOM_DEBUG_SEED:-0}"
+RUN_NAME="closed_id_clip_debug_${SLURM_JOB_ID}"
+
+python -m opensemcom.cli.validate_manifest "$MANIFEST"
+python -m opensemcom.cli.run_config \
+  --config "$CONFIG" \
+  --manifest "$MANIFEST" \
+  --output-dir "$PROJECT_ROOT/runs" \
+  --samples "$SAMPLES" \
+  --calibration-samples "$CALIBRATION_SAMPLES" \
+  --users "$USERS" \
+  --seed "$SEED" \
+  --run-name "$RUN_NAME" \
+  --traces
+
+python - <<'PY'
+import json
+import os
+from pathlib import Path
+
+import numpy as np
+
+run_name = f"closed_id_clip_debug_{os.environ['SLURM_JOB_ID']}"
+path = Path(os.environ["OPENSEMCOM_PROJECT_ROOT"]) / "runs" / run_name / "traces.json"
+traces = json.loads(path.read_text(encoding="utf-8"))
+scores = np.array([trace["risk_score"] for trace in traces], dtype=float)
+quantiles = [0.0, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 1.0]
+print("EVAL_DEBUG", {"n": len(scores), "risk_q": np.quantile(scores, quantiles).tolist()}, flush=True)
+PY

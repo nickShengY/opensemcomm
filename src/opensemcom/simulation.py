@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections import deque
 from dataclasses import replace
+import os
 from typing import Iterable
 
 import numpy as np
@@ -145,6 +146,19 @@ class OpenSemComSystem:
         if self.config.calibration.mixed_open and open_risk_scores:
             self.receiver.q_refine = min(self.receiver.q_refine, float(np.quantile(open_risk_scores, 0.50)))
         self.receiver.q_refine = max(self.receiver.q_accept + 0.05, self.receiver.q_refine)
+        if os.environ.get("OPENSEMCOM_CALIBRATION_DEBUG") == "1":
+            quantiles = [0.0, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 1.0]
+            print(
+                "CALIB_DEBUG",
+                {
+                    "q_accept": float(self.receiver.q_accept),
+                    "q_refine": float(self.receiver.q_refine),
+                    "risk_q": np.quantile(risk_scores, quantiles).tolist() if risk_scores else [],
+                    "correct_risk_q": np.quantile(correct_risk_scores, quantiles).tolist() if correct_risk_scores else [],
+                    "open_risk_q": np.quantile(open_risk_scores, quantiles).tolist() if open_risk_scores else [],
+                },
+                flush=True,
+            )
 
     def run(self, samples: list[SemanticSample], channel: WirelessChannel) -> ExperimentResult:
         metrics = MetricsAccumulator()
