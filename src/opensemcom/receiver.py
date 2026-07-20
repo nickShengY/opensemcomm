@@ -94,7 +94,10 @@ class SelectiveSemanticReceiver:
             or features.get("task", 0.0) >= 1.0
             or features.get("unknown", 0.0) >= 0.50
             or features.get("openmax", 0.0) >= 0.90
-            or features.get("vim", 0.0) >= 0.90
+            or (
+                self.detector.weights.vim > 0.0
+                and features.get("vim", 0.0) >= 0.90
+            )
         )
         if len(prediction_set) > 1:
             if risk_score <= self.q_refine:
