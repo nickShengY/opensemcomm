@@ -36,6 +36,13 @@ class ChannelKind(str, Enum):
     INTERFERENCE = "interference"
 
 
+class ChannelBackend(str, Enum):
+    """Supported channel simulation backends."""
+
+    NUMPY = "numpy"
+    SIONNA = "sionna"
+
+
 @dataclass(frozen=True)
 class ResourceAction:
     """Wireless and edge resource allocation for one semantic transmission."""

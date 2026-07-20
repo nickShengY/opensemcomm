@@ -3,15 +3,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
 
 import numpy as np
 
 from opensemcom.config import ChannelConfig
+from opensemcom.phy import SionnaDigitalLink
 from opensemcom.types import Array, ChannelBackend, ChannelKind
-
-if TYPE_CHECKING:
-    import torch
 
 
 def snr_to_noise_std(signal: Array, snr_db: float) -> float:
@@ -95,41 +92,23 @@ class WirelessChannel:
 
 
 class SionnaChannel(WirelessChannel):
-    """Minimal Sionna-backed channel wrapper preserving the OpenSemCom contract."""
+    """Sionna coded-link wrapper preserving the OpenSemCom channel contract."""
 
     def __init__(self, config: ChannelConfig, rng: np.random.Generator):
         super().__init__(config, rng)
-        self._torch, awgn_cls = _load_sionna_awgn()
-        self._awgn = awgn_cls(precision="double", device=config.sionna_device)
+        self._link = SionnaDigitalLink(config)
 
     def transmit(self, symbols: Array) -> ChannelObservation:
-        if self.config.kind != ChannelKind.AWGN:
-            raise NotImplementedError(
-                "The minimal Sionna backend currently supports only AWGN. "
-                "Use backend='numpy' for Rayleigh, interference, blockage, Doppler, or MIMO."
-            )
+        observation = self._link.transmit(symbols)
+        return ChannelObservation(received=observation.received, state=observation.state)
 
-        x = np.asarray(symbols, dtype=np.float64)
-        noise_std = snr_to_noise_std(x, self.config.snr_db)
-        noise_variance = float(2.0 * (noise_std**2))
-
-        x_tensor = self._torch.from_numpy(x).to(device=self.config.sionna_device, dtype=self._torch.float64)
-        x_complex = self._torch.complex(x_tensor, self._torch.zeros_like(x_tensor))
-        y_complex = self._awgn(x_complex, noise_variance)
-        y = y_complex.real.detach().cpu().numpy().astype(np.float64, copy=False)
-
-        effective_snr = 10.0 * np.log10(1.0 / max(noise_std**2, 1e-9))
-        state = {
-            "snr_db": float(self.config.snr_db),
-            "effective_snr_db": float(effective_snr),
-            "gain": 1.0,
-            "interference_power": 0.0,
-            "blockage_probability": 0.0,
-            "doppler_hz": 0.0,
-            "burst_probability": 0.0,
-            "csi_error": 0.0,
-        }
-        return ChannelObservation(received=y, state=state)
+    def transmit_repeated(self, symbols: Array, repetitions: int, power: float = 1.0) -> ChannelObservation:
+        amplitude = float(np.sqrt(max(power, 1e-9)))
+        observation = self._link.transmit(np.asarray(symbols, dtype=np.float64) * amplitude, repetitions)
+        return ChannelObservation(
+            received=observation.received / amplitude,
+            state={**observation.state, "tx_power": float(power)},
+        )
 
 
 def build_channel(config: ChannelConfig, rng: np.random.Generator) -> WirelessChannel:
@@ -155,16 +134,10 @@ def shifted_channel(base: ChannelConfig, kind: ChannelKind, snr_delta: float = 0
         csi_error=max(base.csi_error, 0.05),
         mimo_rx=base.mimo_rx,
         sionna_device=base.sionna_device,
+        sionna_seed=base.sionna_seed,
+        sionna_bits_per_symbol=base.sionna_bits_per_symbol,
+        sionna_quantization_bits=base.sionna_quantization_bits,
+        sionna_ldpc_info_bits=base.sionna_ldpc_info_bits,
+        sionna_ldpc_codeword_bits=base.sionna_ldpc_codeword_bits,
+        sionna_rician_k_factor=base.sionna_rician_k_factor,
     )
-
-
-def _load_sionna_awgn() -> tuple[type["torch"], type]:
-    try:
-        import torch
-        from sionna.phy.channel import AWGN
-    except ImportError as exc:
-        raise RuntimeError(
-            "Sionna backend requested, but Sionna/PyTorch are not available. "
-            "Install a Sionna-compatible environment first."
-        ) from exc
-    return torch, AWGN

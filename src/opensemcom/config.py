@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from opensemcom.types import ChannelKind, ResourceBudget
+from opensemcom.types import ChannelBackend, ChannelKind, ResourceBudget
 
 
 @dataclass(frozen=True)
@@ -95,6 +95,7 @@ class ModelConfig:
 
 @dataclass(frozen=True)
 class ChannelConfig:
+    backend: ChannelBackend = ChannelBackend.NUMPY
     kind: ChannelKind = ChannelKind.AWGN
     snr_db: float = 12.0
     fading_scale: float = 1.0
@@ -104,6 +105,13 @@ class ChannelConfig:
     burst_probability: float = 0.0
     csi_error: float = 0.0
     mimo_rx: int = 2
+    sionna_device: str = "cpu"
+    sionna_seed: int | None = None
+    sionna_bits_per_symbol: int = 2
+    sionna_quantization_bits: int = 8
+    sionna_ldpc_info_bits: int = 256
+    sionna_ldpc_codeword_bits: int = 512
+    sionna_rician_k_factor: float = 5.0
 
 
 @dataclass(frozen=True)
