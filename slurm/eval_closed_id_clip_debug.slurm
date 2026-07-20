@@ -17,7 +17,7 @@ export OPENSEMCOM_SCRATCH_ROOT="$PROJECT_ROOT"
 export OPENSEMCOM_CALIBRATION_DEBUG=1
 source "$PROJECT_ROOT/scripts/env_scratch.sh"
 
-MANIFEST="$PROJECT_ROOT/manifests/opensemcom_real_clip.csv"
+MANIFEST="$PROJECT_ROOT/manifests/opensemcom_rorqual_clip.csv"
 CONFIG="$PROJECT_ROOT/configs/experiments_features/closed-id.yaml"
 SAMPLES="${OPENSEMCOM_DEBUG_SAMPLES:-384}"
 CALIBRATION_SAMPLES="${OPENSEMCOM_DEBUG_CALIBRATION_SAMPLES:-256}"
