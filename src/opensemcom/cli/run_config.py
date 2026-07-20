@@ -13,7 +13,7 @@ from opensemcom.benchmark import BenchmarkRegime
 from opensemcom.config import AblationConfig, CalibrationConfig, ChannelConfig, DetectorWeights, ModelConfig, OpenSemComConfig
 from opensemcom.manifest import validate_manifest
 from opensemcom.simulation import run_experiment
-from opensemcom.types import ChannelKind
+from opensemcom.types import ChannelBackend, ChannelKind
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -100,6 +100,8 @@ def _config_from_dict(raw: dict[str, Any]) -> OpenSemComConfig:
         config = replace(config, model=_dataclass_from_dict(ModelConfig, raw["model"]))
     if "channel" in raw:
         channel_raw = dict(raw["channel"])
+        if "backend" in channel_raw:
+            channel_raw["backend"] = ChannelBackend(channel_raw["backend"])
         if "kind" in channel_raw:
             channel_raw["kind"] = ChannelKind(channel_raw["kind"])
         config = replace(config, channel=_dataclass_from_dict(ChannelConfig, channel_raw))

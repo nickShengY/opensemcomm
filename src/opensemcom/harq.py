@@ -141,6 +141,9 @@ class SemanticHARQ:
         )
 
     def _transmit_repeated(self, symbols, repetitions: int, power: float = 1.0):
+        transmit_repeated = getattr(self.channel, "transmit_repeated", None)
+        if transmit_repeated is not None:
+            return transmit_repeated(symbols, repetitions, power)
         repetitions = max(1, int(repetitions))
         amplitude = float(np.sqrt(max(power, 1e-9)))
         transmitted = symbols * amplitude

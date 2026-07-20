@@ -7,7 +7,8 @@ from dataclasses import dataclass
 import numpy as np
 
 from opensemcom.config import ChannelConfig
-from opensemcom.types import Array, ChannelKind
+from opensemcom.phy import SionnaDigitalLink
+from opensemcom.types import Array, ChannelBackend, ChannelKind
 
 
 def snr_to_noise_std(signal: Array, snr_db: float) -> float:
@@ -90,10 +91,39 @@ class WirelessChannel:
         return combined, gain
 
 
+class SionnaChannel(WirelessChannel):
+    """Sionna coded-link wrapper preserving the OpenSemCom channel contract."""
+
+    def __init__(self, config: ChannelConfig, rng: np.random.Generator):
+        super().__init__(config, rng)
+        self._link = SionnaDigitalLink(config)
+
+    def transmit(self, symbols: Array) -> ChannelObservation:
+        observation = self._link.transmit(symbols)
+        return ChannelObservation(received=observation.received, state=observation.state)
+
+    def transmit_repeated(self, symbols: Array, repetitions: int, power: float = 1.0) -> ChannelObservation:
+        amplitude = float(np.sqrt(max(power, 1e-9)))
+        observation = self._link.transmit(np.asarray(symbols, dtype=np.float64) * amplitude, repetitions)
+        return ChannelObservation(
+            received=observation.received / amplitude,
+            state={**observation.state, "tx_power": float(power)},
+        )
+
+
+def build_channel(config: ChannelConfig, rng: np.random.Generator) -> WirelessChannel:
+    """Construct the configured channel backend."""
+
+    if config.backend == ChannelBackend.SIONNA:
+        return SionnaChannel(config, rng)
+    return WirelessChannel(config, rng)
+
+
 def shifted_channel(base: ChannelConfig, kind: ChannelKind, snr_delta: float = 0.0) -> ChannelConfig:
     """Create a channel-open variant without mutating the base config."""
 
     return ChannelConfig(
+        backend=base.backend,
         kind=kind,
         snr_db=base.snr_db + snr_delta,
         fading_scale=base.fading_scale,
@@ -103,4 +133,11 @@ def shifted_channel(base: ChannelConfig, kind: ChannelKind, snr_delta: float = 0
         burst_probability=max(base.burst_probability, 0.10 if kind == ChannelKind.BURST else base.burst_probability),
         csi_error=max(base.csi_error, 0.05),
         mimo_rx=base.mimo_rx,
+        sionna_device=base.sionna_device,
+        sionna_seed=base.sionna_seed,
+        sionna_bits_per_symbol=base.sionna_bits_per_symbol,
+        sionna_quantization_bits=base.sionna_quantization_bits,
+        sionna_ldpc_info_bits=base.sionna_ldpc_info_bits,
+        sionna_ldpc_codeword_bits=base.sionna_ldpc_codeword_bits,
+        sionna_rician_k_factor=base.sionna_rician_k_factor,
     )

@@ -12,7 +12,7 @@ import numpy as np
 from opensemcom.adaptation import SafeAdapter
 from opensemcom.benchmark import BenchmarkRegime, OpenSemComBench
 from opensemcom.calibration import ConformalCalibrator
-from opensemcom.channels import WirelessChannel
+from opensemcom.channels import WirelessChannel, build_channel
 from opensemcom.codec import CodecLibrary
 from opensemcom.config import OpenSemComConfig
 from opensemcom.harq import SemanticHARQ
@@ -242,6 +242,9 @@ class OpenSemComSystem:
         return self._transmit_repeated(channel, symbols, repetitions, power)
 
     def _transmit_repeated(self, channel: WirelessChannel, symbols: np.ndarray, repetitions: int, power: float = 1.0):
+        transmit_repeated = getattr(channel, "transmit_repeated", None)
+        if transmit_repeated is not None:
+            return transmit_repeated(symbols, repetitions, power)
         repetitions = max(1, int(repetitions))
         amplitude = float(np.sqrt(max(power, 1e-9)))
         transmitted = symbols * amplitude
@@ -309,7 +312,9 @@ def run_experiment(
         config = replace(config, seed=seed)
     bench = OpenSemComBench(config, regime, manifest_path=dataset_manifest)
     channel_config = bench.channel_config()
-    channel = WirelessChannel(channel_config, np.random.default_rng(config.seed + 100))
+    if channel_config.backend.value == "sionna" and channel_config.sionna_seed is None:
+        channel_config = replace(channel_config, sionna_seed=config.seed + 100)
+    channel = build_channel(channel_config, np.random.default_rng(config.seed + 100))
     system = OpenSemComSystem(replace(config, channel=channel_config))
     calibration_stream = bench.calibration_samples(calibration_samples)
     system.calibrate(calibration_stream, channel)
