@@ -5,9 +5,9 @@ from opensemcom.receiver import SelectiveSemanticReceiver
 from opensemcom.types import Decision
 
 
-def make_receiver(vim_weight: float) -> SelectiveSemanticReceiver:
+def make_receiver(vim_weight: float = 0.0, openmax_weight: float = 0.0) -> SelectiveSemanticReceiver:
     receiver = SelectiveSemanticReceiver.__new__(SelectiveSemanticReceiver)
-    receiver.detector = SimpleNamespace(weights=DetectorWeights(vim=vim_weight))
+    receiver.detector = SimpleNamespace(weights=DetectorWeights(vim=vim_weight, openmax=openmax_weight))
     receiver.config = CalibrationConfig()
     receiver.q_accept = 0.30
     receiver.q_refine = 0.40
@@ -28,3 +28,7 @@ def test_enabled_vim_still_requests_refinement():
     decision = receiver._decision(0.20, {0}, {"confidence": 1.0, "vim": 1.0})
 
     assert decision == Decision.REFINE
+
+def test_openmax_gate_respects_detector_weight():
+    assert make_receiver(openmax_weight=0.0)._decision(0.20, {0}, {"confidence": 1.0, "openmax": 1.0}) == Decision.ACCEPT
+    assert make_receiver(openmax_weight=0.10)._decision(0.20, {0}, {"confidence": 1.0, "openmax": 1.0}) == Decision.REFINE
