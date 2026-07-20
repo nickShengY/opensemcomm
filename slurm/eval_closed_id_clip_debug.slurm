@@ -11,8 +11,7 @@
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+PROJECT_ROOT="$(cd "${SLURM_SUBMIT_DIR:?Submit this job from the repository root}" && pwd)"
 export OPENSEMCOM_PROJECT_ROOT="$PROJECT_ROOT"
 export OPENSEMCOM_SCRATCH_ROOT="$PROJECT_ROOT"
 export OPENSEMCOM_CALIBRATION_DEBUG=1
