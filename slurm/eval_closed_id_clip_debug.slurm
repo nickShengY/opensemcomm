@@ -40,6 +40,7 @@ python -m opensemcom.cli.run_config \
 python - <<'PY'
 import json
 import os
+from collections import Counter
 from pathlib import Path
 
 import numpy as np
@@ -48,6 +49,17 @@ run_name = f"closed_id_clip_debug_{os.environ['SLURM_JOB_ID']}"
 path = Path(os.environ["OPENSEMCOM_PROJECT_ROOT"]) / "runs" / run_name / "traces.json"
 traces = json.loads(path.read_text(encoding="utf-8"))
 scores = np.array([trace["risk_score"] for trace in traces], dtype=float)
+confidences = np.array([trace["confidence"] for trace in traces], dtype=float)
 quantiles = [0.0, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 1.0]
-print("EVAL_DEBUG", {"n": len(scores), "risk_q": np.quantile(scores, quantiles).tolist()}, flush=True)
+print(
+    "EVAL_DEBUG",
+    {
+        "n": len(scores),
+        "risk_q": np.quantile(scores, quantiles).tolist(),
+        "confidence_q": np.quantile(confidences, quantiles).tolist(),
+        "prediction_set_sizes": dict(sorted(Counter(trace["prediction_set_size"] for trace in traces).items())),
+        "decisions": dict(sorted(Counter(trace["decision"] for trace in traces).items())),
+    },
+    flush=True,
+)
 PY

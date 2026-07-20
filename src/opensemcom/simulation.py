@@ -153,6 +153,8 @@ class OpenSemComSystem:
                 {
                     "q_accept": float(self.receiver.q_accept),
                     "q_refine": float(self.receiver.q_refine),
+                    "conformal_nonconformity_threshold": float(self.calibrator.threshold),
+                    "conformal_probability_cutoff": float(1.0 - self.calibrator.threshold),
                     "risk_q": np.quantile(risk_scores, quantiles).tolist() if risk_scores else [],
                     "correct_risk_q": np.quantile(correct_risk_scores, quantiles).tolist() if correct_risk_scores else [],
                     "open_risk_q": np.quantile(open_risk_scores, quantiles).tolist() if open_risk_scores else [],
@@ -220,6 +222,7 @@ class OpenSemComSystem:
                     "codec_id": output.action.codec_id,
                     "repetitions": output.action.repetitions,
                     "confidence": float(np.max(output.probabilities)) if output.probabilities.size else 0.0,
+                    "prediction_set_size": len(output.prediction_set),
                     "features": output.features,
                     "harq_refinement_rounds": int(output.features.get("harq_refinement_rounds", 0.0)),
                     "harq_transmissions": int(output.features.get("harq_transmissions", 1.0)),
