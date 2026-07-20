@@ -288,7 +288,9 @@ class OpenSemComSystem:
         return threshold_indices
 
     def _calibration_layer_sets(self) -> tuple[tuple[str, ...], ...]:
-        return (("core", "refinement", "evidence"),)
+        return (
+            ("core",),
+        )
 
 
 def run_experiment(
