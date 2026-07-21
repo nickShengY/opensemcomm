@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env bash
+#!/usr/bin/env bash
 #SBATCH --job-name=osc-rorqual-clip-sionna-smoke
 #SBATCH --partition=gpubase_bygpu_b2
 #SBATCH --time=02:00:00
