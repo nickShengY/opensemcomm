@@ -55,7 +55,7 @@ class SionnaDigitalLink:
             self._torch.manual_seed(int(config.sionna_seed))
 
         precision = "double"
-        device = config.sionna_device
+        device = _resolve_sionna_device(config.sionna_device, self._sionna.config.available_devices)
         self._encoder = self._sionna.LDPC5GEncoder(
             config.sionna_ldpc_info_bits,
             config.sionna_ldpc_codeword_bits,
