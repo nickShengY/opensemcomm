@@ -139,3 +139,24 @@ def test_full_open_sionna_experiment_runs(tmp_path):
     assert "open_semantic_risk" in result.metrics
     assert "total_harq_transmissions" in result.metrics
     assert len(result.traces) == 4
+@pytest.mark.skipif(not SIONNA_AVAILABLE, reason="Sionna is not installed.")
+def test_channel_open_sionna_experiment_runs(tmp_path):
+    manifest = write_manifest(tmp_path)
+    config = OpenSemComConfig(
+        channel=ChannelConfig(
+            backend=ChannelBackend.SIONNA,
+            snr_db=16.0,
+            sionna_seed=9,
+        )
+    )
+    result = run_experiment(
+        config=config,
+        regime=BenchmarkRegime.CHANNEL_OPEN,
+        samples=2,
+        calibration_samples=2,
+        users=2,
+        seed=3,
+        dataset_manifest=str(manifest),
+    )
+    assert "open_semantic_risk" in result.metrics
+    assert len(result.traces) == 2

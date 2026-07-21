@@ -146,8 +146,8 @@ class SionnaDigitalLink:
         h = h[..., 0]
         y = self._awgn(h.unsqueeze(-1) * transmitted.unsqueeze(1), noise_variance)
         channel_power = self._torch.sum(self._torch.abs(h) ** 2, dim=1)
-        equalized = self._torch.sum(self._torch.conj(h).unsqueeze(-1) * y, dim=1) / channel_power
-        effective_noise = noise_variance / channel_power
+        equalized = self._torch.sum(self._torch.conj(h).unsqueeze(-1) * y, dim=1) / channel_power.unsqueeze(-1)
+        effective_noise = noise_variance / channel_power.unsqueeze(-1)
         gain = float(self._torch.mean(self._torch.sqrt(channel_power)).detach().cpu())
         return equalized, effective_noise, gain
 
