@@ -1,10 +1,13 @@
 import importlib.util
 
+import numpy as np
+
 import pytest
 
-from opensemcom.benchmark import BenchmarkRegime
+from opensemcom.benchmark import BenchmarkRegime, OpenSemComBench
 from opensemcom.config import ChannelConfig, OpenSemComConfig
-from opensemcom.simulation import run_experiment
+from opensemcom.channels import WirelessChannel
+from opensemcom.simulation import OpenSemComSystem, run_experiment
 from opensemcom.types import ChannelBackend
 
 
@@ -74,6 +77,29 @@ def test_manifest_with_utf8_bom_runs_from_windows_tools(tmp_path):
         dataset_manifest=str(manifest),
     )
     assert len(result.traces) == 2
+
+
+def test_calibration_uses_core_payload_for_conformal_thresholds(tmp_path, monkeypatch):
+    manifest = write_manifest(tmp_path)
+    config = OpenSemComConfig()
+    system = OpenSemComSystem(config)
+    bench = OpenSemComBench(config, BenchmarkRegime.CLOSED_ID, manifest)
+    encoded_layers = []
+    original_encode = system.encoder.encode
+
+    def capture_encode(layers, layer_names):
+        encoded_layers.append(tuple(layer_names))
+        return original_encode(layers, layer_names)
+
+    monkeypatch.setattr(system.encoder, "encode", capture_encode)
+    system.calibrate(
+        bench.calibration_samples(2),
+        WirelessChannel(config.channel, np.random.default_rng(7)),
+    )
+
+    assert encoded_layers
+    assert set(encoded_layers) == {("core",)}
+
 
 def test_experiment_reports_resource_usage_metrics(tmp_path):
     manifest = write_manifest(tmp_path)

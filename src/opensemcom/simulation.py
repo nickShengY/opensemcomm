@@ -102,7 +102,7 @@ class OpenSemComSystem:
         use_threshold_subset = bool(threshold_indices)
         for idx, sample in enumerate(samples):
             layers = self.parser.parse(sample)
-            symbols = self.encoder.encode(layers, ("core", "refinement", "evidence"))
+            symbols = self.encoder.encode(layers, ("core",))
             observation = self._calibration_transmit(channel, symbols)
             y_hat, probs, latent = self.decoder.decode(observation.received)
             _, prototype_distance = self.decoder.prototype_book.nearest(latent)
