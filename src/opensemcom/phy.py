@@ -216,6 +216,20 @@ def _bits_to_values(bits: Array, quantization_bits: int) -> Array:
     return integers.astype(np.float64) * (2.0 / levels) - 1.0
 
 
+
+
+def _resolve_sionna_device(requested: str, available_devices: list[str]) -> str:
+    """Map user-friendly device names to the concrete devices Sionna exposes."""
+
+    if requested in available_devices:
+        return requested
+    if requested == "cuda":
+        for device in available_devices:
+            if device.startswith("cuda"):
+                return device
+    raise ValueError(
+        f"Invalid Sionna device '{requested}'. Available devices: {', '.join(available_devices) or 'none'}"
+    )
 def _load_sionna_components():
     try:
         import sionna.phy as sionna_phy

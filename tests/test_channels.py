@@ -5,6 +5,7 @@ import pytest
 
 from opensemcom.channels import WirelessChannel, build_channel
 from opensemcom.config import ChannelConfig
+from opensemcom.phy import _resolve_sionna_device
 from opensemcom.types import ChannelBackend, ChannelKind
 
 
@@ -29,6 +30,10 @@ def test_build_channel_defaults_to_numpy_backend():
     rng = np.random.default_rng(2)
     channel = build_channel(ChannelConfig(), rng)
     assert isinstance(channel, WirelessChannel)
+
+
+def test_resolve_sionna_device_maps_cuda_alias():
+    assert _resolve_sionna_device("cuda", ["cpu", "cuda:0"]) == "cuda:0"
 
 
 SIONNA_AVAILABLE = importlib.util.find_spec("sionna") is not None
@@ -79,6 +84,8 @@ def test_sionna_repetitions_use_chase_combining():
     assert observation.received.shape == (16,)
     assert observation.state["repetitions"] == 2.0
     assert observation.state["harq_chase_combining"] == 1.0
+
+
 @pytest.mark.skipif(not SIONNA_AVAILABLE, reason="Sionna is not installed.")
 def test_sionna_interference_channel_reports_interference_power():
     channel = build_channel(
