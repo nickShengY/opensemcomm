@@ -79,3 +79,20 @@ def test_sionna_repetitions_use_chase_combining():
     assert observation.received.shape == (16,)
     assert observation.state["repetitions"] == 2.0
     assert observation.state["harq_chase_combining"] == 1.0
+@pytest.mark.skipif(not SIONNA_AVAILABLE, reason="Sionna is not installed.")
+def test_sionna_interference_channel_reports_interference_power():
+    channel = build_channel(
+        ChannelConfig(
+            backend=ChannelBackend.SIONNA,
+            kind=ChannelKind.INTERFERENCE,
+            snr_db=8.0,
+            interference_power=0.25,
+            sionna_seed=21,
+        ),
+        np.random.default_rng(5),
+    )
+
+    observation = channel.transmit(np.linspace(-0.5, 0.5, 12))
+
+    assert observation.received.shape == (12,)
+    assert observation.state["interference_power"] == 0.25

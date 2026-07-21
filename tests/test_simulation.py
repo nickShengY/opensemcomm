@@ -1,5 +1,11 @@
+import importlib.util
+
+import pytest
+
 from opensemcom.benchmark import BenchmarkRegime
+from opensemcom.config import ChannelConfig, OpenSemComConfig
 from opensemcom.simulation import run_experiment
+from opensemcom.types import ChannelBackend
 
 
 def write_manifest(tmp_path):
@@ -108,3 +114,28 @@ def test_experiment_reports_resource_usage_metrics(tmp_path):
     assert result.metrics["total_harq_transmissions"] >= 4.0
     assert 0.0 <= result.metrics["harq_refined_sample_rate"] <= 1.0
     assert 0.0 <= result.metrics["harq_hit_max_refinements_rate"] <= 1.0
+SIONNA_AVAILABLE = importlib.util.find_spec("sionna") is not None
+
+
+@pytest.mark.skipif(not SIONNA_AVAILABLE, reason="Sionna is not installed.")
+def test_full_open_sionna_experiment_runs(tmp_path):
+    manifest = write_manifest(tmp_path)
+    config = OpenSemComConfig(
+        channel=ChannelConfig(
+            backend=ChannelBackend.SIONNA,
+            snr_db=16.0,
+            sionna_seed=9,
+        )
+    )
+    result = run_experiment(
+        config=config,
+        regime=BenchmarkRegime.FULL_OPEN,
+        samples=4,
+        calibration_samples=2,
+        users=2,
+        seed=3,
+        dataset_manifest=str(manifest),
+    )
+    assert "open_semantic_risk" in result.metrics
+    assert "total_harq_transmissions" in result.metrics
+    assert len(result.traces) == 4

@@ -1,0 +1,45 @@
+﻿name: class-open_clip_sionna_seed0
+regime: class-open
+dataset_manifest: /home/nickyun/links/scratch/new_study/opensemcom/manifests/opensemcom_real_clip.csv
+output_dir: /home/nickyun/links/scratch/new_study/opensemcom/runs
+samples: 20000
+calibration_samples: 640
+users: 4
+seed: 0
+model:
+  input_dim: 512
+  latent_dim: 512
+  projection: identity
+  classifier: logistic
+  num_known_classes: 6
+  num_unknown_classes: 2
+  tasks:
+    - classification
+    - detection
+    - segmentation
+    - driving-detection
+    - beam-prediction
+    - text-classification
+  train_tasks:
+    - classification
+  train_domains:
+    - cifar10
+channel:
+  backend: sionna
+  kind: awgn
+  snr_db: 18.0
+  sionna_device: cuda
+  sionna_bits_per_symbol: 2
+  sionna_quantization_bits: 8
+  sionna_ldpc_info_bits: 256
+  sionna_ldpc_codeword_bits: 512
+detector_weights:
+  prediction: 0.2
+  prototype: 0.1
+  energy: 0.1
+  mahalanobis: 0.3
+  reconstruction: 0.0
+  channel: 0.1
+  task: 0.15
+  adaptation: 0.05
+

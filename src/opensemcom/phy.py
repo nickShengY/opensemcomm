@@ -34,6 +34,7 @@ class SionnaDigitalLink:
 
     _SUPPORTED_KINDS = {
         ChannelKind.AWGN,
+        ChannelKind.INTERFERENCE,
         ChannelKind.RAYLEIGH,
         ChannelKind.RICIAN,
         ChannelKind.MIMO,
@@ -51,6 +52,7 @@ class SionnaDigitalLink:
         self._torch, self._sionna = _load_sionna_components()
         if config.sionna_seed is not None:
             self._sionna.config.seed = int(config.sionna_seed)
+            self._torch.manual_seed(int(config.sionna_seed))
 
         precision = "double"
         device = config.sionna_device
@@ -125,8 +127,13 @@ class SionnaDigitalLink:
         return combined_llrs, float(np.mean(gain_values))
 
     def _propagate(self, transmitted, noise_variance: float):
-        if self.config.kind == ChannelKind.AWGN:
-            return self._awgn(transmitted, noise_variance), noise_variance, 1.0
+        if self.config.kind in {ChannelKind.AWGN, ChannelKind.INTERFERENCE}:
+            impaired = transmitted
+            effective_noise = noise_variance
+            if self.config.kind == ChannelKind.INTERFERENCE and self.config.interference_power > 0.0:
+                impaired = self._add_interference(impaired)
+                effective_noise += float(self.config.interference_power)
+            return self._awgn(impaired, noise_variance), effective_noise, 1.0
 
         batch_size = transmitted.shape[0]
         h = self._flat_fading(batch_size)
@@ -144,6 +151,12 @@ class SionnaDigitalLink:
         gain = float(self._torch.mean(self._torch.sqrt(channel_power)).detach().cpu())
         return equalized, effective_noise, gain
 
+    def _add_interference(self, transmitted):
+        std = float(np.sqrt(max(self.config.interference_power, 0.0) / 2.0))
+        real = self._torch.randn_like(transmitted.real) * std
+        imag = self._torch.randn_like(transmitted.real) * std
+        return transmitted + self._torch.complex(real, imag)
+
     def _pad_blocks(self, bits: Array) -> tuple[Array, int]:
         k = self.config.sionna_ldpc_info_bits
         blocks = max(1, int(np.ceil(bits.size / k)))
@@ -157,7 +170,7 @@ class SionnaDigitalLink:
             "snr_db": float(self.config.snr_db),
             "effective_snr_db": float(effective_snr),
             "gain": float(gain),
-            "interference_power": 0.0,
+            "interference_power": float(self.config.interference_power if self.config.kind == ChannelKind.INTERFERENCE else 0.0),
             "blockage_probability": 0.0,
             "doppler_hz": 0.0,
             "burst_probability": 0.0,
@@ -225,3 +238,4 @@ def _load_sionna_components():
         Mapper=Mapper,
         Demapper=Demapper,
     )
+
