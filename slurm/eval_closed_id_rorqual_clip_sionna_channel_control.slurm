@@ -12,7 +12,7 @@
 
 set -euo pipefail
 
-CONFIG_STEM="${1:?Usage: sbatch $0 <closed-id-awgn-12db|closed-id-rayleigh-12db>}"
+CONFIG_STEM="${1:?Usage: sbatch $0 <closed-id-awgn-17db|closed-id-awgn-12db|closed-id-rayleigh-12db>}"
 export CONFIG_STEM
 PROJECT_ROOT="$(cd "${SLURM_SUBMIT_DIR:?Submit this script from the repository root}" && pwd)"
 export OPENSEMCOM_PROJECT_ROOT="$PROJECT_ROOT"
@@ -29,7 +29,7 @@ SEED="${OPENSEMCOM_DEBUG_SEED:-0}"
 RUN_NAME="${CONFIG_STEM}_${SLURM_JOB_ID}"
 
 case "$CONFIG_STEM" in
-  closed-id-awgn-12db|closed-id-rayleigh-12db) ;;
+  closed-id-awgn-17db|closed-id-awgn-12db|closed-id-rayleigh-12db) ;;
   *) echo "Unsupported channel-control config: $CONFIG_STEM" >&2; exit 2 ;;
 esac
 
