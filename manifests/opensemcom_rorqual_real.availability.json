@@ -1,0 +1,42 @@
+{
+  "bdd100k": {
+    "available": true,
+    "downloaded_images": 0,
+    "reason": "official BDD100K labels and images staged from downloaded archives",
+    "root": "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/data/bdd100k",
+    "rows": 512
+  },
+  "cifar10": {
+    "available": true,
+    "root": "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/data/cifar10/cifar-10-batches-py",
+    "rows": 2432
+  },
+  "cifar100": {
+    "available": true,
+    "root": "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/data/cifar100/cifar-100-python",
+    "rows": 6400
+  },
+  "cityscapes": {
+    "available": false,
+    "reason": "not found under provided scratch roots"
+  },
+  "coco": {
+    "available": false,
+    "reason": "not found under provided scratch roots"
+  },
+  "deepsense6g": {
+    "available": true,
+    "root": "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/data/deepsense6g",
+    "rows": 512
+  },
+  "nuscenes": {
+    "available": true,
+    "root": "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/data/nuscenes",
+    "rows": 512
+  },
+  "text": {
+    "available": true,
+    "root": "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/data/ag_news",
+    "rows": 512
+  }
+}
