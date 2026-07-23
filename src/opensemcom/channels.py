@@ -105,9 +105,13 @@ class SionnaChannel(WirelessChannel):
     def transmit_repeated(self, symbols: Array, repetitions: int, power: float = 1.0) -> ChannelObservation:
         amplitude = float(np.sqrt(max(power, 1e-9)))
         observation = self._link.transmit(np.asarray(symbols, dtype=np.float64) * amplitude, repetitions)
+        state = dict(observation.state)
+        # Link MSEs are measured before undoing the transmit-power amplitude.
+        for key in ("phy_payload_mse", "phy_quantization_mse"):
+            state[key] = float(state.get(key, 0.0) / max(power, 1e-9))
         return ChannelObservation(
             received=observation.received / amplitude,
-            state={**observation.state, "tx_power": float(power)},
+            state={**state, "tx_power": float(power)},
         )
 
 

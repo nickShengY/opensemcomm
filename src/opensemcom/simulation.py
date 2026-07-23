@@ -102,7 +102,9 @@ class OpenSemComSystem:
         use_threshold_subset = bool(threshold_indices)
         for idx, sample in enumerate(samples):
             layers = self.parser.parse(sample)
-            symbols = self.encoder.encode(layers, ("core",))
+            # The scheduler normally starts with the full payload, so fit the
+            # policy cutoffs on the same representation it evaluates at runtime.
+            symbols = self.encoder.encode(layers, ("core", "refinement", "evidence"))
             observation = self._calibration_transmit(channel, symbols)
             y_hat, probs, latent = self.decoder.decode(observation.received)
             _, prototype_distance = self.decoder.prototype_book.nearest(latent)

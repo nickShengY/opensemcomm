@@ -79,7 +79,7 @@ def test_manifest_with_utf8_bom_runs_from_windows_tools(tmp_path):
     assert len(result.traces) == 2
 
 
-def test_calibration_uses_core_payload_for_conformal_thresholds(tmp_path, monkeypatch):
+def test_calibration_uses_core_detector_fit_and_full_policy_thresholds(tmp_path, monkeypatch):
     manifest = write_manifest(tmp_path)
     config = OpenSemComConfig()
     system = OpenSemComSystem(config)
@@ -98,7 +98,8 @@ def test_calibration_uses_core_payload_for_conformal_thresholds(tmp_path, monkey
     )
 
     assert encoded_layers
-    assert set(encoded_layers) == {("core",)}
+    assert ("core",) in encoded_layers
+    assert ("core", "refinement", "evidence") in encoded_layers
 
 
 def test_experiment_reports_resource_usage_metrics(tmp_path):

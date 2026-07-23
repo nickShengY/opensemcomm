@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+#SBATCH --mem=32G
 #SBATCH --job-name=osc-channel-open-sionna-more-refine
 #SBATCH --partition=gpubase_bygpu_b2
 #SBATCH --time=01:00:00
@@ -57,12 +58,22 @@ traces = json.loads(path.read_text(encoding="utf-8"))
 scores = np.array([trace["risk_score"] for trace in traces], dtype=float)
 confidences = np.array([trace["confidence"] for trace in traces], dtype=float)
 quantiles = [0.0, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 1.0]
+phy_keys = (
+    "phy_payload_bit_error_rate",
+    "phy_ldpc_block_error_rate",
+    "phy_payload_mse",
+    "phy_quantization_mse",
+)
 print(
     "EVAL_DEBUG",
     {
         "n": len(scores),
         "risk_q": np.quantile(scores, quantiles).tolist(),
         "confidence_q": np.quantile(confidences, quantiles).tolist(),
+        "phy_q": {
+            key: np.quantile([trace["features"].get(key, 0.0) for trace in traces], quantiles).tolist()
+            for key in phy_keys
+        },
         "prediction_set_sizes": dict(sorted(Counter(trace["prediction_set_size"] for trace in traces).items())),
         "decisions": dict(sorted(Counter(trace["decision"] for trace in traces).items())),
         "avg_harq_refinement_rounds": float(np.mean([trace["harq_refinement_rounds"] for trace in traces])),

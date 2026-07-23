@@ -65,6 +65,9 @@ def test_sionna_awgn_coded_link_round_trip():
     assert np.allclose(observation.received, symbols, atol=1.0 / 255.0 + 1e-12)
     assert observation.state["coding_rate"] == 0.5
     assert observation.state["bits_per_symbol"] == 2.0
+    assert observation.state["phy_payload_bit_error_rate"] == 0.0
+    assert observation.state["phy_ldpc_block_error_rate"] == 0.0
+    assert observation.state["phy_payload_mse"] == 0.0
 
 
 @pytest.mark.skipif(not SIONNA_AVAILABLE, reason="Sionna is not installed.")

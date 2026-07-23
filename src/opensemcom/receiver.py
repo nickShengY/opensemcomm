@@ -73,6 +73,9 @@ class SelectiveSemanticReceiver:
                 "adaptation": 0.0,
                 "confidence": float(max(probabilities)) if probabilities.size else 0.0,
             }
+        for key, value in channel_state.items():
+            if key.startswith("phy_"):
+                feature_dict[key] = float(value)
         prediction_set = self.calibrator.prediction_set(probabilities) if self.use_conformal else {int(y_hat)}
         decision = self._decision(risk_score, prediction_set, feature_dict)
         return ReceiverOutput(
