@@ -75,3 +75,15 @@ def test_harq_rejects_when_budget_is_exhausted():
     assert output.decision == Decision.REJECT_OPEN
     assert output.features["harq_hit_max_refinements"] == 1.0
     assert output.features["harq_max_refinements"] == 2.0
+
+
+def test_harq_zero_refinement_budget_rejects_a_refinement_request():
+    receiver = SequenceReceiver([Decision.REFINE])
+    harq = SemanticHARQ(DummyEncoder(), IdentityChannel(), receiver, max_refinements=0)
+
+    output = harq.run(make_layers(), ResourceAction(layers=("core",), repetitions=1), task="classification")
+
+    assert receiver.actions == [("core",)]
+    assert output.decision == Decision.REJECT_OPEN
+    assert output.features["harq_refinement_rounds"] == 0.0
+    assert output.features["harq_hit_max_refinements"] == 1.0
