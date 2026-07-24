@@ -100,6 +100,47 @@ class OpenSemComSystem:
                     unsafe = open_exposure or y_hat != sample.y
                     selective_items.append((probs, features, unsafe))
         self.detector.fit_selective(selective_items)
+        self.receiver.clear_stage_policies()
+        policy_layers = self._policy_calibration_layer_sets()
+        policy_debug: dict[str, dict[str, object]] = {}
+        primary_layers = policy_layers[0]
+        for layer_names in policy_layers:
+            calibrator = self.calibrator if layer_names == primary_layers else ConformalCalibrator(
+                delta=self.config.calibration.delta,
+            )
+            q_accept, q_refine, debug = self._fit_policy_stage(
+                samples,
+                channel,
+                layer_names,
+                threshold_indices,
+                calibrator,
+            )
+            self.receiver.set_stage_policy(layer_names, calibrator, q_accept, q_refine)
+            policy_debug["+".join(layer_names)] = debug
+            if layer_names == primary_layers:
+                self.receiver.q_accept = q_accept
+                self.receiver.q_refine = q_refine
+
+        if os.environ.get("OPENSEMCOM_CALIBRATION_DEBUG") == "1":
+            primary_debug = policy_debug["+".join(primary_layers)]
+            print(
+                "CALIB_DEBUG",
+                {
+                    "initial_layers": primary_layers,
+                    **primary_debug,
+                    "stage_policies": policy_debug,
+                },
+                flush=True,
+            )
+
+    def _fit_policy_stage(
+        self,
+        samples: list[SemanticSample],
+        channel: WirelessChannel,
+        layer_names: tuple[str, ...],
+        threshold_indices: set[int],
+        calibrator: ConformalCalibrator,
+    ) -> tuple[float, float, dict[str, object]]:
         probabilities = []
         labels = []
         known_probabilities = []
@@ -111,9 +152,7 @@ class OpenSemComSystem:
         use_threshold_subset = bool(threshold_indices)
         for idx, sample in enumerate(samples):
             layers = self.parser.parse(sample)
-            # The scheduler normally starts with the full payload, so fit the
-            # policy cutoffs on the same representation it evaluates at runtime.
-            symbols = self.encoder.encode(layers, ("core", "refinement", "evidence"))
+            symbols = self.encoder.encode(layers, layer_names)
             observation = self._calibration_transmit(channel, symbols)
             for key in _PHY_DIAGNOSTIC_KEYS:
                 value = observation.state.get(key)
@@ -142,44 +181,50 @@ class OpenSemComSystem:
             threshold_sample = not use_threshold_subset or idx in threshold_indices
             if threshold_sample and not open_exposure and y_hat == sample.y:
                 correct_risk_scores.append(risk_score)
-        self.calibrator.fit(known_probabilities or probabilities, known_labels or labels)
+
+        calibrator.fit(known_probabilities or probabilities, known_labels or labels)
         accept_quantile = float(np.clip(self.config.calibration.accept_quantile, 0.0, 1.0))
         refine_quantile = float(np.clip(self.config.calibration.refine_quantile, 0.0, 1.0))
         if correct_risk_scores:
-            self.receiver.q_accept = float(np.quantile(correct_risk_scores, accept_quantile))
+            q_accept = float(np.quantile(correct_risk_scores, accept_quantile))
         elif risk_scores:
-            self.receiver.q_accept = float(np.quantile(risk_scores, accept_quantile))
+            q_accept = float(np.quantile(risk_scores, accept_quantile))
         else:
-            self.receiver.q_accept = self.config.calibration.accept_quantile
+            q_accept = self.config.calibration.accept_quantile
         if self.config.calibration.mixed_open and open_risk_scores:
             open_accept_cap = float(np.quantile(open_risk_scores, self.config.calibration.target_open_outage))
-            self.receiver.q_accept = min(self.receiver.q_accept, open_accept_cap)
+            q_accept = min(q_accept, open_accept_cap)
         if risk_scores:
-            self.receiver.q_refine = float(np.quantile(risk_scores, refine_quantile))
+            q_refine = float(np.quantile(risk_scores, refine_quantile))
         else:
-            self.receiver.q_refine = self.config.calibration.refine_quantile
+            q_refine = self.config.calibration.refine_quantile
         if self.config.calibration.mixed_open and open_risk_scores:
-            self.receiver.q_refine = min(self.receiver.q_refine, float(np.quantile(open_risk_scores, 0.50)))
-        self.receiver.q_refine = max(self.receiver.q_accept + 0.05, self.receiver.q_refine)
-        if os.environ.get("OPENSEMCOM_CALIBRATION_DEBUG") == "1":
-            quantiles = [0.0, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 1.0]
-            print(
-                "CALIB_DEBUG",
-                {
-                    "q_accept": float(self.receiver.q_accept),
-                    "q_refine": float(self.receiver.q_refine),
-                    "conformal_nonconformity_threshold": float(self.calibrator.threshold),
-                    "conformal_probability_cutoff": float(1.0 - self.calibrator.threshold),
-                    "risk_q": np.quantile(risk_scores, quantiles).tolist() if risk_scores else [],
-                    "correct_risk_q": np.quantile(correct_risk_scores, quantiles).tolist() if correct_risk_scores else [],
-                    "open_risk_q": np.quantile(open_risk_scores, quantiles).tolist() if open_risk_scores else [],
-                    "phy_q": {
-                        key: np.quantile(values, quantiles).tolist() if values else []
-                        for key, values in calibration_phy_values.items()
-                    },
-                },
-                flush=True,
+            q_refine = min(q_refine, float(np.quantile(open_risk_scores, 0.50)))
+        q_refine = max(q_accept + 0.05, q_refine)
+
+        quantiles = [0.0, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 1.0]
+        return q_accept, q_refine, {
+            "q_accept": q_accept,
+            "q_refine": q_refine,
+            "conformal_nonconformity_threshold": float(calibrator.threshold),
+            "conformal_probability_cutoff": float(1.0 - calibrator.threshold),
+            "risk_q": np.quantile(risk_scores, quantiles).tolist() if risk_scores else [],
+            "correct_risk_q": np.quantile(correct_risk_scores, quantiles).tolist() if correct_risk_scores else [],
+            "open_risk_q": np.quantile(open_risk_scores, quantiles).tolist() if open_risk_scores else [],
+            "phy_q": {
+                key: np.quantile(values, quantiles).tolist() if values else []
+                for key, values in calibration_phy_values.items()
+            },
+        }
+
+    def _policy_calibration_layer_sets(self) -> tuple[tuple[str, ...], ...]:
+        if self.config.calibration.stage_aware:
+            return (
+                ("core",),
+                ("core", "refinement"),
+                ("core", "refinement", "evidence"),
             )
+        return (("core", "refinement", "evidence"),)
 
     def run(self, samples: list[SemanticSample], channel: WirelessChannel) -> ExperimentResult:
         metrics = MetricsAccumulator()

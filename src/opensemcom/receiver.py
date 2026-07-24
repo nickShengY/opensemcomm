@@ -2,11 +2,22 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 from opensemcom.calibration import ConformalCalibrator
 from opensemcom.config import CalibrationConfig
 from opensemcom.risk import OpenRiskDetector
 from opensemcom.semantic import PrototypeSemanticDecoder
 from opensemcom.types import Array, Decision, ReceiverOutput, ResourceAction
+
+
+@dataclass(frozen=True)
+class StageDecisionPolicy:
+    """Thresholds fitted for one semantic payload stage."""
+
+    calibrator: ConformalCalibrator
+    q_accept: float
+    q_refine: float
 
 
 class SelectiveSemanticReceiver:
@@ -29,7 +40,25 @@ class SelectiveSemanticReceiver:
         self.use_conformal = use_conformal
         self.q_accept = calibration_config.accept_quantile
         self.q_refine = calibration_config.refine_quantile
+        self._stage_policies: dict[tuple[str, ...], StageDecisionPolicy] = {}
 
+    def clear_stage_policies(self) -> None:
+        self._stage_policies.clear()
+
+    def set_stage_policy(
+        self,
+        layers: tuple[str, ...],
+        calibrator: ConformalCalibrator,
+        q_accept: float,
+        q_refine: float,
+    ) -> None:
+        self._stage_policies[tuple(layers)] = StageDecisionPolicy(calibrator, q_accept, q_refine)
+
+    def _policy_for_action(self, action: ResourceAction) -> StageDecisionPolicy:
+        return self._stage_policies.get(
+            tuple(action.layers),
+            StageDecisionPolicy(self.calibrator, self.q_accept, self.q_refine),
+        )
     def receive(
         self,
         received: Array,
@@ -76,8 +105,15 @@ class SelectiveSemanticReceiver:
         for key, value in channel_state.items():
             if key.startswith("phy_"):
                 feature_dict[key] = float(value)
-        prediction_set = self.calibrator.prediction_set(probabilities) if self.use_conformal else {int(y_hat)}
-        decision = self._decision(risk_score, prediction_set, feature_dict)
+        policy = self._policy_for_action(action)
+        prediction_set = policy.calibrator.prediction_set(probabilities) if self.use_conformal else {int(y_hat)}
+        decision = self._decision(
+            risk_score,
+            prediction_set,
+            feature_dict,
+            q_accept=policy.q_accept,
+            q_refine=policy.q_refine,
+        )
         return ReceiverOutput(
             y_hat=y_hat,
             probabilities=probabilities,
@@ -88,7 +124,16 @@ class SelectiveSemanticReceiver:
             action=action,
         )
 
-    def _decision(self, risk_score: float, prediction_set: set[int], features: dict[str, float] | None = None) -> Decision:
+    def _decision(
+        self,
+        risk_score: float,
+        prediction_set: set[int],
+        features: dict[str, float] | None = None,
+        q_accept: float | None = None,
+        q_refine: float | None = None,
+    ) -> Decision:
+        q_accept = self.q_accept if q_accept is None else q_accept
+        q_refine = self.q_refine if q_refine is None else q_refine
         if not prediction_set:
             return Decision.REJECT_OPEN
         features = features or {}
@@ -106,15 +151,15 @@ class SelectiveSemanticReceiver:
             )
         )
         if len(prediction_set) > 1:
-            if risk_score <= self.q_refine:
+            if risk_score <= q_refine:
                 return Decision.REFINE
             return Decision.REJECT_OPEN
         if open_exposure:
-            if risk_score <= self.q_refine:
+            if risk_score <= q_refine:
                 return Decision.REFINE
             return Decision.REJECT_OPEN
-        if risk_score <= self.q_accept and features.get("confidence", 0.0) >= self.config.min_accept_confidence:
+        if risk_score <= q_accept and features.get("confidence", 0.0) >= self.config.min_accept_confidence:
             return Decision.ACCEPT
-        if risk_score <= self.q_refine:
+        if risk_score <= q_refine:
             return Decision.REFINE
         return Decision.REJECT_OPEN

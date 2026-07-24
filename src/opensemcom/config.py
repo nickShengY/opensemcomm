@@ -18,6 +18,8 @@ class RiskWeights:
 
 @dataclass(frozen=True)
 class ResourceWeights:
+    # Scales the scheduler's resource-cost term relative to its assumed risk reduction.
+    scheduler_resource_penalty: float = 0.05
     power: float = 0.25
     bandwidth: float = 0.20
     latency: float = 0.20
@@ -45,6 +47,7 @@ class DetectorWeights:
 @dataclass(frozen=True)
 class CalibrationConfig:
     delta: float = 0.1
+    stage_aware: bool = False
     epsilon_task: float = 0.0
     accept_quantile: float = 0.45
     refine_quantile: float = 0.65

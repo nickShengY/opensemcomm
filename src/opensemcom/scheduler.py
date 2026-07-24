@@ -23,6 +23,7 @@ class RiskAwareScheduler:
     def __init__(self, budget: ResourceBudget, weights: ResourceWeights):
         self.budget = budget
         self.cost_model = ResourceCostModel(weights)
+        self.resource_penalty = max(0.0, float(weights.scheduler_resource_penalty))
 
     def schedule(self, base_risk: float, codec_ids: tuple[str, ...] = ("default",)) -> ResourceAction:
         candidates = self._candidates(codec_ids)
@@ -32,7 +33,10 @@ class RiskAwareScheduler:
         scored = [
             SchedulingCandidate(
                 action=c.action,
-                expected_risk=max(0.0, base_risk * c.expected_risk + 0.05 * self.cost_model.cost(c.action)),
+                expected_risk=max(
+                    0.0,
+                    base_risk * c.expected_risk + self.resource_penalty * self.cost_model.cost(c.action),
+                ),
             )
             for c in feasible
         ]

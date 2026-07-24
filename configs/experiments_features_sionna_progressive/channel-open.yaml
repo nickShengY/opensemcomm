@@ -1,5 +1,5 @@
-﻿name: closed-id_clip_sionna_seed0
-regime: closed-id
+name: channel-open_clip_sionna_seed0
+regime: channel-open
 dataset_manifest: /home/nickyun/links/scratch/new_study/opensemcom/manifests/opensemcom_real_clip.csv
 output_dir: /home/nickyun/links/scratch/new_study/opensemcom/runs
 samples: 20000
@@ -31,7 +31,7 @@ calibration:
 channel:
   backend: sionna
   kind: awgn
-  snr_db: 18.0
+  snr_db: 24.0
   sionna_device: cuda
   sionna_bits_per_symbol: 2
   sionna_quantization_bits: 8
@@ -46,4 +46,3 @@ detector_weights:
   channel: 0.1
   task: 0.15
   adaptation: 0.05
-

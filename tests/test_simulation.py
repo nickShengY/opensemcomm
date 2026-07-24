@@ -6,10 +6,10 @@ import numpy as np
 import pytest
 
 from opensemcom.benchmark import BenchmarkRegime, OpenSemComBench
-from opensemcom.config import ChannelConfig, OpenSemComConfig
+from opensemcom.config import CalibrationConfig, ChannelConfig, OpenSemComConfig
 from opensemcom.channels import ChannelObservation, WirelessChannel
 from opensemcom.simulation import OpenSemComSystem, run_experiment
-from opensemcom.types import ChannelBackend
+from opensemcom.types import ChannelBackend, ChannelKind, ResourceAction
 
 
 def write_manifest(tmp_path):
@@ -216,3 +216,33 @@ def test_calibration_debug_reports_phy_quantiles(tmp_path, monkeypatch, capsys):
     debug = ast.literal_eval(output.removeprefix("CALIB_DEBUG "))
     assert debug["phy_q"]["phy_payload_bit_error_rate"] == [0.125] * 8
     assert debug["phy_q"]["phy_ldpc_block_error_rate"] == [0.25] * 8
+
+def test_stage_aware_calibration_registers_a_policy_for_every_payload_stage(tmp_path):
+    manifest = write_manifest(tmp_path)
+    config = OpenSemComConfig(calibration=CalibrationConfig(stage_aware=True))
+    system = OpenSemComSystem(config)
+    bench = OpenSemComBench(config, BenchmarkRegime.CLOSED_ID, manifest)
+
+    system.calibrate(
+        bench.calibration_samples(2),
+        WirelessChannel(config.channel, np.random.default_rng(7)),
+    )
+
+    stages = (
+        ("core",),
+        ("core", "refinement"),
+        ("core", "refinement", "evidence"),
+    )
+    policies = [system.receiver._policy_for_action(ResourceAction(layers=stage)) for stage in stages]
+    assert all(policy.calibrator.fitted for policy in policies)
+    assert len({id(policy.calibrator) for policy in policies}) == len(stages)
+
+def test_channel_open_uses_rayleigh_at_six_db_below_its_base_channel(tmp_path):
+    manifest = write_manifest(tmp_path)
+    config = OpenSemComConfig(channel=ChannelConfig(snr_db=24.0))
+    bench = OpenSemComBench(config, BenchmarkRegime.CHANNEL_OPEN, manifest)
+
+    channel = bench.channel_config()
+
+    assert channel.kind == ChannelKind.RAYLEIGH
+    assert channel.snr_db == 18.0
