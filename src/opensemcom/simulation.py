@@ -25,6 +25,14 @@ from opensemcom.types import Decision, ExperimentResult, SemanticSample, Resourc
 from opensemcom.types import ChannelKind
 
 
+_PHY_DIAGNOSTIC_KEYS = (
+    "phy_payload_bit_error_rate",
+    "phy_ldpc_block_error_rate",
+    "phy_payload_mse",
+    "phy_quantization_mse",
+)
+
+
 class OpenSemComSystem:
     """Coordinates parser, channel, receiver, detector, adapter, HARQ, and scheduler."""
 
@@ -99,6 +107,7 @@ class OpenSemComSystem:
         risk_scores = []
         correct_risk_scores = []
         open_risk_scores = []
+        calibration_phy_values = {key: [] for key in _PHY_DIAGNOSTIC_KEYS}
         use_threshold_subset = bool(threshold_indices)
         for idx, sample in enumerate(samples):
             layers = self.parser.parse(sample)
@@ -106,6 +115,10 @@ class OpenSemComSystem:
             # policy cutoffs on the same representation it evaluates at runtime.
             symbols = self.encoder.encode(layers, ("core", "refinement", "evidence"))
             observation = self._calibration_transmit(channel, symbols)
+            for key in _PHY_DIAGNOSTIC_KEYS:
+                value = observation.state.get(key)
+                if isinstance(value, (int, float)):
+                    calibration_phy_values[key].append(float(value))
             y_hat, probs, latent = self.decoder.decode(observation.received)
             _, prototype_distance = self.decoder.prototype_book.nearest(latent)
             risk_score, _ = self.detector.score(
@@ -160,6 +173,10 @@ class OpenSemComSystem:
                     "risk_q": np.quantile(risk_scores, quantiles).tolist() if risk_scores else [],
                     "correct_risk_q": np.quantile(correct_risk_scores, quantiles).tolist() if correct_risk_scores else [],
                     "open_risk_q": np.quantile(open_risk_scores, quantiles).tolist() if open_risk_scores else [],
+                    "phy_q": {
+                        key: np.quantile(values, quantiles).tolist() if values else []
+                        for key, values in calibration_phy_values.items()
+                    },
                 },
                 flush=True,
             )

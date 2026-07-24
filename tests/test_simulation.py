@@ -1,3 +1,4 @@
+import ast
 import importlib.util
 
 import numpy as np
@@ -6,7 +7,7 @@ import pytest
 
 from opensemcom.benchmark import BenchmarkRegime, OpenSemComBench
 from opensemcom.config import ChannelConfig, OpenSemComConfig
-from opensemcom.channels import WirelessChannel
+from opensemcom.channels import ChannelObservation, WirelessChannel
 from opensemcom.simulation import OpenSemComSystem, run_experiment
 from opensemcom.types import ChannelBackend
 
@@ -187,3 +188,31 @@ def test_channel_open_sionna_experiment_runs(tmp_path):
     )
     assert "open_semantic_risk" in result.metrics
     assert len(result.traces) == 2
+
+
+def test_calibration_debug_reports_phy_quantiles(tmp_path, monkeypatch, capsys):
+    manifest = write_manifest(tmp_path)
+    config = OpenSemComConfig()
+    system = OpenSemComSystem(config)
+    bench = OpenSemComBench(config, BenchmarkRegime.CLOSED_ID, manifest)
+    channel = WirelessChannel(config.channel, np.random.default_rng(7))
+
+    def transmit(symbols):
+        return ChannelObservation(
+            received=np.asarray(symbols, dtype=np.float64),
+            state={
+                "phy_payload_bit_error_rate": 0.125,
+                "phy_ldpc_block_error_rate": 0.25,
+                "phy_payload_mse": 0.5,
+                "phy_quantization_mse": 0.0625,
+            },
+        )
+
+    monkeypatch.setattr(channel, "transmit", transmit)
+    monkeypatch.setenv("OPENSEMCOM_CALIBRATION_DEBUG", "1")
+    system.calibrate(bench.calibration_samples(2), channel)
+
+    output = capsys.readouterr().out
+    debug = ast.literal_eval(output.removeprefix("CALIB_DEBUG "))
+    assert debug["phy_q"]["phy_payload_bit_error_rate"] == [0.125] * 8
+    assert debug["phy_q"]["phy_ldpc_block_error_rate"] == [0.25] * 8
