@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 #SBATCH --job-name=osc-rorqual-model-prefetch
-#SBATCH --partition=compute
 #SBATCH --time=04:00:00
 #SBATCH --array=0-1
 #SBATCH --cpus-per-task=4
