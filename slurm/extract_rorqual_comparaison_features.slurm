@@ -29,19 +29,19 @@ FEATURE_ROOT="${OPENSEMCOM_COMPARAISON_FEATURE_ROOT:-$PROJECT_ROOT/data/features
 case "${SLURM_ARRAY_TASK_ID}" in
   0)
     METHOD="dino"
-    MODEL_ID="facebook/dinov3-vitb16-pretrain-lvd1689m"
+    MODEL_ID="${OPENSEMCOM_COMPARAISON_DINO_MODEL_ID:-facebook/dinov3-vitb16-pretrain-lvd1689m}"
     FEATURE_SLUG="rorqual_dino_vitb16"
     BATCH_SIZE="${OPENSEMCOM_COMPARAISON_DINO_BATCH_SIZE:-128}"
     ;;
   1)
     METHOD="siglip"
-    MODEL_ID="google/siglip-base-patch16-224"
+    MODEL_ID="${OPENSEMCOM_COMPARAISON_SIGLIP_MODEL_ID:-google/siglip-base-patch16-224}"
     FEATURE_SLUG="rorqual_siglip_base"
     BATCH_SIZE="${OPENSEMCOM_COMPARAISON_SIGLIP_BATCH_SIZE:-128}"
     ;;
   2)
     METHOD="openclip"
-    MODEL_ID="apple/DFN5B-CLIP-ViT-H-14-378"
+    MODEL_ID="${OPENSEMCOM_COMPARAISON_OPENCLIP_MODEL_ID:-apple/DFN5B-CLIP-ViT-H-14-378}"
     FEATURE_SLUG="rorqual_openclip_dfn5b"
     BATCH_SIZE="${OPENSEMCOM_COMPARAISON_OPENCLIP_BATCH_SIZE:-16}"
     ;;
