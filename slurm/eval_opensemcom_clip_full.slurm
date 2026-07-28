@@ -1,17 +1,19 @@
 #!/usr/bin/env bash
 #SBATCH --job-name=osc-clip-full
-#SBATCH --partition=compute
+#SBATCH --partition=gpubase_bygpu_b2
 #SBATCH --time=04:00:00
 #SBATCH --gpus-per-node=1
 #SBATCH --cpus-per-task=4
-#SBATCH --output=/home/nickyun/links/scratch/new_study/opensemcom/logs/%x-%j.out
-#SBATCH --error=/home/nickyun/links/scratch/new_study/opensemcom/logs/%x-%j.err
+#SBATCH --output=/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/logs/%x-%j.out
+#SBATCH --error=/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/logs/%x-%j.err
 
 set -euo pipefail
 
-source /home/nickyun/links/scratch/new_study/opensemcom/scripts/env_scratch.sh
+export OPENSEMCOM_PROJECT_ROOT="/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm"
+export OPENSEMCOM_SCRATCH_ROOT="$OPENSEMCOM_PROJECT_ROOT"
+source "$OPENSEMCOM_PROJECT_ROOT/scripts/env_scratch.sh"
 
-MANIFEST="$OPENSEMCOM_PROJECT_ROOT/manifests/opensemcom_real_clip.csv"
+MANIFEST="$OPENSEMCOM_PROJECT_ROOT/manifests/opensemcom_rorqual_clip.csv"
 SAMPLES="${OPENSEMCOM_FULL_SAMPLES:-20000}"
 CALIBRATION_SAMPLES="${OPENSEMCOM_FULL_CALIBRATION_SAMPLES:-640}"
 USERS="${OPENSEMCOM_FULL_USERS:-4}"

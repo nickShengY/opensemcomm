@@ -1,0 +1,97 @@
+{'sionna': '2.0.1', 'torch': '2.13.0', 'cuda_available': True}
+{
+  "indexed_rows": 0,
+  "regimes": {
+    "channel-open": 384,
+    "class-open": 3264,
+    "closed-id": 1024,
+    "full-open": 3982,
+    "resource-open": 384,
+    "source-open": 704,
+    "task-open": 1138
+  },
+  "rows": 10880,
+  "splits": {
+    "calibration": 640,
+    "eval": 10240
+  }
+}
+CALIB_DEBUG {'q_accept': 0.35049121695376306, 'q_refine': 0.6988334459977458, 'conformal_nonconformity_threshold': 0.19531319031241012, 'conformal_probability_cutoff': 0.8046868096875899, 'risk_q': [0.34036514608137614, 0.34434949689294453, 0.34953720883504513, 0.39172637382016096, 0.7055336972885662, 0.7388230596651345, 0.7692557810422599, 0.8370980299378965], 'correct_risk_q': [0.34036514608137614, 0.3430392337073297, 0.3454573962941306, 0.3530333819733995, 0.3771685330739811, 0.409451760147004, 0.4238077955414754, 0.488754870155369], 'open_risk_q': [0.6966225111035333, 0.6986317312506627, 0.700661057215479, 0.7134969860221404, 0.738892667980654, 0.7823487276019594, 0.7975079752473723, 0.8370980299378965]}
+{
+  "calibration_samples": 640,
+  "dataset_manifest": "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/manifests/opensemcom_rorqual_clip.csv",
+  "decisions": {
+    "accept": 326,
+    "reject/open": 58
+  },
+  "evaluated_samples": 384,
+  "manifest_summary": {
+    "indexed_rows": 0,
+    "regimes": {
+      "channel-open": 384,
+      "class-open": 3264,
+      "closed-id": 1024,
+      "full-open": 3982,
+      "resource-open": 384,
+      "source-open": 704,
+      "task-open": 1138
+    },
+    "rows": 10880,
+    "splits": {
+      "calibration": 640,
+      "eval": 10240
+    }
+  },
+  "metrics": {
+    "accepted_samples": 326.0,
+    "accuracy": 0.9114583333333334,
+    "adaptation_harm_rate": 0.7391304347826086,
+    "auroc_ood": 0.5,
+    "avg_bandwidth": 1.0,
+    "avg_compute": 1.0,
+    "avg_energy": 3.0,
+    "avg_harq_full_payload_rounds": 0.0,
+    "avg_harq_refinement_rounds": 0.0,
+    "avg_harq_transmissions": 1.0,
+    "avg_latency": 3.0,
+    "avg_power": 1.0,
+    "avg_repetitions": 3.0,
+    "avg_resource_cost": 1.8000000000000005,
+    "bandwidth_per_accepted": 1.177914110429448,
+    "bandwidth_per_correct_accepted": 1.2151898734177216,
+    "certified_accept_rate": 0.0,
+    "correct_accepted_samples": 316.0,
+    "coverage": 0.8229166666666666,
+    "fpr95": 1.0,
+    "goodput_per_bandwidth": 0.8229166666666666,
+    "goodput_per_resource_cost": 0.4571759259259258,
+    "harq_full_payload_sample_rate": 0.0,
+    "harq_hit_max_refinements_rate": 0.0,
+    "harq_refined_sample_rate": 0.0,
+    "open_semantic_outage": 0.03067484662576687,
+    "open_semantic_risk": 0.33470238362856547,
+    "open_set_f1": 0.0,
+    "prediction_set_size": 0.8489583333333334,
+    "resource_cost_per_correct_accepted": 2.1873417721518993,
+    "risk_latency_product": 1.0041071508856965,
+    "risk_per_joule": 0.0002905402635664631,
+    "semantic_goodput": 0.2743055555555556,
+    "semantic_outage": 0.08854166666666667,
+    "total_bandwidth": 384.0,
+    "total_compute": 384.0,
+    "total_energy": 1152.0,
+    "total_harq_full_payload_rounds": 0.0,
+    "total_harq_refinement_rounds": 0.0,
+    "total_harq_transmissions": 384.0,
+    "total_latency": 1152.0,
+    "total_power": 384.0,
+    "total_repetitions": 1152.0,
+    "total_resource_cost": 691.2000000000002
+  },
+  "name": "closed-id-mimo-12db_17239730",
+  "regime": "closed-id",
+  "samples": 384,
+  "seed": 0,
+  "users": 4
+}
+EVAL_DEBUG {'n': 384, 'risk_q': [0.015558057627968436, 0.019501578883158215, 0.023743583671002086, 0.06719852662929679, 0.15229185329977407, 0.2544188566540656, 0.30352014192478777, 0.49021525884283007], 'confidence_q': [0.296337173174091, 0.6888857712128567, 0.9465903219347584, 0.9934989975724519, 0.9991214499220235, 0.999802685023549, 0.9999043196846744, 0.9999985241686159], 'phy_q': {'phy_payload_bit_error_rate': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'phy_ldpc_block_error_rate': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'phy_payload_mse': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'phy_quantization_mse': [4.06219505243502e-06, 4.801953608781518e-06, 4.949856581263858e-06, 5.142669357512632e-06, 5.322275389535341e-06, 5.47464828819794e-06, 5.646496720261225e-06, 5.868094762730188e-06]}, 'prediction_set_sizes': {0: 58, 1: 326}, 'decisions': {'accept': 326, 'reject/open': 58}}

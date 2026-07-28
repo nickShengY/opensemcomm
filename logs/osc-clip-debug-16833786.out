@@ -1,0 +1,96 @@
+{
+  "indexed_rows": 0,
+  "regimes": {
+    "channel-open": 384,
+    "class-open": 3264,
+    "closed-id": 1024,
+    "full-open": 3982,
+    "resource-open": 384,
+    "source-open": 704,
+    "task-open": 1138
+  },
+  "rows": 10880,
+  "splits": {
+    "calibration": 640,
+    "eval": 10240
+  }
+}
+CALIB_DEBUG {'q_accept': 0.34953571172805903, 'q_refine': 0.399535711728059, 'conformal_nonconformity_threshold': 0.266113887961117, 'conformal_probability_cutoff': 0.733886112038883, 'risk_q': [0.34078586053294363, 0.342510210514233, 0.34466660635304697, 0.3519876106615287, 0.3733250839676827, 0.43901975550867856, 0.4605445216749562, 0.5331152771082397], 'correct_risk_q': [0.34078586053294363, 0.34250715635293005, 0.3445573124451386, 0.35146655451945735, 0.3708444685790399, 0.42113310681057486, 0.44874900968999804, 0.5331152771082397], 'open_risk_q': []}
+{
+  "calibration_samples": 256,
+  "dataset_manifest": "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/manifests/opensemcom_rorqual_clip.csv",
+  "decisions": {
+    "accept": 176,
+    "reject/open": 208
+  },
+  "evaluated_samples": 384,
+  "manifest_summary": {
+    "indexed_rows": 0,
+    "regimes": {
+      "channel-open": 384,
+      "class-open": 3264,
+      "closed-id": 1024,
+      "full-open": 3982,
+      "resource-open": 384,
+      "source-open": 704,
+      "task-open": 1138
+    },
+    "rows": 10880,
+    "splits": {
+      "calibration": 640,
+      "eval": 10240
+    }
+  },
+  "metrics": {
+    "accepted_samples": 176.0,
+    "accuracy": 0.8828125,
+    "adaptation_harm_rate": 0.08695652173913043,
+    "auroc_ood": 0.5,
+    "avg_bandwidth": 1.39999999999999,
+    "avg_compute": 1.6848958333333395,
+    "avg_energy": 3.143229166666678,
+    "avg_harq_full_payload_rounds": 1.8489583333333333,
+    "avg_harq_refinement_rounds": 0.8489583333333334,
+    "avg_harq_transmissions": 1.8489583333333333,
+    "avg_latency": 3.3281249999999876,
+    "avg_power": 1.7122395833333333,
+    "avg_repetitions": 1.8489583333333333,
+    "avg_resource_cost": 2.2550651041666665,
+    "bandwidth_per_accepted": 3.054545454545433,
+    "bandwidth_per_correct_accepted": 3.089655172413771,
+    "certified_accept_rate": 0.0,
+    "correct_accepted_samples": 174.0,
+    "coverage": 0.78125,
+    "fpr95": 1.0,
+    "goodput_per_bandwidth": 0.3236607142857166,
+    "goodput_per_resource_cost": 0.20093654908799058,
+    "harq_full_payload_sample_rate": 1.0,
+    "harq_hit_max_refinements_rate": 0.22135416666666666,
+    "harq_refined_sample_rate": 0.34375,
+    "open_semantic_outage": 0.011363636363636364,
+    "open_semantic_risk": 0.36619083331383795,
+    "open_set_f1": 0.0,
+    "prediction_set_size": 0.8229166666666666,
+    "resource_cost_per_correct_accepted": 4.9766954022988505,
+    "risk_latency_product": 1.2187288671226124,
+    "risk_per_joule": 0.0003033892570951422,
+    "semantic_goodput": 0.08169014084507042,
+    "semantic_outage": 0.1171875,
+    "total_bandwidth": 537.5999999999962,
+    "total_compute": 647.0000000000024,
+    "total_energy": 1207.0000000000043,
+    "total_harq_full_payload_rounds": 710.0,
+    "total_harq_refinement_rounds": 326.0,
+    "total_harq_transmissions": 710.0,
+    "total_latency": 1277.9999999999952,
+    "total_power": 657.5,
+    "total_repetitions": 710.0,
+    "total_resource_cost": 865.9449999999999
+  },
+  "name": "closed_id_clip_debug_16833786",
+  "regime": "closed-id",
+  "samples": 384,
+  "seed": 0,
+  "users": 4
+}
+EVAL_DEBUG {'n': 384, 'risk_q': [0.3407300332860645, 0.34250444682228387, 0.34490775039935684, 0.35454973245371, 0.4220664236013691, 0.4825062746664639, 0.5120229978091709, 0.5687562137836859], 'confidence_q': [0.3141307561336016, 0.5816870677396129, 0.7961788983551176, 0.9745920304620017, 0.994383450205994, 0.9985505728522436, 0.9992883638972837, 0.9999789760353248], 'prediction_set_sizes': {0: 68, 1: 316}, 'decisions': {'accept': 176, 'reject/open': 208}}

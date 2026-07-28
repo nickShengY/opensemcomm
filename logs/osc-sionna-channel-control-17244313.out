@@ -1,0 +1,97 @@
+{'sionna': '2.0.1', 'torch': '2.13.0', 'cuda_available': True}
+{
+  "indexed_rows": 0,
+  "regimes": {
+    "channel-open": 384,
+    "class-open": 3264,
+    "closed-id": 1024,
+    "full-open": 3982,
+    "resource-open": 384,
+    "source-open": 704,
+    "task-open": 1138
+  },
+  "rows": 10880,
+  "splits": {
+    "calibration": 640,
+    "eval": 10240
+  }
+}
+CALIB_DEBUG {'q_accept': 0.36096762170621455, 'q_refine': 0.7015044213552127, 'conformal_nonconformity_threshold': 0.7715100741572075, 'conformal_probability_cutoff': 0.22848992584279249, 'risk_q': [0.34211243190915885, 0.3488516879494785, 0.36237635906051413, 0.42261613238125734, 0.722664640246435, 0.7767909173297997, 0.811672360973461, 0.8596719444648118], 'correct_risk_q': [0.34211243190915885, 0.3462074210259874, 0.35051286587400876, 0.36615524881004274, 0.3924990709003272, 0.4352503896896562, 0.4681076734805253, 0.5335666378597107], 'open_risk_q': [0.6966120319626343, 0.7009473041306318, 0.7112986439939754, 0.7314458620565213, 0.7769300824214265, 0.8185922236047958, 0.8280744666687941, 0.8596719444648118], 'phy_q': {'phy_payload_bit_error_rate': [0.0, 0.0, 0.0, 0.0, 0.0, 0.018334960937500006, 0.02418212890624999, 0.057373046875], 'phy_ldpc_block_error_rate': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0625, 0.0625, 0.1875], 'phy_payload_mse': [0.0, 0.0, 0.0, 0.0, 0.0, 0.017064374279123416, 0.020719957468281428, 0.050601211072664354], 'phy_quantization_mse': [4.506227557832223e-06, 4.876988350103891e-06, 4.987343874376075e-06, 5.104279449520911e-06, 5.251591996910563e-06, 5.356192793113312e-06, 5.4300071594775215e-06, 5.78946455268267e-06]}}
+{
+  "calibration_samples": 640,
+  "dataset_manifest": "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/manifests/opensemcom_rorqual_clip.csv",
+  "decisions": {
+    "accept": 344,
+    "reject/open": 40
+  },
+  "evaluated_samples": 384,
+  "manifest_summary": {
+    "indexed_rows": 0,
+    "regimes": {
+      "channel-open": 384,
+      "class-open": 3264,
+      "closed-id": 1024,
+      "full-open": 3982,
+      "resource-open": 384,
+      "source-open": 704,
+      "task-open": 1138
+    },
+    "rows": 10880,
+    "splits": {
+      "calibration": 640,
+      "eval": 10240
+    }
+  },
+  "metrics": {
+    "accepted_samples": 344.0,
+    "accuracy": 0.8984375,
+    "adaptation_harm_rate": 0.5217391304347826,
+    "auroc_ood": 0.5,
+    "avg_bandwidth": 1.0416666666666663,
+    "avg_compute": 1.072916666666666,
+    "avg_energy": 3.3958333333333317,
+    "avg_harq_full_payload_rounds": 0.20833333333333334,
+    "avg_harq_refinement_rounds": 0.3125,
+    "avg_harq_transmissions": 1.3125,
+    "avg_latency": 3.437500000000002,
+    "avg_power": 1.078125,
+    "avg_repetitions": 3.1041666666666665,
+    "avg_resource_cost": 2.0054687500000004,
+    "bandwidth_per_accepted": 1.1627906976744182,
+    "bandwidth_per_correct_accepted": 1.2158054711246198,
+    "certified_accept_rate": 0.0,
+    "correct_accepted_samples": 329.0,
+    "coverage": 0.9270833333333334,
+    "fpr95": 1.0,
+    "goodput_per_bandwidth": 0.8225000000000002,
+    "goodput_per_resource_cost": 0.42721724451369947,
+    "harq_full_payload_sample_rate": 0.10416666666666667,
+    "harq_hit_max_refinements_rate": 0.10416666666666667,
+    "harq_refined_sample_rate": 0.10416666666666667,
+    "open_semantic_outage": 0.0436046511627907,
+    "open_semantic_risk": 0.2800324069988471,
+    "open_set_f1": 0.0,
+    "prediction_set_size": 1.0677083333333333,
+    "resource_cost_per_correct_accepted": 2.3407294832826753,
+    "risk_latency_product": 0.9626113990585377,
+    "risk_per_joule": 0.00021474877837334913,
+    "semantic_goodput": 0.2175925925925926,
+    "semantic_outage": 0.1015625,
+    "total_bandwidth": 399.9999999999999,
+    "total_compute": 411.9999999999998,
+    "total_energy": 1303.9999999999993,
+    "total_harq_full_payload_rounds": 80.0,
+    "total_harq_refinement_rounds": 120.0,
+    "total_harq_transmissions": 504.0,
+    "total_latency": 1320.000000000001,
+    "total_power": 414.0,
+    "total_repetitions": 1192.0,
+    "total_resource_cost": 770.1000000000001
+  },
+  "name": "closed-id-rayleigh-20db_17244313",
+  "regime": "closed-id",
+  "samples": 384,
+  "seed": 0,
+  "users": 4
+}
+EVAL_DEBUG {'n': 384, 'risk_q': [0.01899576508486721, 0.021940746629227622, 0.026688931927365916, 0.049035811309430785, 0.09941258328591768, 0.4003908251261478, 0.4829664423802261, 0.5537330150068183], 'confidence_q': [0.33823539585134077, 0.7068030881317892, 0.9120037103689538, 0.9823244676326363, 0.9976163911054372, 0.9990817059028638, 0.999569917899413, 0.9999804391416057], 'phy_q': {'phy_payload_bit_error_rate': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'phy_ldpc_block_error_rate': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'phy_payload_mse': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'phy_quantization_mse': [2.727256831340287e-06, 3.1322367831357662e-06, 4.858202647722679e-06, 5.08958220127946e-06, 5.300864735404637e-06, 5.457577973153212e-06, 5.615890584048395e-06, 5.868094762730188e-06]}, 'prediction_set_sizes': {1: 360, 2: 22, 3: 2}, 'decisions': {'accept': 344, 'reject/open': 40}}

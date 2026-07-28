@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
+#SBATCH --mem=16G
+#SBATCH --mail-user=amaghri@my.yorku.ca
+#SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --job-name=osc-clip-feats
-#SBATCH --partition=compute
+#SBATCH --partition=gpubase_bygpu_b2
 #SBATCH --time=04:00:00
 #SBATCH --gpus-per-node=1
 #SBATCH --cpus-per-task=4
@@ -9,10 +12,12 @@
 
 set -euo pipefail
 
-source /home/nickyun/links/scratch/new_study/opensemcom/scripts/env_scratch.sh
+export OPENSEMCOM_PROJECT_ROOT="/home/nickyun/links/scratch/scratch/ahmed/opensemcomm"
+export OPENSEMCOM_SCRATCH_ROOT="$OPENSEMCOM_PROJECT_ROOT"
+source "$OPENSEMCOM_PROJECT_ROOT/scripts/env_scratch.sh"
 
 MODEL_ID="${OPENSEMCOM_FEATURE_MODEL_ID:-openai/clip-vit-base-patch32}"
-BATCH_SIZE="${OPENSEMCOM_FEATURE_BATCH_SIZE:-128}"
+BATCH_SIZE="${OPENSEMCOM_FEATURE_BATCH_SIZE:-64}"
 DEVICE="${OPENSEMCOM_FEATURE_DEVICE:-auto}"
 
 python -u -m opensemcom.cli.extract_features \

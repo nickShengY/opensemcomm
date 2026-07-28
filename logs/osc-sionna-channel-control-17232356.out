@@ -1,0 +1,97 @@
+{'sionna': '2.0.1', 'torch': '2.13.0', 'cuda_available': True}
+{
+  "indexed_rows": 0,
+  "regimes": {
+    "channel-open": 384,
+    "class-open": 3264,
+    "closed-id": 1024,
+    "full-open": 3982,
+    "resource-open": 384,
+    "source-open": 704,
+    "task-open": 1138
+  },
+  "rows": 10880,
+  "splits": {
+    "calibration": 640,
+    "eval": 10240
+  }
+}
+CALIB_DEBUG {'q_accept': 0.3527629658227347, 'q_refine': 0.6994720048836326, 'conformal_nonconformity_threshold': 0.36070053057198137, 'conformal_probability_cutoff': 0.6392994694280186, 'risk_q': [0.34062401098899864, 0.344936421592431, 0.3524401218049153, 0.4127711772743735, 0.7107624532773404, 0.7496902823167843, 0.7771246288697842, 0.8318100653154614], 'correct_risk_q': [0.34062401098899864, 0.34383960946880754, 0.3465712141351685, 0.3559490973442466, 0.38409401087524786, 0.43424603009159235, 0.4571698673324717, 0.5193217722516861], 'open_risk_q': [0.6973366237124767, 0.6991790831513252, 0.7047243155188267, 0.7192212145004192, 0.7502476675078026, 0.7900270022611814, 0.8100745183882201, 0.8318100653154614]}
+{
+  "calibration_samples": 640,
+  "dataset_manifest": "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/manifests/opensemcom_rorqual_clip.csv",
+  "decisions": {
+    "accept": 175,
+    "reject/open": 209
+  },
+  "evaluated_samples": 384,
+  "manifest_summary": {
+    "indexed_rows": 0,
+    "regimes": {
+      "channel-open": 384,
+      "class-open": 3264,
+      "closed-id": 1024,
+      "full-open": 3982,
+      "resource-open": 384,
+      "source-open": 704,
+      "task-open": 1138
+    },
+    "rows": 10880,
+    "splits": {
+      "calibration": 640,
+      "eval": 10240
+    }
+  },
+  "metrics": {
+    "accepted_samples": 175.0,
+    "accuracy": 0.8723958333333334,
+    "adaptation_harm_rate": 0.30434782608695654,
+    "auroc_ood": 0.5,
+    "avg_bandwidth": 1.39999999999999,
+    "avg_compute": 1.7244791666666701,
+    "avg_energy": 3.8161458333333402,
+    "avg_harq_full_payload_rounds": 2.2447916666666665,
+    "avg_harq_refinement_rounds": 1.2447916666666667,
+    "avg_harq_transmissions": 2.2447916666666665,
+    "avg_latency": 4.0406249999999915,
+    "avg_power": 1.8111979166666667,
+    "avg_repetitions": 2.2447916666666665,
+    "avg_resource_cost": 2.5628255208333335,
+    "bandwidth_per_accepted": 3.071999999999978,
+    "bandwidth_per_correct_accepted": 3.089655172413771,
+    "certified_accept_rate": 0.0,
+    "correct_accepted_samples": 174.0,
+    "coverage": 0.7630208333333334,
+    "fpr95": 1.0,
+    "goodput_per_bandwidth": 0.3236607142857166,
+    "goodput_per_resource_cost": 0.1768068080782421,
+    "harq_full_payload_sample_rate": 1.0,
+    "harq_hit_max_refinements_rate": 0.359375,
+    "harq_refined_sample_rate": 0.4895833333333333,
+    "open_semantic_outage": 0.005714285714285714,
+    "open_semantic_risk": 0.41654954441035263,
+    "open_set_f1": 0.0,
+    "prediction_set_size": 0.8151041666666666,
+    "resource_cost_per_correct_accepted": 5.655890804597701,
+    "risk_latency_product": 1.6831205028830776,
+    "risk_per_joule": 0.0002842565472979063,
+    "semantic_goodput": 0.06728538283062645,
+    "semantic_outage": 0.12760416666666666,
+    "total_bandwidth": 537.5999999999962,
+    "total_compute": 662.2000000000013,
+    "total_energy": 1465.4000000000026,
+    "total_harq_full_payload_rounds": 862.0,
+    "total_harq_refinement_rounds": 478.0,
+    "total_harq_transmissions": 862.0,
+    "total_latency": 1551.5999999999967,
+    "total_power": 695.5,
+    "total_repetitions": 862.0,
+    "total_resource_cost": 984.125
+  },
+  "name": "closed-id-rician-12db_17232356",
+  "regime": "closed-id",
+  "samples": 384,
+  "seed": 0,
+  "users": 4
+}
+EVAL_DEBUG {'n': 384, 'risk_q': [0.34104807795672976, 0.3434753259583919, 0.3473661749692246, 0.3585885556051792, 0.4146818365435483, 0.48606492634698845, 0.5035061766760641, 0.5575123880458899], 'confidence_q': [0.3115789607161967, 0.562134340926994, 0.8121837304446846, 0.9647986544872738, 0.9894139370044805, 0.9967342202359424, 0.9982213874187692, 0.999869396925456], 'phy_q': {'phy_payload_bit_error_rate': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.02294921875], 'phy_ldpc_block_error_rate': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.125], 'phy_payload_mse': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01937131551967192], 'phy_quantization_mse': [2.0296142067832023e-06, 2.2197215319312466e-06, 2.325649860738815e-06, 3.1555231501451434e-06, 3.4166907479844804e-06, 3.5258637816596788e-06, 3.5704084633259714e-06, 3.7776770307844243e-06]}, 'prediction_set_sizes': {0: 71, 1: 313}, 'decisions': {'accept': 175, 'reject/open': 209}}

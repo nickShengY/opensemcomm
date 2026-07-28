@@ -1,0 +1,96 @@
+{'sionna': '2.0.1', 'torch': '2.13.0', 'cuda_available': True}
+{
+  "indexed_rows": 0,
+  "regimes": {
+    "channel-open": 384,
+    "class-open": 3264,
+    "closed-id": 1024,
+    "full-open": 3982,
+    "resource-open": 384,
+    "source-open": 704,
+    "task-open": 1138
+  },
+  "rows": 10880,
+  "splits": {
+    "calibration": 640,
+    "eval": 10240
+  }
+}
+CALIB_DEBUG {'q_accept': 0.34359978605614183, 'q_refine': 0.41390014552709775, 'conformal_nonconformity_threshold': 0.99999469991909, 'conformal_probability_cutoff': 5.300080910042304e-06, 'risk_q': [0.034846564443309566, 0.05502597916846533, 0.18314823375408396, 0.3883204611309731, 0.4440082860402428, 0.5013181550344594, 0.5313207054819902, 0.5645452547482127], 'correct_risk_q': [0.034846564443309566, 0.04674093603945262, 0.0715598394590098, 0.3592491271963626, 0.40901585425064974, 0.4618434138922767, 0.49568999530238367, 0.5480231049676403], 'open_risk_q': []}
+{
+  "calibration_samples": 256,
+  "dataset_manifest": "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/manifests/opensemcom_rorqual_clip.csv",
+  "decisions": {
+    "reject/open": 384
+  },
+  "evaluated_samples": 384,
+  "manifest_summary": {
+    "indexed_rows": 0,
+    "regimes": {
+      "channel-open": 384,
+      "class-open": 3264,
+      "closed-id": 1024,
+      "full-open": 3982,
+      "resource-open": 384,
+      "source-open": 704,
+      "task-open": 1138
+    },
+    "rows": 10880,
+    "splits": {
+      "calibration": 640,
+      "eval": 10240
+    }
+  },
+  "metrics": {
+    "accepted_samples": 0.0,
+    "accuracy": 0.9010416666666666,
+    "adaptation_harm_rate": 0.0,
+    "auroc_ood": 0.5,
+    "avg_bandwidth": 1.198958333333328,
+    "avg_compute": 1.3296874999999997,
+    "avg_energy": 4.575781249999982,
+    "avg_harq_full_payload_rounds": 0.7395833333333334,
+    "avg_harq_refinement_rounds": 1.3072916666666667,
+    "avg_harq_transmissions": 2.3072916666666665,
+    "avg_latency": 4.756250000000018,
+    "avg_power": 1.3268229166666667,
+    "avg_repetitions": 3.3125,
+    "avg_resource_cost": 2.6373567708333336,
+    "bandwidth_per_accepted": 0.0,
+    "bandwidth_per_correct_accepted": 0.0,
+    "certified_accept_rate": 0.0,
+    "correct_accepted_samples": 0.0,
+    "coverage": 1.0,
+    "fpr95": 1.0,
+    "goodput_per_bandwidth": 0.0,
+    "goodput_per_resource_cost": 0.0,
+    "harq_full_payload_sample_rate": 0.4270833333333333,
+    "harq_hit_max_refinements_rate": 0.3072916666666667,
+    "harq_refined_sample_rate": 0.5677083333333334,
+    "open_semantic_outage": 0.0,
+    "open_semantic_risk": 0.3637356770833333,
+    "open_set_f1": 0.0,
+    "prediction_set_size": 6.0,
+    "resource_cost_per_correct_accepted": 0.0,
+    "risk_latency_product": 1.7300178141276108,
+    "risk_per_joule": 0.00020700909287082962,
+    "semantic_goodput": 0.0,
+    "semantic_outage": 0.09895833333333333,
+    "total_bandwidth": 460.399999999998,
+    "total_compute": 510.5999999999999,
+    "total_energy": 1757.099999999993,
+    "total_harq_full_payload_rounds": 284.0,
+    "total_harq_refinement_rounds": 502.0,
+    "total_harq_transmissions": 886.0,
+    "total_latency": 1826.4000000000071,
+    "total_power": 509.5,
+    "total_repetitions": 1272.0,
+    "total_resource_cost": 1012.7450000000001
+  },
+  "name": "closed-id-rayleigh-12db_16948027",
+  "regime": "closed-id",
+  "samples": 384,
+  "seed": 0,
+  "users": 4
+}
+EVAL_DEBUG {'n': 384, 'risk_q': [0.35345915642292675, 0.38245578739008684, 0.4045501261180646, 0.4265721761250366, 0.4572686911714125, 0.5068832139625433, 0.5225656915523645, 0.5724177570017779], 'confidence_q': [0.25058692520794273, 0.4835165152428011, 0.6585962855427976, 0.7815210039022629, 0.8625610531300445, 0.9157246693512646, 0.9330312756492378, 0.9809233333671703], 'prediction_set_sizes': {6: 384}, 'decisions': {'reject/open': 384}}
