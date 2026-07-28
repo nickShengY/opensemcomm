@@ -1,0 +1,123 @@
+method=dino model_id=/home/nickyun/links/scratch/scratch/ahmed/opensemcomm/cache/transformers/models--facebook--dinov3-vitb16-pretrain-lvd1689m/snapshots/5931719e67bbdb9737e363e781fb0c67687896bc raw_manifest=/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/manifests/opensemcom_rorqual_real.csv
+b0d03c42f15b08267ad7bcf1735a0f3dd39b0a5c47e65d4fc954efac9af74896  /lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/manifests/opensemcom_rorqual_real.csv
+initializing model=/home/nickyun/links/scratch/scratch/ahmed/opensemcomm/cache/transformers/models--facebook--dinov3-vitb16-pretrain-lvd1689m/snapshots/5931719e67bbdb9737e363e781fb0c67687896bc device=cuda
+loading processor from local cache
+loading model from local cache
+initialized model=/home/nickyun/links/scratch/scratch/ahmed/opensemcomm/cache/transformers/models--facebook--dinov3-vitb16-pretrain-lvd1689m/snapshots/5931719e67bbdb9737e363e781fb0c67687896bc resolved_device=cuda
+processed=128 written=128 skipped=0
+processed=256 written=256 skipped=0
+processed=384 written=384 skipped=0
+processed=512 written=512 skipped=0
+processed=640 written=640 skipped=0
+processed=768 written=768 skipped=0
+processed=896 written=896 skipped=0
+processed=1024 written=1024 skipped=0
+processed=1152 written=1152 skipped=0
+processed=1280 written=1280 skipped=0
+processed=1408 written=1408 skipped=0
+processed=1536 written=1536 skipped=0
+processed=1664 written=1664 skipped=0
+processed=1792 written=1792 skipped=0
+processed=1920 written=1920 skipped=0
+processed=2048 written=2048 skipped=0
+processed=2176 written=2176 skipped=0
+processed=2304 written=2304 skipped=0
+processed=2432 written=2432 skipped=0
+processed=2560 written=2560 skipped=0
+processed=2688 written=2688 skipped=0
+processed=2816 written=2816 skipped=0
+processed=2944 written=2944 skipped=0
+processed=3072 written=3072 skipped=0
+processed=3200 written=3200 skipped=0
+processed=3328 written=3328 skipped=0
+processed=3456 written=3456 skipped=0
+processed=3584 written=3584 skipped=0
+processed=3712 written=3712 skipped=0
+processed=3840 written=3840 skipped=0
+processed=3968 written=3968 skipped=0
+processed=4096 written=4096 skipped=0
+processed=4224 written=4224 skipped=0
+processed=4352 written=4352 skipped=0
+processed=4480 written=4480 skipped=0
+processed=4608 written=4608 skipped=0
+processed=4736 written=4736 skipped=0
+processed=4864 written=4864 skipped=0
+processed=4992 written=4992 skipped=0
+processed=5120 written=5120 skipped=0
+processed=5248 written=5248 skipped=0
+processed=5376 written=5376 skipped=0
+processed=5504 written=5504 skipped=0
+processed=5632 written=5632 skipped=0
+processed=5760 written=5760 skipped=0
+processed=5888 written=5888 skipped=0
+processed=6016 written=6016 skipped=0
+processed=6144 written=6144 skipped=0
+processed=6272 written=6272 skipped=0
+processed=6400 written=6400 skipped=0
+processed=6528 written=6528 skipped=0
+processed=6656 written=6656 skipped=0
+processed=6784 written=6784 skipped=0
+processed=6912 written=6912 skipped=0
+processed=7040 written=7040 skipped=0
+processed=7168 written=7168 skipped=0
+processed=7296 written=7296 skipped=0
+processed=7424 written=7424 skipped=0
+processed=7552 written=7552 skipped=0
+processed=7680 written=7680 skipped=0
+processed=7808 written=7808 skipped=0
+processed=7936 written=7936 skipped=0
+processed=8064 written=8064 skipped=0
+processed=8192 written=8192 skipped=0
+processed=8320 written=8320 skipped=0
+processed=8448 written=8448 skipped=0
+processed=8576 written=8576 skipped=0
+processed=8704 written=8704 skipped=0
+processed=8832 written=8832 skipped=0
+processed=8960 written=8960 skipped=0
+processed=9088 written=9088 skipped=0
+processed=9216 written=9216 skipped=0
+processed=9344 written=9344 skipped=0
+processed=9472 written=9472 skipped=0
+processed=9600 written=9600 skipped=0
+processed=9728 written=9728 skipped=0
+processed=9856 written=9856 skipped=0
+processed=9984 written=9984 skipped=512
+processed=10112 written=10112 skipped=512
+processed=10240 written=10240 skipped=512
+processed=10368 written=10368 skipped=512
+{
+  "feature_root": "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/data/features/rorqual_dino_vitb16",
+  "feature_slug": "rorqual_dino_vitb16",
+  "model_id": "/home/nickyun/links/scratch/scratch/ahmed/opensemcomm/cache/transformers/models--facebook--dinov3-vitb16-pretrain-lvd1689m/snapshots/5931719e67bbdb9737e363e781fb0c67687896bc",
+  "output_manifest": "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/manifests/opensemcom_rorqual_dino.csv",
+  "rows": 10368,
+  "skipped": 512,
+  "skipped_reasons": {
+    "model does not support text": 512
+  }
+}
+{
+  "indexed_rows": 0,
+  "regimes": {
+    "channel-open": 384,
+    "class-open": 3264,
+    "closed-id": 768,
+    "full-open": 3982,
+    "resource-open": 384,
+    "source-open": 704,
+    "task-open": 882
+  },
+  "rows": 10368,
+  "splits": {
+    "calibration": 384,
+    "eval": 9984
+  }
+}
+{
+  "feature_slug": "rorqual_dino_vitb16",
+  "method": "dino",
+  "model_id": "/home/nickyun/links/scratch/scratch/ahmed/opensemcomm/cache/transformers/models--facebook--dinov3-vitb16-pretrain-lvd1689m/snapshots/5931719e67bbdb9737e363e781fb0c67687896bc",
+  "output_manifest": "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/manifests/opensemcom_rorqual_dino.csv",
+  "raw_manifest": "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/manifests/opensemcom_rorqual_real.csv",
+  "raw_manifest_sha256": "b0d03c42f15b08267ad7bcf1735a0f3dd39b0a5c47e65d4fc954efac9af74896"
+}

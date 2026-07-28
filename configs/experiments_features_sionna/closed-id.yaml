@@ -24,6 +24,10 @@ model:
     - classification
   train_domains:
     - cifar10
+resource_weights:
+  scheduler_resource_penalty: 0.60
+calibration:
+  stage_aware: true
 channel:
   backend: sionna
   kind: awgn

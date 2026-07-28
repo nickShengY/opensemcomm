@@ -1,11 +1,15 @@
+import ast
 import importlib.util
+
+import numpy as np
 
 import pytest
 
-from opensemcom.benchmark import BenchmarkRegime
-from opensemcom.config import ChannelConfig, OpenSemComConfig
-from opensemcom.simulation import run_experiment
-from opensemcom.types import ChannelBackend
+from opensemcom.benchmark import BenchmarkRegime, OpenSemComBench
+from opensemcom.config import CalibrationConfig, ChannelConfig, OpenSemComConfig
+from opensemcom.channels import ChannelObservation, WirelessChannel
+from opensemcom.simulation import OpenSemComSystem, run_experiment
+from opensemcom.types import ChannelBackend, ChannelKind, ResourceAction
 
 
 def write_manifest(tmp_path):
@@ -74,6 +78,30 @@ def test_manifest_with_utf8_bom_runs_from_windows_tools(tmp_path):
         dataset_manifest=str(manifest),
     )
     assert len(result.traces) == 2
+
+
+def test_calibration_uses_core_detector_fit_and_full_policy_thresholds(tmp_path, monkeypatch):
+    manifest = write_manifest(tmp_path)
+    config = OpenSemComConfig()
+    system = OpenSemComSystem(config)
+    bench = OpenSemComBench(config, BenchmarkRegime.CLOSED_ID, manifest)
+    encoded_layers = []
+    original_encode = system.encoder.encode
+
+    def capture_encode(layers, layer_names):
+        encoded_layers.append(tuple(layer_names))
+        return original_encode(layers, layer_names)
+
+    monkeypatch.setattr(system.encoder, "encode", capture_encode)
+    system.calibrate(
+        bench.calibration_samples(2),
+        WirelessChannel(config.channel, np.random.default_rng(7)),
+    )
+
+    assert encoded_layers
+    assert ("core",) in encoded_layers
+    assert ("core", "refinement", "evidence") in encoded_layers
+
 
 def test_experiment_reports_resource_usage_metrics(tmp_path):
     manifest = write_manifest(tmp_path)
@@ -160,3 +188,61 @@ def test_channel_open_sionna_experiment_runs(tmp_path):
     )
     assert "open_semantic_risk" in result.metrics
     assert len(result.traces) == 2
+
+
+def test_calibration_debug_reports_phy_quantiles(tmp_path, monkeypatch, capsys):
+    manifest = write_manifest(tmp_path)
+    config = OpenSemComConfig()
+    system = OpenSemComSystem(config)
+    bench = OpenSemComBench(config, BenchmarkRegime.CLOSED_ID, manifest)
+    channel = WirelessChannel(config.channel, np.random.default_rng(7))
+
+    def transmit(symbols):
+        return ChannelObservation(
+            received=np.asarray(symbols, dtype=np.float64),
+            state={
+                "phy_payload_bit_error_rate": 0.125,
+                "phy_ldpc_block_error_rate": 0.25,
+                "phy_payload_mse": 0.5,
+                "phy_quantization_mse": 0.0625,
+            },
+        )
+
+    monkeypatch.setattr(channel, "transmit", transmit)
+    monkeypatch.setenv("OPENSEMCOM_CALIBRATION_DEBUG", "1")
+    system.calibrate(bench.calibration_samples(2), channel)
+
+    output = capsys.readouterr().out
+    debug = ast.literal_eval(output.removeprefix("CALIB_DEBUG "))
+    assert debug["phy_q"]["phy_payload_bit_error_rate"] == [0.125] * 8
+    assert debug["phy_q"]["phy_ldpc_block_error_rate"] == [0.25] * 8
+
+def test_stage_aware_calibration_registers_a_policy_for_every_payload_stage(tmp_path):
+    manifest = write_manifest(tmp_path)
+    config = OpenSemComConfig(calibration=CalibrationConfig(stage_aware=True))
+    system = OpenSemComSystem(config)
+    bench = OpenSemComBench(config, BenchmarkRegime.CLOSED_ID, manifest)
+
+    system.calibrate(
+        bench.calibration_samples(2),
+        WirelessChannel(config.channel, np.random.default_rng(7)),
+    )
+
+    stages = (
+        ("core",),
+        ("core", "refinement"),
+        ("core", "refinement", "evidence"),
+    )
+    policies = [system.receiver._policy_for_action(ResourceAction(layers=stage)) for stage in stages]
+    assert all(policy.calibrator.fitted for policy in policies)
+    assert len({id(policy.calibrator) for policy in policies}) == len(stages)
+
+def test_channel_open_uses_rayleigh_at_six_db_below_its_base_channel(tmp_path):
+    manifest = write_manifest(tmp_path)
+    config = OpenSemComConfig(channel=ChannelConfig(snr_db=24.0))
+    bench = OpenSemComBench(config, BenchmarkRegime.CHANNEL_OPEN, manifest)
+
+    channel = bench.channel_config()
+
+    assert channel.kind == ChannelKind.RAYLEIGH
+    assert channel.snr_db == 18.0

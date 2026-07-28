@@ -108,12 +108,24 @@ class SionnaDigitalLink:
         transmitted = self._mapper(codewords)
         noise_variance = float(10.0 ** (-self.config.snr_db / 10.0))
         llrs, gain = self._transmit_codewords(transmitted, noise_variance, repetitions)
-        decoded_bits = self._decoder(llrs).detach().cpu().numpy().astype(np.uint8, copy=False).reshape(-1)
+        decoded_blocks = self._decoder(llrs).detach().cpu().numpy().astype(np.uint8, copy=False)
+        decoded_bits = decoded_blocks.reshape(-1)
         recovered = _bits_to_values(
             decoded_bits[:payload_bit_count],
             self.config.sionna_quantization_bits,
         ).reshape(x.shape)
-        return PhyObservation(received=recovered, state=self._state(gain=gain, repetitions=repetitions))
+        quantized = _bits_to_values(payload_bits, self.config.sionna_quantization_bits).reshape(x.shape)
+        return PhyObservation(
+            received=recovered,
+            state=self._state(
+                gain=gain,
+                repetitions=repetitions,
+                payload_bit_error_rate=float(np.mean(decoded_bits[:payload_bit_count] != payload_bits)),
+                ldpc_block_error_rate=float(np.mean(np.any(decoded_blocks != padded_bits, axis=1))),
+                payload_mse=float(np.mean((recovered - quantized) ** 2)),
+                quantization_mse=float(np.mean((quantized - x) ** 2)),
+            ),
+        )
 
     def _transmit_codewords(self, transmitted, noise_variance: float, repetitions: int):
         repetitions = max(1, int(repetitions))
@@ -164,7 +176,15 @@ class SionnaDigitalLink:
         padded.reshape(-1)[: bits.size] = bits
         return padded, int(bits.size)
 
-    def _state(self, gain: float, repetitions: int) -> dict[str, float]:
+    def _state(
+        self,
+        gain: float,
+        repetitions: int,
+        payload_bit_error_rate: float = 0.0,
+        ldpc_block_error_rate: float = 0.0,
+        payload_mse: float = 0.0,
+        quantization_mse: float = 0.0,
+    ) -> dict[str, float]:
         effective_snr = self.config.snr_db + 20.0 * np.log10(max(gain, 1e-9)) + 10.0 * np.log10(max(1, int(repetitions)))
         return {
             "snr_db": float(self.config.snr_db),
@@ -181,6 +201,10 @@ class SionnaDigitalLink:
             "quantization_bits": float(self.config.sionna_quantization_bits),
             "harq_chase_combining": float(max(1, int(repetitions)) > 1),
             "mimo_rx": float(max(1, self.config.mimo_rx) if self.config.kind == ChannelKind.MIMO else 1),
+            "phy_payload_bit_error_rate": float(payload_bit_error_rate),
+            "phy_ldpc_block_error_rate": float(ldpc_block_error_rate),
+            "phy_payload_mse": float(payload_mse),
+            "phy_quantization_mse": float(quantization_mse),
         }
 
     def _validate_config(self) -> None:

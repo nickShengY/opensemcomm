@@ -1,0 +1,96 @@
+{'sionna': '2.0.1', 'torch': '2.13.0', 'cuda_available': True}
+{
+  "indexed_rows": 0,
+  "regimes": {
+    "channel-open": 384,
+    "class-open": 3264,
+    "closed-id": 1024,
+    "full-open": 3982,
+    "resource-open": 384,
+    "source-open": 704,
+    "task-open": 1138
+  },
+  "rows": 10880,
+  "splits": {
+    "calibration": 640,
+    "eval": 10240
+  }
+}
+CALIB_DEBUG {'q_accept': 0.42431121954015105, 'q_refine': 0.7256202623738134, 'conformal_nonconformity_threshold': 0.9999991040535298, 'conformal_probability_cutoff': 8.959464702362752e-07, 'risk_q': [0.35375481774907797, 0.383115039190326, 0.4072382506437914, 0.4902659087258373, 0.7350648825514904, 0.793964561647232, 0.8205743573918767, 0.9250798169510857], 'correct_risk_q': [0.35375481774907797, 0.37962132900804174, 0.3973215868412738, 0.4288702593467039, 0.4713722365688161, 0.507835436789297, 0.5256006541164343, 0.5733911807357721], 'open_risk_q': [0.6977400248720744, 0.7244852282112754, 0.7302595771416722, 0.7488969888626837, 0.7940020753886028, 0.8285598094930913, 0.8394938653210127, 0.9250798169510857]}
+{
+  "calibration_samples": 640,
+  "dataset_manifest": "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/manifests/opensemcom_rorqual_clip.csv",
+  "decisions": {
+    "reject/open": 384
+  },
+  "evaluated_samples": 384,
+  "manifest_summary": {
+    "indexed_rows": 0,
+    "regimes": {
+      "channel-open": 384,
+      "class-open": 3264,
+      "closed-id": 1024,
+      "full-open": 3982,
+      "resource-open": 384,
+      "source-open": 704,
+      "task-open": 1138
+    },
+    "rows": 10880,
+    "splits": {
+      "calibration": 640,
+      "eval": 10240
+    }
+  },
+  "metrics": {
+    "accepted_samples": 0.0,
+    "accuracy": 0.8619791666666666,
+    "adaptation_harm_rate": 0.34782608695652173,
+    "auroc_ood": 0.5,
+    "avg_bandwidth": 1.39999999999999,
+    "avg_compute": 1.7000000000000035,
+    "avg_energy": 6.800000000000014,
+    "avg_harq_full_payload_rounds": 2.0,
+    "avg_harq_refinement_rounds": 3.0,
+    "avg_harq_transmissions": 4.0,
+    "avg_latency": 7.199999999999977,
+    "avg_power": 1.75,
+    "avg_repetitions": 4.0,
+    "avg_resource_cost": 3.7725000000000004,
+    "bandwidth_per_accepted": 0.0,
+    "bandwidth_per_correct_accepted": 0.0,
+    "certified_accept_rate": 0.0,
+    "correct_accepted_samples": 0.0,
+    "coverage": 1.0,
+    "fpr95": 1.0,
+    "goodput_per_bandwidth": 0.0,
+    "goodput_per_resource_cost": 0.0,
+    "harq_full_payload_sample_rate": 1.0,
+    "harq_hit_max_refinements_rate": 1.0,
+    "harq_refined_sample_rate": 1.0,
+    "open_semantic_outage": 0.0,
+    "open_semantic_risk": 0.5117552083333332,
+    "open_set_f1": 0.0,
+    "prediction_set_size": 6.0,
+    "resource_cost_per_correct_accepted": 0.0,
+    "risk_latency_product": 3.6846374999999876,
+    "risk_per_joule": 0.0001959846845639293,
+    "semantic_goodput": 0.0,
+    "semantic_outage": 0.13802083333333334,
+    "total_bandwidth": 537.5999999999962,
+    "total_compute": 652.8000000000013,
+    "total_energy": 2611.2000000000053,
+    "total_harq_full_payload_rounds": 768.0,
+    "total_harq_refinement_rounds": 1152.0,
+    "total_harq_transmissions": 1536.0,
+    "total_latency": 2764.799999999991,
+    "total_power": 672.0,
+    "total_repetitions": 1536.0,
+    "total_resource_cost": 1448.64
+  },
+  "name": "channel_open_sionna_debug_17232350",
+  "regime": "channel-open",
+  "samples": 384,
+  "seed": 0,
+  "users": 4
+}
+EVAL_DEBUG {'n': 384, 'risk_q': [0.34997814765009844, 0.3778191673204638, 0.40233996249621556, 0.43608827774657566, 0.4948790062188248, 0.5313229616312385, 0.5425395686097255, 0.5741291093914097], 'confidence_q': [0.2929315433504846, 0.42956493831210785, 0.5553594196642474, 0.7593983943078387, 0.8626999136123278, 0.9262234995549351, 0.948960013203254, 0.9871420900269695], 'phy_q': {'phy_payload_bit_error_rate': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'phy_ldpc_block_error_rate': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'phy_payload_mse': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'phy_quantization_mse': [2.6156369599391507e-06, 2.783774318576045e-06, 2.8498338988935826e-06, 2.9262331255089984e-06, 3.0003751806401226e-06, 3.0784623970685437e-06, 3.117402738313831e-06, 3.305093740534096e-06]}, 'prediction_set_sizes': {6: 384}, 'decisions': {'reject/open': 384}}

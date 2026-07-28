@@ -1,0 +1,71 @@
+{
+  "calibration_samples": 256,
+  "dataset_manifest": "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/manifests/opensemcom_real.csv",
+  "decisions": {
+    "reject/open": 256
+  },
+  "evaluated_samples": 256,
+  "manifest_summary": {
+    "indexed_rows": 0,
+    "regimes": {
+      "closed-id": 256,
+      "task-open": 256
+    },
+    "rows": 512,
+    "splits": {
+      "calibration": 256,
+      "eval": 256
+    }
+  },
+  "metrics": {
+    "accepted_samples": 0.0,
+    "accuracy": 0.22265625,
+    "adaptation_harm_rate": 0.0,
+    "auroc_ood": 0.5,
+    "avg_bandwidth": 1.3999999999999964,
+    "avg_compute": 1.7718749999999976,
+    "avg_energy": 4.621874999999997,
+    "avg_harq_full_payload_rounds": 2.71875,
+    "avg_harq_refinement_rounds": 1.71875,
+    "avg_harq_transmissions": 2.71875,
+    "avg_latency": 4.893750000000003,
+    "avg_power": 1.9296875,
+    "avg_repetitions": 2.71875,
+    "avg_resource_cost": 2.9313281250000003,
+    "bandwidth_per_accepted": 0.0,
+    "bandwidth_per_correct_accepted": 0.0,
+    "certified_accept_rate": 0.0,
+    "correct_accepted_samples": 0.0,
+    "coverage": 0.38671875,
+    "fpr95": 0.0,
+    "goodput_per_bandwidth": 0.0,
+    "goodput_per_resource_cost": 0.0,
+    "harq_full_payload_sample_rate": 1.0,
+    "harq_hit_max_refinements_rate": 0.54296875,
+    "harq_refined_sample_rate": 0.60546875,
+    "open_semantic_outage": 0.0,
+    "open_semantic_risk": 0.7132859577357397,
+    "open_set_f1": 0.6666666666666666,
+    "prediction_set_size": 1.7578125,
+    "resource_cost_per_correct_accepted": 0.0,
+    "risk_latency_product": 3.4906431556692783,
+    "risk_per_joule": 0.0006028447918659061,
+    "semantic_goodput": 0.0,
+    "semantic_outage": 0.77734375,
+    "total_bandwidth": 358.39999999999907,
+    "total_compute": 453.5999999999994,
+    "total_energy": 1183.1999999999991,
+    "total_harq_full_payload_rounds": 696.0,
+    "total_harq_refinement_rounds": 440.0,
+    "total_harq_transmissions": 696.0,
+    "total_latency": 1252.8000000000009,
+    "total_power": 494.0,
+    "total_repetitions": 696.0,
+    "total_resource_cost": 750.4200000000001
+  },
+  "name": "task-open_15500177",
+  "regime": "task-open",
+  "samples": 512,
+  "seed": 0,
+  "users": 4
+}

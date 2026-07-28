@@ -1,0 +1,29 @@
+Traceback (most recent call last):
+  File "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/.venv/lib/python3.11/site-packages/transformers/models/auto/image_processing_auto.py", line 598, in from_pretrained
+    config_dict, _ = ImageProcessingMixin.get_image_processor_dict(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/.venv/lib/python3.11/site-packages/transformers/image_processing_base.py", line 334, in get_image_processor_dict
+    raise OSError(
+OSError: Can't load image processor for 'apple/DFN5B-CLIP-ViT-H-14-378'. If you were trying to load it from 'https://huggingface.co/models', make sure you don't have a local directory with the same name. Otherwise, make sure 'apple/DFN5B-CLIP-ViT-H-14-378' is the correct path to a directory containing a config.json file
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/src/opensemcom/cli/extract_features.py", line 271, in <module>
+    main()
+  File "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/src/opensemcom/cli/extract_features.py", line 44, in main
+    extractor = PretrainedExtractor(args.model_id, args.device)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/src/opensemcom/cli/extract_features.py", line 117, in __init__
+    self.processor = AutoImageProcessor.from_pretrained(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/.venv/lib/python3.11/site-packages/transformers/models/auto/image_processing_auto.py", line 602, in from_pretrained
+    raise initial_exception
+  File "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/.venv/lib/python3.11/site-packages/transformers/models/auto/image_processing_auto.py", line 592, in from_pretrained
+    config_dict, _ = ImageProcessingMixin.get_image_processor_dict(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/.venv/lib/python3.11/site-packages/transformers/image_processing_base.py", line 334, in get_image_processor_dict
+    raise OSError(
+OSError: Can't load image processor for 'apple/DFN5B-CLIP-ViT-H-14-378'. If you were trying to load it from 'https://huggingface.co/models', make sure you don't have a local directory with the same name. Otherwise, make sure 'apple/DFN5B-CLIP-ViT-H-14-378' is the correct path to a directory containing a preprocessor_config.json file

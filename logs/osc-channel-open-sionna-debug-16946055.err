@@ -1,0 +1,3 @@
+W0721 18:50:56.021000 141626 .venv/lib/python3.11/site-packages/torch/utils/flop_counter.py:29] triton not found; flop counting will not work for triton kernels
+/localscratch/spool/slurmd/job16946055/slurm_script: line 44: 141626 Killed                  python -m opensemcom.cli.run_config --config "$CONFIG" --manifest "$MANIFEST" --output-dir "$PROJECT_ROOT/runs" --samples "$SAMPLES" --calibration-samples "$CALIBRATION_SAMPLES" --users "$USERS" --seed "$SEED" --run-name "$RUN_NAME" --traces
+[2026-07-21T22:51:04.679] error: Detected 1 oom_kill event in StepId=16946055.batch. Some of the step tasks have been OOM Killed.

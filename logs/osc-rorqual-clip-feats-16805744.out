@@ -1,0 +1,30 @@
+initializing model=openai/clip-vit-base-patch32 device=auto
+loading processor from local cache
+loading model from local cache
+initialized model=openai/clip-vit-base-patch32 resolved_device=cuda
+{
+  "feature_root": "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/data/features/openai__clip-vit-base-patch32",
+  "feature_slug": "openai__clip-vit-base-patch32",
+  "model_id": "openai/clip-vit-base-patch32",
+  "output_manifest": "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/manifests/opensemcom_rorqual_clip.csv",
+  "rows": 10880,
+  "skipped": 0,
+  "skipped_reasons": {}
+}
+{
+  "indexed_rows": 0,
+  "regimes": {
+    "channel-open": 384,
+    "class-open": 3264,
+    "closed-id": 1024,
+    "full-open": 3982,
+    "resource-open": 384,
+    "source-open": 704,
+    "task-open": 1138
+  },
+  "rows": 10880,
+  "splits": {
+    "calibration": 640,
+    "eval": 10240
+  }
+}

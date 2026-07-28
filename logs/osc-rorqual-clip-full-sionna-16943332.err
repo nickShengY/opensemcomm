@@ -1,0 +1,34 @@
+W0721 18:03:34.365000 911150 .venv/lib/python3.11/site-packages/torch/utils/flop_counter.py:29] triton not found; flop counting will not work for triton kernels
+W0721 18:04:21.503000 911444 .venv/lib/python3.11/site-packages/torch/utils/flop_counter.py:29] triton not found; flop counting will not work for triton kernels
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/src/opensemcom/cli/run_config.py", line 141, in <module>
+    main()
+  File "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/src/opensemcom/cli/run_config.py", line 54, in main
+    result = run_experiment(
+             ^^^^^^^^^^^^^^^
+  File "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/src/opensemcom/simulation.py", line 320, in run_experiment
+    system.calibrate(calibration_stream, channel)
+  File "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/src/opensemcom/simulation.py", line 67, in calibrate
+    observation = self._calibration_transmit(channel, symbols)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/src/opensemcom/simulation.py", line 242, in _calibration_transmit
+    return self._transmit_repeated(channel, symbols, repetitions, power)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/src/opensemcom/simulation.py", line 247, in _transmit_repeated
+    return transmit_repeated(symbols, repetitions, power)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/src/opensemcom/channels.py", line 107, in transmit_repeated
+    observation = self._link.transmit(np.asarray(symbols, dtype=np.float64) * amplitude, repetitions)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/src/opensemcom/phy.py", line 110, in transmit
+    llrs, gain = self._transmit_codewords(transmitted, noise_variance, repetitions)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/src/opensemcom/phy.py", line 123, in _transmit_codewords
+    equalized, effective_noise, gain = self._propagate(transmitted, noise_variance)
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/lustre10/scratch/nickyun/scratch/ahmed/opensemcomm/src/opensemcom/phy.py", line 149, in _propagate
+    equalized = self._torch.sum(self._torch.conj(h).unsqueeze(-1) * y, dim=1) / channel_power
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (256) must match the size of tensor b (8) at non-singleton dimension 1
