@@ -6,8 +6,8 @@ import numpy as np
 import pytest
 
 from opensemcom.comparaison import ComparisonConfig, ComparisonMethod, ComparisonOrchestrator
-from opensemcom.config import ChannelConfig
-from opensemcom.types import ChannelBackend, ChannelKind
+from opensemcom.config import ChannelConfig, ModelConfig, OpenSemComConfig
+from opensemcom.types import ChannelBackend, ChannelKind, SemanticSample
 
 
 def _write_manifests(tmp_path: Path) -> tuple[Path, dict[str, Path]]:
@@ -127,3 +127,20 @@ def test_orchestrator_supports_a_selected_three_method_cohort(tmp_path):
     assert run.cohort_methods == ("opensemcom", "siglip", "openclip")
     assert run.cohort_rows == 12
     assert run.method == "openclip"
+
+
+def test_static_ood_target_includes_unseen_task_and_domain(tmp_path):
+    orchestrator = ComparisonOrchestrator(_config(tmp_path, ComparisonMethod.DINO))
+    config = OpenSemComConfig(
+        model=ModelConfig(train_tasks=("classification",), train_domains=("known-domain",)),
+    )
+
+    assert orchestrator._is_open_exposure(
+        SemanticSample(np.zeros(2), 0, "classification", "other-domain", False), config
+    )
+    assert orchestrator._is_open_exposure(
+        SemanticSample(np.zeros(2), 0, "other-task", "known-domain", False), config
+    )
+    assert not orchestrator._is_open_exposure(
+        SemanticSample(np.zeros(2), 0, "classification", "known-domain", False), config
+    )

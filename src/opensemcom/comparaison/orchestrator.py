@@ -171,7 +171,13 @@ class ComparisonOrchestrator:
                 adaptation_harm=0.0,
                 calibration_error=0.0,
             )
-            metrics.add(sample, output, breakdown, risk.total(breakdown), ood_label=sample.is_unknown)
+            metrics.add(
+                sample,
+                output,
+                breakdown,
+                risk.total(breakdown),
+                ood_label=self._is_open_exposure(sample, config),
+            )
             traces.append(
                 {
                     "index": index,
@@ -254,6 +260,15 @@ class ComparisonOrchestrator:
         if self.config.channel.backend == ChannelBackend.SIONNA and self.config.channel.sionna_seed is None:
             return replace(self.config.channel, sionna_seed=self.config.seed + 100)
         return self.config.channel
+
+    @staticmethod
+    def _is_open_exposure(sample: SemanticSample, config: OpenSemComConfig) -> bool:
+        """Use the same task/domain/unknown OOD target as the OpenSemCom path."""
+        return (
+            sample.is_unknown
+            or sample.task not in config.model.train_tasks
+            or sample.domain not in config.model.train_domains
+        )
 
     def _validate_payload_budget(self) -> None:
         if self.config.payload_blocks <= 0:
