@@ -105,3 +105,25 @@ def test_dino_static_baseline_runs_through_local_sionna(tmp_path):
     assert len(run.result.traces) == 6
     assert "semantic_goodput" in run.result.metrics
     assert all("phy_payload_bit_error_rate" in trace["features"] for trace in run.result.traces)
+
+def test_orchestrator_supports_a_selected_three_method_cohort(tmp_path):
+    raw, manifests = _write_manifests(tmp_path)
+    cohort_methods = (
+        ComparisonMethod.OPENSEMCOM,
+        ComparisonMethod.SIGLIP,
+        ComparisonMethod.OPENCLIP,
+    )
+    run = ComparisonOrchestrator(
+        ComparisonConfig(
+            method=ComparisonMethod.OPENCLIP,
+            raw_manifest=raw,
+            manifests={method.value: manifests[method.value] for method in cohort_methods},
+            channel=ChannelConfig(backend=ChannelBackend.NUMPY, kind=ChannelKind.AWGN, snr_db=30.0),
+            cohort_methods=cohort_methods,
+            seed=7,
+        )
+    ).run()
+
+    assert run.cohort_methods == ("opensemcom", "siglip", "openclip")
+    assert run.cohort_rows == 12
+    assert run.method == "openclip"
