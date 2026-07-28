@@ -39,10 +39,10 @@ class ComparisonMethod(str, Enum):
 
 @dataclass(frozen=True)
 class ComparisonConfig:
-    """Inputs for one method run over the cohort common to all four methods.
+    """Inputs for one method run over the cohort common to configured methods.
 
-    ``manifests`` must provide ``opensemcom``, ``dino``, ``siglip``, and
-    ``openclip`` entries. The raw manifest controls row identity and split;
+    ``manifests`` must provide every entry named by ``cohort_methods``. When
+    omitted, the cohort remains the full four-method comparison. The raw manifest controls row identity and split;
     feature-manifest split labels are intentionally ignored after validation.
     ``payload_blocks`` is the fixed one-shot baseline allocation. With the
     default Sionna configuration, one block is 256 information bits, or 32
@@ -53,6 +53,7 @@ class ComparisonConfig:
     raw_manifest: str | Path
     manifests: dict[str, str | Path]
     channel: ChannelConfig
+    cohort_methods: tuple[ComparisonMethod, ...] | None = None
     seed: int = 0
     payload_blocks: int = 1
     accept_quantile: float = 0.95
@@ -62,6 +63,7 @@ class ComparisonConfig:
 @dataclass(frozen=True)
 class ComparisonRun:
     method: str
+    cohort_methods: tuple[str, ...]
     cohort_rows: int
     calibration_rows: int
     evaluation_rows: int
@@ -98,7 +100,20 @@ class ComparisonOrchestrator:
 
     def __init__(self, config: ComparisonConfig):
         self.config = config
+        self._validate_cohort_methods()
         self._validate_payload_budget()
+
+    def _cohort_methods(self) -> tuple[ComparisonMethod, ...]:
+        return self.config.cohort_methods or tuple(ComparisonMethod)
+
+    def _validate_cohort_methods(self) -> None:
+        cohort_methods = self._cohort_methods()
+        if not cohort_methods:
+            raise ValueError("cohort_methods must not be empty.")
+        if self.config.method not in cohort_methods:
+            raise ValueError("The selected method must be part of cohort_methods.")
+        if len(set(cohort_methods)) != len(cohort_methods):
+            raise ValueError("cohort_methods must not contain duplicates.")
 
     @property
     def payload_values(self) -> int:
@@ -116,6 +131,7 @@ class ComparisonOrchestrator:
             result = self._run_static(calibration, evaluation)
         return ComparisonRun(
             method=self.config.method.value,
+            cohort_methods=tuple(method.value for method in self._cohort_methods()),
             cohort_rows=len(rows),
             calibration_rows=len(calibration),
             evaluation_rows=len(evaluation),
@@ -155,7 +171,13 @@ class ComparisonOrchestrator:
                 adaptation_harm=0.0,
                 calibration_error=0.0,
             )
-            metrics.add(sample, output, breakdown, risk.total(breakdown), ood_label=sample.is_unknown)
+            metrics.add(
+                sample,
+                output,
+                breakdown,
+                risk.total(breakdown),
+                ood_label=self._is_open_exposure(sample, config),
+            )
             traces.append(
                 {
                     "index": index,
@@ -195,14 +217,15 @@ class ComparisonOrchestrator:
         raise ValueError(f"{self.config.method.value} is not a static baseline.")
 
     def _load_common_rows(self) -> list[_Row]:
-        missing = set(self._REQUIRED_MANIFESTS) - set(self.config.manifests)
+        cohort_methods = tuple(method.value for method in self._cohort_methods())
+        missing = set(cohort_methods) - set(self.config.manifests)
         if missing:
             raise ValueError(f"Comparison manifests are missing: {', '.join(sorted(missing))}")
         raw = _read_manifest(self.config.raw_manifest)
         raw_by_key = _index_rows(raw, str(self.config.raw_manifest))
         features_by_method = {
-            method: _index_rows(_read_manifest(path), str(path))
-            for method, path in self.config.manifests.items()
+            method: _index_rows(_read_manifest(self.config.manifests[method]), str(self.config.manifests[method]))
+            for method in cohort_methods
         }
         common = set(raw_by_key)
         for rows in features_by_method.values():
@@ -216,10 +239,10 @@ class ComparisonOrchestrator:
             output.append(
                 _Row(
                     key=key,
-                    feature_paths={method: _resolve_source(row, Path(path)) for method, (row, path) in {
-                        method: (features_by_method[method][key], self.config.manifests[method])
-                        for method in self._REQUIRED_MANIFESTS
-                    }.items()},
+                    feature_paths={
+                        method: _resolve_source(features_by_method[method][key], Path(self.config.manifests[method]))
+                        for method in cohort_methods
+                    },
                     label=int(source["label"]),
                     task=source["task"],
                     domain=source["domain"],
@@ -237,6 +260,15 @@ class ComparisonOrchestrator:
         if self.config.channel.backend == ChannelBackend.SIONNA and self.config.channel.sionna_seed is None:
             return replace(self.config.channel, sionna_seed=self.config.seed + 100)
         return self.config.channel
+
+    @staticmethod
+    def _is_open_exposure(sample: SemanticSample, config: OpenSemComConfig) -> bool:
+        """Use the same task/domain/unknown OOD target as the OpenSemCom path."""
+        return (
+            sample.is_unknown
+            or sample.task not in config.model.train_tasks
+            or sample.domain not in config.model.train_domains
+        )
 
     def _validate_payload_budget(self) -> None:
         if self.config.payload_blocks <= 0:

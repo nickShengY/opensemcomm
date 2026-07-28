@@ -20,9 +20,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--regime", required=True)
     parser.add_argument("--raw-manifest", required=True)
     parser.add_argument("--opensemcom-manifest", required=True)
-    parser.add_argument("--dino-manifest", required=True)
-    parser.add_argument("--siglip-manifest", required=True)
-    parser.add_argument("--openclip-manifest", required=True)
+    parser.add_argument("--dino-manifest")
+    parser.add_argument("--siglip-manifest")
+    parser.add_argument("--openclip-manifest")
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--methods", default="all", help="Comma-separated methods or 'all'.")
     parser.add_argument("--seed", type=int, default=0)
@@ -34,16 +34,23 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main() -> None:
     args = build_parser().parse_args()
+    methods = _parse_methods(args.methods)
     base_config = replace(_config_from_dict(_load_config(args.config)), seed=args.seed)
+    manifest_args = {
+        ComparisonMethod.OPENSEMCOM: args.opensemcom_manifest,
+        ComparisonMethod.DINO: args.dino_manifest,
+        ComparisonMethod.SIGLIP: args.siglip_manifest,
+        ComparisonMethod.OPENCLIP: args.openclip_manifest,
+    }
+    missing = [method.value for method in methods if not manifest_args[method]]
+    if missing:
+        raise ValueError(f"Selected methods are missing feature manifests: {', '.join(missing)}")
     manifests = {
-        "opensemcom": Path(args.opensemcom_manifest).expanduser().resolve(),
-        "dino": Path(args.dino_manifest).expanduser().resolve(),
-        "siglip": Path(args.siglip_manifest).expanduser().resolve(),
-        "openclip": Path(args.openclip_manifest).expanduser().resolve(),
+        method.value: Path(manifest_args[method]).expanduser().resolve()
+        for method in methods
     }
     output_dir = Path(args.output_dir).expanduser().resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
-    methods = _parse_methods(args.methods)
 
     with tempfile.TemporaryDirectory(prefix="opensemcom-comparaison-") as temp_dir:
         filtered_raw, filtered_manifests = _filter_to_regime(
@@ -60,6 +67,7 @@ def main() -> None:
                     raw_manifest=filtered_raw,
                     manifests=filtered_manifests,
                     channel=base_config.channel,
+                    cohort_methods=tuple(methods),
                     seed=args.seed,
                     payload_blocks=args.payload_blocks,
                     accept_quantile=args.accept_quantile,
@@ -70,6 +78,7 @@ def main() -> None:
                 "method": run.method,
                 "regime": args.regime,
                 "seed": args.seed,
+                "cohort_methods": list(run.cohort_methods),
                 "cohort_rows": run.cohort_rows,
                 "calibration_rows": run.calibration_rows,
                 "evaluation_rows": run.evaluation_rows,
