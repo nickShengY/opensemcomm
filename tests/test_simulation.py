@@ -6,10 +6,10 @@ import numpy as np
 import pytest
 
 from opensemcom.benchmark import BenchmarkRegime, OpenSemComBench
-from opensemcom.config import CalibrationConfig, ChannelConfig, OpenSemComConfig
+from opensemcom.config import CalibrationConfig, ChannelConfig, ModelConfig, OpenSemComConfig, ResourceWeights
 from opensemcom.channels import ChannelObservation, WirelessChannel
 from opensemcom.simulation import OpenSemComSystem, run_experiment
-from opensemcom.types import ChannelBackend, ChannelKind, ResourceAction
+from opensemcom.types import ChannelBackend, ChannelKind, ResourceAction, SemanticSample
 
 
 def write_manifest(tmp_path):
@@ -236,6 +236,64 @@ def test_stage_aware_calibration_registers_a_policy_for_every_payload_stage(tmp_
     policies = [system.receiver._policy_for_action(ResourceAction(layers=stage)) for stage in stages]
     assert all(policy.calibrator.fitted for policy in policies)
     assert len({id(policy.calibrator) for policy in policies}) == len(stages)
+
+def test_logistic_core_policy_uses_held_out_calibration_and_can_refine(monkeypatch):
+    """Avoid in-sample logistic confidence emptying core conformal sets."""
+    rng = np.random.default_rng(9)
+    input_dim = 64
+    per_class = 16
+
+    def make_sample(label: int) -> SemanticSample:
+        features = rng.normal(0.0, 0.6, input_dim)
+        width = input_dim // 12
+        features[label * width : (label + 1) * width] += 1.2
+        return SemanticSample(features, label, "classification", "cifar10", False)
+
+    calibration = [make_sample(label) for label in range(6) for _ in range(per_class)]
+    evaluation = [make_sample(label) for label in range(6) for _ in range(4)]
+    config = OpenSemComConfig(
+        seed=7,
+        model=ModelConfig(
+            input_dim=input_dim,
+            latent_dim=input_dim,
+            projection="identity",
+            classifier="logistic",
+            num_known_classes=6,
+            train_tasks=("classification",),
+            train_domains=("cifar10",),
+        ),
+        channel=ChannelConfig(snr_db=100.0),
+        calibration=CalibrationConfig(stage_aware=True),
+        resource_weights=ResourceWeights(scheduler_resource_penalty=0.60),
+    )
+    system = OpenSemComSystem(config)
+    channel = WirelessChannel(config.channel, np.random.default_rng(11))
+
+    captured = {}
+    original_conformal_fit = system.calibrator.fit
+    original_selective_fit = system.detector.fit_selective
+
+    def capture_conformal_fit(probabilities, labels):
+        captured["conformal_count"] = len(probabilities)
+        captured["conformal_labels"] = list(labels)
+        return original_conformal_fit(probabilities, labels)
+
+    def capture_selective_fit(items):
+        captured["selective_count"] = len(items)
+        return original_selective_fit(items)
+
+    monkeypatch.setattr(system.calibrator, "fit", capture_conformal_fit)
+    monkeypatch.setattr(system.detector, "fit_selective", capture_selective_fit)
+    system.calibrate(calibration, channel)
+    result = system.run(evaluation, channel)
+
+    holdout = system._threshold_calibration_indices(calibration)
+    assert len(holdout) == 24
+    assert all(sum(calibration[index].y == label for index in holdout) == 4 for label in range(6))
+    assert captured["conformal_count"] == len(holdout)
+    assert all(captured["conformal_labels"].count(label) == 4 for label in range(6))
+    assert captured["selective_count"] == len(calibration) - len(holdout)
+    assert result.metrics["harq_refined_sample_rate"] > 0.0
 
 def test_channel_open_uses_rayleigh_at_six_db_below_its_base_channel(tmp_path):
     manifest = write_manifest(tmp_path)

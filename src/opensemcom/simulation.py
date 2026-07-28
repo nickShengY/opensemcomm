@@ -79,7 +79,9 @@ class OpenSemComSystem:
         self.detector.fit_calibration(latents)
         selective_items = []
         selective_repeats = max(1, min(4, augmentations))
-        for sample in samples:
+        for idx, sample in enumerate(samples):
+            if idx in threshold_indices:
+                continue
             layers = self.parser.parse(sample)
             open_exposure = self._is_open_exposure(sample)
             for layer_names in self._calibration_layer_sets():
@@ -145,9 +147,15 @@ class OpenSemComSystem:
         labels = []
         known_probabilities = []
         known_labels = []
+        threshold_probabilities = []
+        threshold_labels = []
+        threshold_known_probabilities = []
+        threshold_known_labels = []
         risk_scores = []
+        threshold_risk_scores = []
         correct_risk_scores = []
         open_risk_scores = []
+        threshold_open_risk_scores = []
         calibration_phy_values = {key: [] for key in _PHY_DIAGNOSTIC_KEYS}
         use_threshold_subset = bool(threshold_indices)
         for idx, sample in enumerate(samples):
@@ -179,27 +187,39 @@ class OpenSemComSystem:
                 known_probabilities.append(probs)
                 known_labels.append(sample.y)
             threshold_sample = not use_threshold_subset or idx in threshold_indices
+            if threshold_sample:
+                threshold_probabilities.append(probs)
+                threshold_labels.append(sample.y)
+                threshold_risk_scores.append(risk_score)
+                if open_exposure:
+                    threshold_open_risk_scores.append(risk_score)
+                else:
+                    threshold_known_probabilities.append(probs)
+                    threshold_known_labels.append(sample.y)
             if threshold_sample and not open_exposure and y_hat == sample.y:
                 correct_risk_scores.append(risk_score)
 
-        calibrator.fit(known_probabilities or probabilities, known_labels or labels)
+        calibrator.fit(
+            threshold_known_probabilities or threshold_probabilities or known_probabilities or probabilities,
+            threshold_known_labels or threshold_labels or known_labels or labels,
+        )
         accept_quantile = float(np.clip(self.config.calibration.accept_quantile, 0.0, 1.0))
         refine_quantile = float(np.clip(self.config.calibration.refine_quantile, 0.0, 1.0))
         if correct_risk_scores:
             q_accept = float(np.quantile(correct_risk_scores, accept_quantile))
-        elif risk_scores:
-            q_accept = float(np.quantile(risk_scores, accept_quantile))
+        elif threshold_risk_scores:
+            q_accept = float(np.quantile(threshold_risk_scores, accept_quantile))
         else:
             q_accept = self.config.calibration.accept_quantile
-        if self.config.calibration.mixed_open and open_risk_scores:
-            open_accept_cap = float(np.quantile(open_risk_scores, self.config.calibration.target_open_outage))
+        if self.config.calibration.mixed_open and threshold_open_risk_scores:
+            open_accept_cap = float(np.quantile(threshold_open_risk_scores, self.config.calibration.target_open_outage))
             q_accept = min(q_accept, open_accept_cap)
-        if risk_scores:
-            q_refine = float(np.quantile(risk_scores, refine_quantile))
+        if threshold_risk_scores:
+            q_refine = float(np.quantile(threshold_risk_scores, refine_quantile))
         else:
             q_refine = self.config.calibration.refine_quantile
-        if self.config.calibration.mixed_open and open_risk_scores:
-            q_refine = min(q_refine, float(np.quantile(open_risk_scores, 0.50)))
+        if self.config.calibration.mixed_open and threshold_open_risk_scores:
+            q_refine = min(q_refine, float(np.quantile(threshold_open_risk_scores, 0.50)))
         q_refine = max(q_accept + 0.05, q_refine)
 
         quantiles = [0.0, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 1.0]
@@ -208,7 +228,9 @@ class OpenSemComSystem:
             "q_refine": q_refine,
             "conformal_nonconformity_threshold": float(calibrator.threshold),
             "conformal_probability_cutoff": float(1.0 - calibrator.threshold),
+            "threshold_samples": len(threshold_risk_scores),
             "risk_q": np.quantile(risk_scores, quantiles).tolist() if risk_scores else [],
+            "threshold_risk_q": np.quantile(threshold_risk_scores, quantiles).tolist() if threshold_risk_scores else [],
             "correct_risk_q": np.quantile(correct_risk_scores, quantiles).tolist() if correct_risk_scores else [],
             "open_risk_q": np.quantile(open_risk_scores, quantiles).tolist() if open_risk_scores else [],
             "phy_q": {
@@ -337,22 +359,36 @@ class OpenSemComSystem:
         )
 
     def _threshold_calibration_indices(self, samples: list[SemanticSample]) -> set[int]:
-        if self.config.model.classifier != "torch_mlp":
+        """Reserve a deterministic, class-stratified holdout for policy calibration."""
+        if self.config.model.classifier not in {"logistic", "torch_mlp"}:
             return set()
         known_indices = [
             idx for idx, sample in enumerate(samples)
             if not self._is_open_exposure(sample) and 0 <= sample.y < self.config.model.num_known_classes
         ]
-        if len(known_indices) < self.config.model.num_known_classes * 4:
-            return set()
         grouped: dict[int, list[int]] = {}
         for idx in known_indices:
             grouped.setdefault(samples[idx].y, []).append(idx)
+        if any(len(grouped.get(label, ())) < 4 for label in range(self.config.model.num_known_classes)):
+            return set()
+
+        split_rng = np.random.default_rng(self.config.seed + 41)
         threshold_indices: set[int] = set()
-        for values in grouped.values():
+        for label in sorted(grouped):
+            values = grouped[label]
             holdout = max(1, len(values) // 4)
-            threshold_indices.update(values[-holdout:])
+            threshold_indices.update(split_rng.permutation(values)[:holdout].tolist())
         return threshold_indices
+        if self.config.calibration.mixed_open:
+            open_groups: dict[tuple[str, str, bool], list[int]] = {}
+            for idx, sample in enumerate(samples):
+                if self._is_open_exposure(sample):
+                    open_groups.setdefault((sample.task, sample.domain, sample.is_unknown), []).append(idx)
+            for group in sorted(open_groups):
+                values = open_groups[group]
+                if len(values) >= 4:
+                    holdout = max(1, len(values) // 4)
+                    threshold_indices.update(split_rng.permutation(values)[:holdout].tolist())
 
     def _calibration_layer_sets(self) -> tuple[tuple[str, ...], ...]:
         return (
