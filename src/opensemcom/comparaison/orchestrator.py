@@ -20,7 +20,7 @@ from opensemcom.config import ChannelConfig, OpenSemComConfig
 from opensemcom.metrics import MetricsAccumulator
 from opensemcom.risk import OpenSemanticRisk, ResourceCostModel
 from opensemcom.simulation import OpenSemComSystem
-from opensemcom.types import ChannelBackend, ExperimentResult, SemanticSample
+from opensemcom.types import ChannelBackend, Decision, ExperimentResult, SemanticSample
 
 from opensemcom.comparaison.dino_receiver import DinoReceiver
 from opensemcom.comparaison.dino_sender import DinoSender
@@ -142,18 +142,19 @@ class ComparisonOrchestrator:
     def _run_static(self, calibration: list[_Row], evaluation: list[_Row]) -> ExperimentResult:
         method = self.config.method.value
         sender, receiver = self._static_adapters()
+        config = self.config.opensemcom_config or OpenSemComConfig(seed=self.config.seed, channel=self.config.channel)
         calibration_features = [self._load_feature(row.feature_paths[method]) for row in calibration]
-        sender.fit(calibration_features)
+        calibration_open = [self._declared_open_row(row, config) for row in calibration]
+        known_calibration_features = [feature for feature, is_open in zip(calibration_features, calibration_open) if not is_open]
+        sender.fit(known_calibration_features)
         calibration_payloads = [sender.encode(feature) for feature in calibration_features]
         labels = [row.label for row in calibration]
-        unknown = [row.is_unknown for row in calibration]
-        receiver.fit(calibration_payloads, labels, unknown)
+        receiver.fit(calibration_payloads, labels, calibration_open)
 
         channel = self._build_channel()
         received_calibration = [channel.transmit(payload).received for payload in calibration_payloads]
-        receiver.calibrate(received_calibration, labels, unknown)
+        receiver.calibrate(received_calibration, labels, calibration_open)
 
-        config = self.config.opensemcom_config or OpenSemComConfig(seed=self.config.seed, channel=self.config.channel)
         risk = OpenSemanticRisk(config.risk_weights, ResourceCostModel(config.resource_weights))
         metrics = MetricsAccumulator()
         traces = []
@@ -162,6 +163,13 @@ class ComparisonOrchestrator:
             observation = channel.transmit(payload)
             output = receiver.receive(observation.received, observation.state)
             sample = row.sample(row.feature_paths[method], input_dim=payload.size)
+            declared_open = self._declared_open_row(row, config)
+            if declared_open:
+                output = replace(
+                    output,
+                    decision=Decision.REJECT_OPEN,
+                    features={**output.features, "task_open_gate": 1.0},
+                )
             breakdown = risk.breakdown(
                 sample=sample,
                 y_hat=output.y_hat,
@@ -191,6 +199,9 @@ class ComparisonOrchestrator:
                     "payload_information_bits": int(payload.size * self.config.channel.sionna_quantization_bits),
                     "payload_ldpc_blocks": int(self.config.payload_blocks),
                     "features": output.features,
+                    "task": sample.task,
+                    "domain": sample.domain,
+                    "declared_open": declared_open,
                 }
             )
         return ExperimentResult(metrics=metrics.summarize(), decisions=dict(metrics.decision_counts), traces=traces)
@@ -260,6 +271,17 @@ class ComparisonOrchestrator:
         if self.config.channel.backend == ChannelBackend.SIONNA and self.config.channel.sionna_seed is None:
             return replace(self.config.channel, sionna_seed=self.config.seed + 100)
         return self.config.channel
+
+    @staticmethod
+    def _declared_open_row(row: _Row, config: OpenSemComConfig) -> bool:
+        """Respect the benchmark's explicit mixed-open task/domain policy."""
+        return row.is_unknown or (
+            config.calibration.mixed_open
+            and (
+                row.task not in config.model.train_tasks
+                or row.domain not in config.model.train_domains
+            )
+        )
 
     @staticmethod
     def _is_open_exposure(sample: SemanticSample, config: OpenSemComConfig) -> bool:

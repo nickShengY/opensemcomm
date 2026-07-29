@@ -304,3 +304,59 @@ def test_channel_open_uses_rayleigh_at_six_db_below_its_base_channel(tmp_path):
 
     assert channel.kind == ChannelKind.RAYLEIGH
     assert channel.snr_db == 18.0
+def test_mixed_open_calibration_keeps_text_out_of_known_decoder_fit(monkeypatch):
+
+    rng = np.random.default_rng(31)
+    input_dim = 48
+
+    def known_sample(label: int) -> SemanticSample:
+        features = rng.normal(0.0, 0.4, input_dim)
+        features[label * 4 : (label + 1) * 4] += 1.0
+        return SemanticSample(features, label, "classification", "cifar10", False)
+
+    known = [known_sample(label) for label in range(6) for _ in range(4)]
+    text_open = [
+        SemanticSample(rng.normal(0.0, 0.4, input_dim), index % 4, "text-classification", "ag-news", False)
+        for index in range(8)
+    ]
+    calibration = known + text_open
+    config = OpenSemComConfig(
+        seed=5,
+        model=ModelConfig(
+            input_dim=input_dim,
+            latent_dim=input_dim,
+            projection="identity",
+            classifier="logistic",
+            num_known_classes=6,
+            train_tasks=("classification",),
+            train_domains=("cifar10",),
+        ),
+        channel=ChannelConfig(snr_db=100.0),
+        calibration=CalibrationConfig(mixed_open=True),
+    )
+    system = OpenSemComSystem(config)
+    channel = WirelessChannel(config.channel, np.random.default_rng(37))
+    captured = {}
+    original_fit_prototypes = system.decoder.fit_prototypes
+    original_fit_calibration = system.detector.fit_calibration
+
+    def capture_prototypes(latents):
+        captured["prototype_latents"] = list(latents)
+        return original_fit_prototypes(latents)
+
+    def capture_detector(latents):
+        captured["detector_latents"] = list(latents)
+        return original_fit_calibration(latents)
+
+    monkeypatch.setattr(system.decoder, "fit_prototypes", capture_prototypes)
+    monkeypatch.setattr(system.detector, "fit_calibration", capture_detector)
+    system.calibrate(calibration, channel)
+
+    holdout = system._threshold_calibration_indices(calibration)
+    assert len(holdout) == 8
+    assert sum(index < len(known) for index in holdout) == 6
+    assert sum(index >= len(known) for index in holdout) == 2
+    assert len(captured["prototype_latents"]) == 18
+    assert all(not is_open for _, _, is_open in captured["prototype_latents"])
+    assert len(captured["detector_latents"]) == 24
+    assert sum(is_open for _, _, is_open in captured["detector_latents"]) == 6

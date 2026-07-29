@@ -93,7 +93,9 @@ class OpenSemComBench:
         if not rows:
             rows = [row for row in self.rows if row.split in {"train", "eval"} and not row.is_unknown]
         if self.config.calibration.mixed_open:
-            rows = self._mixed_calibration_rows(rows, n)
+            known_rows = [row for row in rows if not self._is_open_row(row)]
+            embedded_open_rows = [row for row in rows if self._is_open_row(row)]
+            rows = self._mixed_calibration_rows(known_rows, embedded_open_rows, n)
             n = None
         if n is not None:
             rows = rows[:n]
@@ -102,16 +104,18 @@ class OpenSemComBench:
             raise ValueError(f"No calibration samples found in {self.manifest_path}")
         return samples
 
-    def _mixed_calibration_rows(self, known_rows: list[ManifestRow], n: int | None) -> list[ManifestRow]:
-        open_rows = [
+    def _mixed_calibration_rows(
+        self,
+        known_rows: list[ManifestRow],
+        embedded_open_rows: list[ManifestRow],
+        n: int | None,
+    ) -> list[ManifestRow]:
+        external_open_rows = [
             row for row in self.rows
             if row.split == self.config.calibration.open_split
-            and (
-                row.is_unknown
-                or row.task not in self.config.model.train_tasks
-                or row.domain not in self.config.model.train_domains
-            )
+            and self._is_open_row(row)
         ]
+        open_rows = embedded_open_rows + external_open_rows
         if not open_rows:
             return known_rows[:n] if n is not None else known_rows
         if n is None:
@@ -122,6 +126,13 @@ class OpenSemComBench:
         selected_known = known_rows[:known_n]
         selected_open = open_rows[:open_n]
         return selected_known + selected_open
+
+    def _is_open_row(self, row: ManifestRow) -> bool:
+        return (
+            row.is_unknown
+            or row.task not in self.config.model.train_tasks
+            or row.domain not in self.config.model.train_domains
+        )
 
     def channel_config(self) -> ChannelConfig:
         base = self.config.channel

@@ -28,6 +28,8 @@ resource_weights:
   scheduler_resource_penalty: 0.60
 calibration:
   stage_aware: true
+  mixed_open: true
+  open_fraction: 0.40
 channel:
   backend: sionna
   kind: awgn

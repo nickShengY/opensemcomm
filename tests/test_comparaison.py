@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 
 from opensemcom.comparaison import ComparisonConfig, ComparisonMethod, ComparisonOrchestrator
-from opensemcom.config import ChannelConfig, ModelConfig, OpenSemComConfig
+from opensemcom.config import CalibrationConfig, ChannelConfig, ModelConfig, OpenSemComConfig
 from opensemcom.types import ChannelBackend, ChannelKind, SemanticSample
 
 
@@ -144,3 +144,36 @@ def test_static_ood_target_includes_unseen_task_and_domain(tmp_path):
     assert not orchestrator._is_open_exposure(
         SemanticSample(np.zeros(2), 0, "classification", "known-domain", False), config
     )
+
+def test_static_baseline_rejects_declared_open_text_rows(tmp_path):
+    raw_path, manifests = _write_manifests(tmp_path)
+    paths = [raw_path, *manifests.values()]
+    for path in paths:
+        with path.open("r", encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle))
+            fields = list(rows[0])
+        for index in (0, 6):
+            rows[index]["task"] = "text-classification"
+            rows[index]["domain"] = "ag-news"
+        _write_csv(path, fields, rows)
+
+    config = OpenSemComConfig(
+        model=ModelConfig(train_tasks=("classification",), train_domains=("unit",)),
+        calibration=CalibrationConfig(mixed_open=True),
+    )
+    run = ComparisonOrchestrator(
+        ComparisonConfig(
+            method=ComparisonMethod.SIGLIP,
+            raw_manifest=raw_path,
+            manifests=manifests,
+            channel=ChannelConfig(backend=ChannelBackend.NUMPY, kind=ChannelKind.AWGN, snr_db=30.0),
+            opensemcom_config=config,
+            seed=7,
+        )
+    ).run()
+
+    text_traces = [trace for trace in run.result.traces if trace["task"] == "text-classification"]
+    assert len(text_traces) == 1
+    assert text_traces[0]["declared_open"] is True
+    assert text_traces[0]["decision"] == "reject/open"
+    assert text_traces[0]["features"]["task_open_gate"] == 1.0

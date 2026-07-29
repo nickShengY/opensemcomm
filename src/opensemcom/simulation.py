@@ -61,22 +61,28 @@ class OpenSemComSystem:
 
     def calibrate(self, samples: Iterable[SemanticSample], channel: WirelessChannel) -> None:
         samples = list(samples)
-        latents = []
+        known_latents = []
+        detector_latents = []
         threshold_indices = self._threshold_calibration_indices(samples)
         augmentations = max(1, int(self.config.model.channel_augmentations))
         for idx, sample in enumerate(samples):
             if idx in threshold_indices:
                 continue
             layers = self.parser.parse(sample)
+            # Open calibration examples teach the detector/reject policy, but
+            # never the known-class decoder.
             open_exposure = self.config.calibration.mixed_open and self._is_open_exposure(sample)
             for layer_names in self._calibration_layer_sets():
                 symbols = self.encoder.encode(layers, layer_names)
                 for _ in range(augmentations):
                     observation = self._calibration_transmit(channel, symbols)
                     _, probs, latent = self.decoder.decode(observation.received)
-                    latents.append((latent, sample.y, open_exposure))
-        self.decoder.fit_prototypes(latents)
-        self.detector.fit_calibration(latents)
+                    item = (latent, sample.y, open_exposure)
+                    detector_latents.append(item)
+                    if not open_exposure:
+                        known_latents.append(item)
+        self.decoder.fit_prototypes(known_latents)
+        self.detector.fit_calibration(detector_latents)
         selective_items = []
         selective_repeats = max(1, min(4, augmentations))
         for idx, sample in enumerate(samples):
@@ -378,7 +384,6 @@ class OpenSemComSystem:
             values = grouped[label]
             holdout = max(1, len(values) // 4)
             threshold_indices.update(split_rng.permutation(values)[:holdout].tolist())
-        return threshold_indices
         if self.config.calibration.mixed_open:
             open_groups: dict[tuple[str, str, bool], list[int]] = {}
             for idx, sample in enumerate(samples):
@@ -389,6 +394,8 @@ class OpenSemComSystem:
                 if len(values) >= 4:
                     holdout = max(1, len(values) // 4)
                     threshold_indices.update(split_rng.permutation(values)[:holdout].tolist())
+
+        return threshold_indices
 
     def _calibration_layer_sets(self) -> tuple[tuple[str, ...], ...]:
         return (
