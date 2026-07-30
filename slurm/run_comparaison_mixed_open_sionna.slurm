@@ -18,8 +18,11 @@ export OPENSEMCOM_SCRATCH_ROOT="$PROJECT_ROOT"
 export PYTHONUNBUFFERED=1
 source "$PROJECT_ROOT/scripts/env_scratch.sh"
 
-# This is an image-classification benchmark with text declared as task-open.
-# DINO is intentionally excluded because its existing feature manifest has no text rows.
+# Protocol: task/domain metadata is available to every receiver; ``is_unknown``
+# remains evaluation ground truth and is never allowed to alter a decision.
+# This mixed calibration requires 384 known CIFAR rows and 256 labelled text
+# rows in every selected feature manifest. DINO is excluded because it lacks
+# text features.
 RAW_MANIFEST="${OPENSEMCOM_MIXED_RAW_MANIFEST:-$PROJECT_ROOT/manifests/opensemcom_rorqual_real.csv}"
 OPENSEMCOM_MANIFEST="${OPENSEMCOM_MIXED_OPENSEMCOM_MANIFEST:-$PROJECT_ROOT/manifests/opensemcom_rorqual_clip.csv}"
 : "${OPENSEMCOM_MIXED_SIGLIP_MANIFEST:?Set the aligned mixed SigLIP2 feature manifest before submitting.}"
@@ -29,6 +32,8 @@ CONFIG_ROOT="${OPENSEMCOM_MIXED_CONFIG_ROOT:-$PROJECT_ROOT/configs/experiments_f
 OUTPUT_ROOT="${OPENSEMCOM_MIXED_OUTPUT_ROOT:-$PROJECT_ROOT/runs/comparaison_mixed_open_${SLURM_JOB_ID}}"
 SEED="${OPENSEMCOM_MIXED_SEED:-0}"
 PAYLOAD_BLOCKS="${OPENSEMCOM_MIXED_PAYLOAD_BLOCKS:-1}"
+EXPECTED_CALIBRATION_KNOWN="${OPENSEMCOM_MIXED_EXPECTED_CALIBRATION_KNOWN:-384}"
+EXPECTED_CALIBRATION_OPEN="${OPENSEMCOM_MIXED_EXPECTED_CALIBRATION_OPEN:-256}"
 REGIMES=(closed-id channel-open source-open class-open task-open resource-open full-open)
 
 mkdir -p "$OUTPUT_ROOT"
@@ -56,5 +61,7 @@ for REGIME in "${REGIMES[@]}"; do
     --output-dir "$OUTPUT_ROOT/$REGIME" \
     --seed "$SEED" \
     --payload-blocks "$PAYLOAD_BLOCKS" \
+    --expected-calibration-known "$EXPECTED_CALIBRATION_KNOWN" \
+    --expected-calibration-open "$EXPECTED_CALIBRATION_OPEN" \
     --write-traces
 done

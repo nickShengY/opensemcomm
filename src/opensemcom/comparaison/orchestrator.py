@@ -53,6 +53,12 @@ class ComparisonConfig:
     raw_manifest: str | Path
     manifests: dict[str, str | Path]
     channel: ChannelConfig
+    # This benchmark protocol treats task/domain as request metadata that is
+    # available to every receiver. Ground-truth ``is_unknown`` is never
+    # available at evaluation time; it is an evaluation/calibration label only.
+    task_domain_metadata_available: bool = True
+    expected_calibration_known: int | None = None
+    expected_calibration_open: int | None = None
     cohort_methods: tuple[ComparisonMethod, ...] | None = None
     seed: int = 0
     payload_blocks: int = 1
@@ -63,6 +69,9 @@ class ComparisonConfig:
 @dataclass(frozen=True)
 class ComparisonRun:
     method: str
+    task_domain_metadata_available: bool
+    calibration_known_rows: int
+    calibration_open_rows: int
     cohort_methods: tuple[str, ...]
     cohort_rows: int
     calibration_rows: int
@@ -125,13 +134,18 @@ class ComparisonOrchestrator:
         evaluation = [row for row in rows if row.split == "eval"]
         if not calibration or not evaluation:
             raise ValueError("The shared raw-manifest cohort requires both calibration and eval rows.")
+        base_config = self.config.opensemcom_config or OpenSemComConfig(seed=self.config.seed, channel=self.config.channel)
+        calibration_known_rows, calibration_open_rows = self._validate_calibration_cohort(calibration, base_config)
         if self.config.method == ComparisonMethod.OPENSEMCOM:
             result = self._run_opensemcom(calibration, evaluation)
         else:
             result = self._run_static(calibration, evaluation)
         return ComparisonRun(
             method=self.config.method.value,
+            calibration_known_rows=calibration_known_rows,
+            calibration_open_rows=calibration_open_rows,
             cohort_methods=tuple(method.value for method in self._cohort_methods()),
+            task_domain_metadata_available=self.config.task_domain_metadata_available,
             cohort_rows=len(rows),
             calibration_rows=len(calibration),
             evaluation_rows=len(evaluation),
@@ -144,7 +158,9 @@ class ComparisonOrchestrator:
         sender, receiver = self._static_adapters()
         config = self.config.opensemcom_config or OpenSemComConfig(seed=self.config.seed, channel=self.config.channel)
         calibration_features = [self._load_feature(row.feature_paths[method]) for row in calibration]
-        calibration_open = [self._declared_open_row(row, config) for row in calibration]
+        # Calibration is labelled data, so open labels may be used here. This
+        # is deliberately separate from evaluation-time metadata gating.
+        calibration_open = [self._calibration_open_row(row, config) for row in calibration]
         known_calibration_features = [feature for feature, is_open in zip(calibration_features, calibration_open) if not is_open]
         sender.fit(known_calibration_features)
         calibration_payloads = [sender.encode(feature) for feature in calibration_features]
@@ -163,12 +179,12 @@ class ComparisonOrchestrator:
             observation = channel.transmit(payload)
             output = receiver.receive(observation.received, observation.state)
             sample = row.sample(row.feature_paths[method], input_dim=payload.size)
-            declared_open = self._declared_open_row(row, config)
-            if declared_open:
+            task_domain_open = self._task_domain_open_row(row, config)
+            if task_domain_open:
                 output = replace(
                     output,
                     decision=Decision.REJECT_OPEN,
-                    features={**output.features, "task_open_gate": 1.0},
+                    features={**output.features, "task_domain_gate": 1.0},
                 )
             breakdown = risk.breakdown(
                 sample=sample,
@@ -201,7 +217,10 @@ class ComparisonOrchestrator:
                     "features": output.features,
                     "task": sample.task,
                     "domain": sample.domain,
-                    "declared_open": declared_open,
+                    "task_domain_open": task_domain_open,
+                    # Evaluation-only ground truth: never used to alter the
+                    # receiver's output.
+                    "is_unknown": row.is_unknown,
                 }
             )
         return ExperimentResult(metrics=metrics.summarize(), decisions=dict(metrics.decision_counts), traces=traces)
@@ -272,16 +291,49 @@ class ComparisonOrchestrator:
             return replace(self.config.channel, sionna_seed=self.config.seed + 100)
         return self.config.channel
 
-    @staticmethod
-    def _declared_open_row(row: _Row, config: OpenSemComConfig) -> bool:
-        """Respect the benchmark's explicit mixed-open task/domain policy."""
-        return row.is_unknown or (
-            config.calibration.mixed_open
+    def _calibration_open_row(self, row: _Row, config: OpenSemComConfig) -> bool:
+        """Use labels only while fitting/calibrating on the labelled cohort."""
+        return row.is_unknown or self._task_domain_open_row(row, config)
+
+    def _task_domain_open_row(self, row: _Row, config: OpenSemComConfig) -> bool:
+        """Return a task/domain mismatch available in request metadata.
+
+        This must not inspect ``row.is_unknown``: that field is evaluation
+        ground truth and would leak the answer to an OOD decision.
+        """
+        return (
+            self.config.task_domain_metadata_available
+            and config.calibration.mixed_open
             and (
                 row.task not in config.model.train_tasks
                 or row.domain not in config.model.train_domains
             )
         )
+
+    def _validate_calibration_cohort(
+        self,
+        calibration: list[_Row],
+        config: OpenSemComConfig,
+    ) -> tuple[int, int]:
+        """Fail before a mixed run silently loses its open calibration rows."""
+        open_rows = sum(self._calibration_open_row(row, config) for row in calibration)
+        known_rows = len(calibration) - open_rows
+        if config.calibration.mixed_open and (known_rows == 0 or open_rows == 0):
+            raise ValueError(
+                "Mixed calibration requires both known and open calibration rows after the shared-manifest intersection; "
+                f"found known={known_rows}, open={open_rows}."
+            )
+        if self.config.expected_calibration_known is not None and known_rows != self.config.expected_calibration_known:
+            raise ValueError(
+                "Unexpected known calibration cohort size: "
+                f"expected {self.config.expected_calibration_known}, found {known_rows}."
+            )
+        if self.config.expected_calibration_open is not None and open_rows != self.config.expected_calibration_open:
+            raise ValueError(
+                "Unexpected open calibration cohort size: "
+                f"expected {self.config.expected_calibration_open}, found {open_rows}."
+            )
+        return known_rows, open_rows
 
     @staticmethod
     def _is_open_exposure(sample: SemanticSample, config: OpenSemComConfig) -> bool:

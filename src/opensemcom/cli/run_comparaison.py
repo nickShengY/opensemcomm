@@ -29,6 +29,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--payload-blocks", type=int, default=1)
     parser.add_argument("--accept-quantile", type=float, default=0.95)
     parser.add_argument("--write-traces", action="store_true")
+    parser.add_argument("--expected-calibration-known", type=int, help="Fail unless the common cohort has this many known calibration rows.")
+    parser.add_argument("--expected-calibration-open", type=int, help="Fail unless the common cohort has this many labelled open calibration rows.")
     return parser
 
 
@@ -70,6 +72,8 @@ def main() -> None:
                     cohort_methods=tuple(methods),
                     seed=args.seed,
                     payload_blocks=args.payload_blocks,
+                    expected_calibration_known=args.expected_calibration_known,
+                    expected_calibration_open=args.expected_calibration_open,
                     accept_quantile=args.accept_quantile,
                     opensemcom_config=base_config,
                 )
@@ -81,9 +85,15 @@ def main() -> None:
                 "cohort_methods": list(run.cohort_methods),
                 "cohort_rows": run.cohort_rows,
                 "calibration_rows": run.calibration_rows,
+                "calibration_known_rows": run.calibration_known_rows,
+                "calibration_open_rows": run.calibration_open_rows,
                 "evaluation_rows": run.evaluation_rows,
                 "payload_values": run.payload_values,
                 "metrics": run.result.metrics,
+                "protocol": {
+                    "task_domain_metadata_available": run.task_domain_metadata_available,
+                    "evaluation_is_unknown_used_for_decision": False,
+                },
                 "decisions": run.result.decisions,
             }
             (output_dir / f"{run.method}_metrics.json").write_text(

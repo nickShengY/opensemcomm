@@ -61,6 +61,25 @@ Important meanings:
 | `label` | Dataset-derived class or task target |
 | `task` | Classification, detection, segmentation, driving, beam prediction, or text task |
 | `domain` | Source dataset/domain identifier |
+### Mixed open-comparison protocol
+
+The mixed image/text comparison uses a deliberately narrow contract:
+
+- The known task is CIFAR image classification.
+- `task` and `domain` are request metadata supplied to every receiver. A task/domain mismatch may therefore be rejected directly.
+- `is_unknown` is ground-truth evaluation metadata. It is used to score OOD safety and may label calibration examples, but it must never change an evaluation-time decision.
+- A mixed-calibration run requires 384 known CIFAR calibration rows plus 256 labelled open-task text rows after intersecting all selected feature manifests. The launcher passes these counts as hard checks and aborts on any mismatch.
+
+This creates two reportable settings. The strict image-only setting has no open-task calibration rows and evaluates model-derived class OOD behaviour. The mixed task-aware setting includes the 256 labelled text calibration rows and evaluates safe image-task operation when task/domain metadata is present. Do not compare their open-regime accept counts as if they were the same protocol.
+
+Before submitting the mixed launcher, verify the feature coverage directly:
+
+```bash
+for manifest in manifests/opensemcom_rorqual_clip.csv "$OPENSEMCOM_MIXED_SIGLIP_MANIFEST" "$OPENSEMCOM_MIXED_OPENCLIP_MANIFEST"; do
+  awk -F, 'NR == 1 { next } $6 == "calibration" && $3 == "classification" && $4 == "cifar10" { known++ } $6 == "calibration" && $3 == "text-classification" && $4 == "ag-news" { open++ } END { print FILENAME ": known=" known + 0 ", open=" open + 0 }' "$manifest"
+done
+```
+
 | `is_unknown` | Whether the semantic class is outside the known training class set |
 | `split` | `train`, `calibration`, or `eval` |
 | `regime` | Closed-ID or the applicable open condition |

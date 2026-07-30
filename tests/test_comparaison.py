@@ -145,7 +145,7 @@ def test_static_ood_target_includes_unseen_task_and_domain(tmp_path):
         SemanticSample(np.zeros(2), 0, "classification", "known-domain", False), config
     )
 
-def test_static_baseline_rejects_declared_open_text_rows(tmp_path):
+def test_static_baseline_rejects_task_metadata_open_rows(tmp_path):
     raw_path, manifests = _write_manifests(tmp_path)
     paths = [raw_path, *manifests.values()]
     for path in paths:
@@ -169,11 +169,88 @@ def test_static_baseline_rejects_declared_open_text_rows(tmp_path):
             channel=ChannelConfig(backend=ChannelBackend.NUMPY, kind=ChannelKind.AWGN, snr_db=30.0),
             opensemcom_config=config,
             seed=7,
+            expected_calibration_known=5,
+            expected_calibration_open=1,
         )
     ).run()
 
     text_traces = [trace for trace in run.result.traces if trace["task"] == "text-classification"]
     assert len(text_traces) == 1
-    assert text_traces[0]["declared_open"] is True
+    assert run.calibration_known_rows == 5
+    assert run.calibration_open_rows == 1
+    assert text_traces[0]["task_domain_open"] is True
     assert text_traces[0]["decision"] == "reject/open"
-    assert text_traces[0]["features"]["task_open_gate"] == 1.0
+    assert text_traces[0]["features"]["task_domain_gate"] == 1.0
+
+
+def test_static_baseline_never_gates_on_evaluation_unknown_label(tmp_path):
+    raw_path, manifests = _write_manifests(tmp_path)
+    paths = [raw_path, *manifests.values()]
+    for path in paths:
+        with path.open("r", encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle))
+            fields = list(rows[0])
+        rows[6]["is_unknown"] = "true"
+        _write_csv(path, fields, rows)
+
+    run = ComparisonOrchestrator(
+        ComparisonConfig(
+            method=ComparisonMethod.SIGLIP,
+            raw_manifest=raw_path,
+            manifests=manifests,
+            channel=ChannelConfig(backend=ChannelBackend.NUMPY, kind=ChannelKind.AWGN, snr_db=30.0),
+            seed=7,
+        )
+    ).run()
+
+    trace = next(trace for trace in run.result.traces if trace["is_unknown"])
+    assert trace["task_domain_open"] is False
+    assert "task_domain_gate" not in trace["features"]
+
+
+def test_mixed_calibration_requires_open_rows_after_manifest_intersection(tmp_path):
+    raw_path, manifests = _write_manifests(tmp_path)
+    config = OpenSemComConfig(
+        model=ModelConfig(train_tasks=("classification",), train_domains=("unit",)),
+        calibration=CalibrationConfig(mixed_open=True),
+    )
+    with pytest.raises(ValueError, match="Mixed calibration requires both known and open"):
+        ComparisonOrchestrator(
+            ComparisonConfig(
+                method=ComparisonMethod.SIGLIP,
+                raw_manifest=raw_path,
+                manifests=manifests,
+                channel=ChannelConfig(backend=ChannelBackend.NUMPY, kind=ChannelKind.AWGN, snr_db=30.0),
+                opensemcom_config=config,
+                seed=7,
+            )
+        ).run()
+
+def test_expected_mixed_calibration_counts_are_enforced(tmp_path):
+    raw_path, manifests = _write_manifests(tmp_path)
+    paths = [raw_path, *manifests.values()]
+    for path in paths:
+        with path.open("r", encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle))
+            fields = list(rows[0])
+        rows[0]["task"] = "text-classification"
+        rows[0]["domain"] = "ag-news"
+        _write_csv(path, fields, rows)
+
+    config = OpenSemComConfig(
+        model=ModelConfig(train_tasks=("classification",), train_domains=("unit",)),
+        calibration=CalibrationConfig(mixed_open=True),
+    )
+    with pytest.raises(ValueError, match="Unexpected open calibration cohort size"):
+        ComparisonOrchestrator(
+            ComparisonConfig(
+                method=ComparisonMethod.SIGLIP,
+                raw_manifest=raw_path,
+                manifests=manifests,
+                channel=ChannelConfig(backend=ChannelBackend.NUMPY, kind=ChannelKind.AWGN, snr_db=30.0),
+                expected_calibration_known=5,
+                expected_calibration_open=2,
+                opensemcom_config=config,
+                seed=7,
+            )
+        ).run()
