@@ -1,10 +1,16 @@
 # Results and Run Artifact Index
 
-This directory contains compact, reader-facing outputs derived from the raw files in `../runs/`. Start with the latest dated report; older reports are retained to show how the receiver and evaluation evolved.
+This directory contains compact, reader-facing outputs derived from the raw
+files in `../runs/`. The dated artifacts are immutable empirical records. They
+predate the independent composed-policy certificate introduced later; none of
+the existing result files should be relabeled as finite-sample certified. A
+reconstruction audit also found source reuse across regime labels and a
+requested 25% open cohort that was actually 40% open. Retain these files for
+provenance, but do not use their severity ladder as paper evidence.
 
 ## Recommended Reading Order
 
-1. `final_opensemcom_extra_experiments_20260629.report.md` - current five-seed result, severity ladder, communication metrics, ablations, and DeepSense exact-beam evidence.
+1. `final_opensemcom_extra_experiments_20260629.report.md` - latest archived five-seed empirical result, severity ladder, communication metrics, ablations, and DeepSense exact-beam evidence.
 2. `checkpoint_reproduction_20260711.report.md` - exact checkpointed reproduction, model inventory, and hash verification.
 3. `final_opensemcom_extra_experiments_20260629.headline_005.csv` - machine-readable headline points at accepted outage 0.05.
 4. `final_opensemcom_extra_experiments_20260629.ablation_005.csv` - component ablations at the same target.
@@ -46,7 +52,11 @@ The July 11 checkpointed rerun is in `../runs/comm_control_checkpointed_20260711
 
 ## Which Files Are Current?
 
-Use the `20260629` report and tables for the current communication-control result. The `20260626` and `20260627` files are earlier checkpoints that establish provenance but should not be mixed into the final table.
+Use the `20260629` report and tables for the latest archived
+communication-control result. The `20260626` and `20260627` files are earlier
+checkpoints that establish provenance but should not be mixed into that table.
+A new result namespace must be used for the revised certificate-enforced
+protocol in `../CERTIFIED_FRAMEWORK.md`.
 
 `final_opensemcom_report.md` and `final_opensemcom_wireless_report.md` contain an earlier three-seed evaluation of the top open-set comparisons and measured-channel calibration. They remain useful for cross-checking, but the five-seed June 29 suite is the more complete result.
 
@@ -56,6 +66,8 @@ Some old raw paths contain development labels that are no longer used in paper l
 
 ## Completeness and Limitations
 
+- Archived threshold selection and evaluation did not use the current
+  disjoint policy-selection and certificate cohorts.
 - `../runs/` includes seed-level summaries, metrics, traces, diagnostics, selected policies, smoke tests, failed-development outcomes, and aggregate files.
 - `../logs/` includes Slurm standard output and standard error files, including empty error files from successful jobs.
 - `../manifests/` includes the source/feature row definitions used by the experiments. These contain scratch-local paths and must be revalidated on another system.

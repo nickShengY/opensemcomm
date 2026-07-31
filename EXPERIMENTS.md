@@ -45,7 +45,83 @@ aggregate CSV/JSON, curves, diagnostics, and report in results/
 
 No stage is permitted to create substitute samples when an input is unavailable. A missing dataset, model, feature, or manifest is a blocked input and should be recorded as such.
 
-## 3. Manifest Contract
+## 3. Paper-Facing Certification Protocol
+
+The normative assumptions and proofs are in
+[CERTIFIED_FRAMEWORK.md](CERTIFIED_FRAMEWORK.md). Every new paper-facing run
+must enable the finite-sample certificate and retain four disjoint calibration
+roles:
+
+```yaml
+calibration:
+  certification_enabled: true
+  certification_alpha: 0.05
+  target_open_outage: 0.05
+  minimum_certification_samples: 64
+  minimum_certified_accepts: 59
+  model_fit_fraction: 0.50
+  conformal_fraction: 0.20
+  threshold_fraction: 0.15
+  threshold_safety_factor: 0.50
+  stage_aware: true
+  channel_support_enabled: true
+```
+
+`minimum_certified_accepts: 59` is the minimum for a 5% target at 95%
+confidence when the independent certificate split has zero unsafe accepted
+decisions. It is not sufficient when errors occur. The remaining 15% after
+the listed fractions is the untouched certificate split.
+
+For source-open, class-open, task-open, or full-open certification, also use
+mixed-open calibration from the same predeclared deployment mixture:
+
+```yaml
+calibration:
+  mixed_open: true
+  open_split: open-calibration
+  open_fraction: <predeclared deployment exposure>
+```
+
+Do not reuse one mixed-open certificate across mild, medium, hard, and extreme
+severity levels unless the theorem and weighting scheme explicitly cover
+those distributions. The default defensible protocol is one independent
+certificate per predeclared severity.
+
+Channel-open and full-open execution now uses the configured channel as the
+nominal calibration channel and the benchmark-shifted channel only for
+evaluation. An unseen channel family is rejected by the support guard. A
+claim of useful certified goodput under that family requires a separate i.i.d.
+or correctly specified group-conditional calibration/certificate cohort; rejection
+alone is a safety fallback, not a generalization result.
+
+Before accepting a run as paper evidence, verify:
+
+- `certificate_valid_rate == 1` for every accepted decision;
+- `certificate_upper_bound_max <= target_open_outage`;
+- `accepted_decision_certificate_rate == 1`;
+- `accepted_samples >= minimum_certified_accepts`;
+- calibration, threshold-selection, certificate, and evaluation rows are
+  disjoint by source identifier;
+- no model or threshold update occurs after certification.
+
+The focused suite writes row counts, open fractions, and SHA-256 hashes for
+train, policy-selection, certificate, and evaluation cohorts into its
+`*_manifest_summary.json`. Preserve this file with every reported table.
+
+The archived June 29 and July 11 runs predate this protocol and must not be
+described as finite-sample certified.
+
+Submit the canonical certified suite with:
+
+```bash
+sbatch slurm/run_certified_communication_control.slurm
+```
+
+The job validates all feature manifests, writes a fresh job-specific result
+and checkpoint namespace, and fails after execution if any evaluated row has
+accepted decisions without a valid target certificate.
+
+## 4. Manifest Contract
 
 The minimum schema is:
 
@@ -74,7 +150,7 @@ python -m opensemcom.cli.validate_manifest manifests/opensemcom_real_siglip2_bas
 python -m opensemcom.cli.validate_manifest manifests/opensemcom_real_openclip_dfn5b.csv
 ```
 
-## 4. Dataset and Model Preparation
+## 5. Dataset and Model Preparation
 
 Build and validate the source manifest using scratch-resident datasets:
 
@@ -91,7 +167,7 @@ OPENSEMCOM_PREFETCH_MODELS=1 bash scripts/download_models_and_data.sh
 
 Licensed datasets are not downloaded automatically when credentials or agreement are required. Place authorized archives or extracted files under `data/`, rerun the manifest builder, and validate the result. Never replace unavailable rows with generated content.
 
-## 5. Foundation Feature Extraction
+## 6. Foundation Feature Extraction
 
 Submit each heavy extractor to Slurm. Set the model identifier and a stable feature slug so reruns reuse the same output tree.
 
@@ -110,7 +186,7 @@ sed -n '1,240p' "logs/osc-found-feats-<job-id>.out"
 sed -n '1,240p' "logs/osc-found-feats-<job-id>.err"
 ```
 
-## 6. Latest Communication-Control Suite
+## 7. Latest Communication-Control Suite
 
 Inputs:
 
@@ -132,18 +208,39 @@ python -m opensemcom.cli.communication_control_suite \
   --feature-manifest dino=manifests/opensemcom_real_dinov3_mixed_open_calibration.csv \
   --feature-manifest siglip2=manifests/opensemcom_real_siglip2_base.csv \
   --feature-manifest openclip=manifests/opensemcom_real_openclip_dfn5b.csv \
-  --output-prefix runs/comm_control_extra_experiments_20260629 \
-  --checkpoint-dir models/checkpoints/communication_control_20260711 \
+  --output-prefix runs/comm_control_certified_manual \
+  --checkpoint-dir models/checkpoints/communication_control_certified_manual \
   --seeds 0,1,2,3,4 \
   --targets 0.01,0.02,0.05,0.10 \
   --resource-budgets 0.30,0.45,0.60,0.80,1.00 \
   --eval-size 1024 \
-  --train-known-per-class 192 \
-  --train-open 1024 \
-  --cal-known-per-class 64 \
-  --cal-open 768 \
+  --train-known-per-class 64 \
+  --train-open 512 \
+  --cal-known-per-class 32 \
+  --cal-open 2000 \
+  --certificate-fraction 0.70 \
+  --certification-alpha 0.05 \
+  --certificate-family-size 1 \
+  --primary-method opensemcom_progressive \
+  --selection-safety-factor 0.50 \
   --full-open-severity mild:0.25,medium:0.50,hard:0.75,extreme:0.91
 ```
+
+The focused communication-control suite does not construct conformal
+prediction sets, so its disjoint roles are model fit, policy selection,
+certificate, and evaluation. Its end-to-end accepted-outage certificate is
+still valid under the fixed-policy assumptions; no conformal coverage claim
+should be attached to that suite.
+
+The canonical confirmatory run predeclares `opensemcom_progressive` as the
+primary policy and therefore uses family size one. Each comparison method's
+certificate is a separate pointwise 95% statement. For a simultaneous claim
+over all seven comparisons and the proposed policy, rerun with family size
+eight. That sensitivity analysis allocates per-policy alpha
+\(0.05/8=0.00625\), so a 5% outage certificate with zero unsafe acceptances
+requires 99 accepted certificate examples rather than 59. If target, budget,
+or method is chosen after certificate inspection, include every eligible
+candidate in the family size.
 
 Expected raw outputs:
 
@@ -174,7 +271,7 @@ receiver = TrainedReceiver.load_checkpoint(checkpoint, device="cpu")
 
 The root `checkpoint_index.json` records every file size and SHA-256 value. See the README inside the checkpoint directory for the complete bundle schema and classical-model loading instructions.
 
-## 7. DeepSense Exact-Beam Top-k Run
+## 8. DeepSense Exact-Beam Top-k Run
 
 ```bash
 source scripts/env_scratch.sh
@@ -197,7 +294,7 @@ results/final_opensemcom_deepsense_exact_topk_20260629.csv
 
 This run uses the 512 DeepSense rows shared by all three feature manifests. It is not the final full-Scenario-1 experiment.
 
-## 8. Severity Ladder
+## 9. Severity Ladder
 
 Severity changes the fraction of evaluation rows carrying at least one open exposure:
 
@@ -210,7 +307,7 @@ Severity changes the fraction of evaluation rows carrying at least one open expo
 
 The same model families, split construction, seed set, safety targets, and resource budgets are used at each level. This makes the decline in coverage and goodput interpretable as exposure severity increases.
 
-## 9. Decision and Metric Definitions
+## 10. Decision and Metric Definitions
 
 For a calibrated risk score `r`:
 
@@ -238,7 +335,7 @@ When comparing methods at a target such as 0.05:
 3. Use resource/sample, latency/sample, and retransmission rate to compare communication cost at similar goodput.
 4. Inspect accepted count and seed variance; tiny accepted sets can make outage estimates unstable.
 
-## 10. Verification Checklist
+## 11. Verification Checklist
 
 Before declaring a run complete, verify all of the following:
 
@@ -264,7 +361,7 @@ python -m opensemcom.cli.aggregate_results \
   --output-json runs/aggregate_results.json
 ```
 
-## 11. Resume and Idempotency
+## 12. Resume and Idempotency
 
 - Use stable output prefixes and model slugs.
 - Do not delete completed feature files when rerunning a downstream experiment.
@@ -274,7 +371,7 @@ python -m opensemcom.cli.aggregate_results \
 - Aggregate only after all expected seeds complete.
 - Record failed jobs in `logs/`; do not turn a partial run into a final table.
 
-## 12. Next Wireless Experiment
+## 13. Next Wireless Experiment
 
 Scenario 1 has 2,411 measured rows, while the common foundation-feature subset currently has 512. The next run should:
 

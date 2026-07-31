@@ -70,6 +70,48 @@ class ResourceBudget:
 
 
 @dataclass(frozen=True)
+class ReliabilityCertificate:
+    """Finite-sample certificate attached to one selective decision policy.
+
+    A valid certificate bounds the probability of an unsafe accepted decision
+    for the fixed policy and deployment distribution described by
+    ``assumptions``. It is deliberately explicit so that an empirical risk
+    score cannot be mistaken for a statistical guarantee.
+    """
+
+    valid: bool
+    target_outage: float
+    upper_bound: float
+    confidence: float
+    calibration_samples: int
+    accepted_samples: int
+    unsafe_accepted: int
+    threshold: float
+    method: str = "clopper-pearson"
+    reason: str = ""
+    assumptions: tuple[str, ...] = ()
+
+    @classmethod
+    def unavailable(
+        cls,
+        target_outage: float,
+        confidence: float,
+        reason: str,
+    ) -> "ReliabilityCertificate":
+        return cls(
+            valid=False,
+            target_outage=float(target_outage),
+            upper_bound=1.0,
+            confidence=float(confidence),
+            calibration_samples=0,
+            accepted_samples=0,
+            unsafe_accepted=0,
+            threshold=float("-inf"),
+            reason=reason,
+        )
+
+
+@dataclass(frozen=True)
 class SemanticSample:
     """One source/task/channel instance in OpenSemCom-Bench."""
 
@@ -119,6 +161,7 @@ class ReceiverOutput:
     decision: Decision
     features: dict[str, float]
     action: ResourceAction
+    certificate: ReliabilityCertificate | None = None
 
 
 @dataclass(frozen=True)

@@ -20,6 +20,11 @@ from pathlib import Path
 
 import numpy as np
 
+from opensemcom.certification import (
+    clopper_pearson_upper,
+    minimum_zero_error_accepts,
+)
+
 KNOWN_CLASSES = 6
 DEEPSENSE_BEAM_SECTORS = 8
 TRAIN_TASKS = {"classification"}
@@ -57,7 +62,8 @@ class Scored:
 @dataclass
 class SplitData:
     train: list[Row]
-    calibration: list[Row]
+    policy_selection: list[Row]
+    certificate: list[Row]
     eval: list[Row]
 
 
@@ -100,10 +106,28 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--targets", default="0.05")
     p.add_argument("--resource-budgets", default="0.60,0.80,1.00")
     p.add_argument("--eval-size", type=int, default=1024)
-    p.add_argument("--train-known-per-class", type=int, default=192)
-    p.add_argument("--train-open", type=int, default=1024)
-    p.add_argument("--cal-known-per-class", type=int, default=64)
-    p.add_argument("--cal-open", type=int, default=768)
+    p.add_argument("--train-known-per-class", type=int, default=64)
+    p.add_argument("--train-open", type=int, default=512)
+    p.add_argument("--cal-known-per-class", type=int, default=32)
+    p.add_argument("--cal-open", type=int, default=2000)
+    p.add_argument("--certificate-fraction", type=float, default=0.70)
+    p.add_argument("--certification-alpha", type=float, default=0.05)
+    p.add_argument(
+        "--certificate-family-size",
+        type=int,
+        default=1,
+        help=(
+            "Bonferroni family size for simultaneous reliability claims; "
+            "each policy uses certification-alpha / family-size"
+        ),
+    )
+    p.add_argument(
+        "--primary-method",
+        default="opensemcom_progressive",
+        help="Predeclared primary policy; recorded in every output artifact",
+    )
+    p.add_argument("--selection-safety-factor", type=float, default=0.50)
+    p.add_argument("--minimum-certified-accepts", type=int, default=0)
     p.add_argument("--full-open-severity", default="mild:0.25,medium:0.50,hard:0.75,extreme:0.91")
     p.add_argument("--checkpoint-dir", help="Save trained task/seed model bundles under this directory")
     return p
@@ -111,6 +135,14 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main() -> None:
     args = build_parser().parse_args()
+    if not 0.0 < args.certificate_fraction < 1.0:
+        raise ValueError("--certificate-fraction must lie strictly between zero and one")
+    if not 0.0 < args.certification_alpha < 1.0:
+        raise ValueError("--certification-alpha must lie strictly between zero and one")
+    if args.certificate_family_size < 1:
+        raise ValueError("--certificate-family-size must be at least one")
+    if not 0.0 < args.selection_safety_factor <= 1.0:
+        raise ValueError("--selection-safety-factor must lie in (0, 1]")
     specs = parse_manifest_specs(args.feature_manifest)
     rows, manifest_summary = load_rows(specs)
     channel = load_channel_context(Path(args.deepsense_scenario_root))
@@ -127,19 +159,34 @@ def main() -> None:
 
     summary_rows: list[dict] = []
     policy_rows: list[dict] = []
+    split_audits: list[dict] = []
     for seed in seeds:
         for severity_name, open_fraction in severities:
             full_split = make_fullopen_split(rows, seed, args, open_fraction)
-            summary_rows.extend(run_task(f"full-open-{severity_name}", full_split, specs, channel, targets, budgets, seed, policy_rows, checkpoint_dir, provenance))
+            task_name = f"full-open-{severity_name}"
+            split_audits.append(split_audit(task_name, seed, full_split))
+            summary_rows.extend(run_task(task_name, full_split, specs, channel, targets, budgets, seed, args, policy_rows, checkpoint_dir, provenance))
         sector_split = make_deepsense_split(rows, seed, sectors=True)
-        summary_rows.extend(run_task("deepsense-sector", sector_split, specs, channel, targets, budgets, seed, policy_rows, checkpoint_dir, provenance))
+        split_audits.append(split_audit("deepsense-sector", seed, sector_split))
+        summary_rows.extend(run_task("deepsense-sector", sector_split, specs, channel, targets, budgets, seed, args, policy_rows, checkpoint_dir, provenance))
         exact_split = make_deepsense_split(rows, seed, sectors=False)
-        summary_rows.extend(run_task("deepsense-exact", exact_split, specs, channel, targets, budgets, seed, policy_rows, checkpoint_dir, provenance))
+        split_audits.append(split_audit("deepsense-exact", seed, exact_split))
+        summary_rows.extend(run_task("deepsense-exact", exact_split, specs, channel, targets, budgets, seed, args, policy_rows, checkpoint_dir, provenance))
 
     write_csv(output_prefix.with_name(output_prefix.name + "_summary.csv"), summary_rows)
     write_csv(output_prefix.with_name(output_prefix.name + "_policies.csv"), policy_rows)
     output_prefix.with_name(output_prefix.name + "_manifest_summary.json").write_text(
-        json.dumps({**manifest_summary, "channel_context": channel.summary()}, indent=2, sort_keys=True) + "\n",
+        json.dumps(
+            {
+                **manifest_summary,
+                "channel_context": channel.summary(),
+                "certificate_protocol": provenance["configuration"],
+                "split_audits": split_audits,
+            },
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n",
         encoding="utf-8",
     )
     if checkpoint_dir is not None:
@@ -155,19 +202,50 @@ def run_task(
     targets: list[float],
     budgets: list[float],
     seed: int,
+    args,
     policy_rows: list[dict],
     checkpoint_dir: Path | None = None,
     provenance: dict | None = None,
 ) -> list[dict]:
+    validate_split_disjoint(split)
+    for name, values in (
+        ("train", split.train),
+        ("policy_selection", split.policy_selection),
+        ("certificate", split.certificate),
+        ("eval", split.eval),
+    ):
+        if not values:
+            raise ValueError(f"{task_name} has an empty required {name} cohort")
     train_y, train_open = labels_for(task_name, split.train)
-    cal_y, cal_open = labels_for(task_name, split.calibration)
+    selection_y, selection_open = labels_for(task_name, split.policy_selection)
+    certificate_y, certificate_open = labels_for(task_name, split.certificate)
     eval_y, eval_open = labels_for(task_name, split.eval)
-    n_classes = int(max(np.max(train_y), np.max(cal_y), np.max(eval_y))) + 1
+    label_arrays = [
+        values
+        for values in (train_y, selection_y, certificate_y, eval_y)
+        if len(values)
+    ]
+    n_classes = int(max(float(np.max(values)) for values in label_arrays)) + 1
 
     arrays = {
-        "dino": (make_features(split.train, ("dino",), channel, False), make_features(split.calibration, ("dino",), channel, False), make_features(split.eval, ("dino",), channel, False)),
-        "ensemble": (make_features(split.train, tuple(specs), channel, False), make_features(split.calibration, tuple(specs), channel, False), make_features(split.eval, tuple(specs), channel, False)),
-        "ensemble_channel": (make_features(split.train, tuple(specs), channel, True), make_features(split.calibration, tuple(specs), channel, True), make_features(split.eval, tuple(specs), channel, True)),
+        "dino": (
+            make_features(split.train, ("dino",), channel, False),
+            make_features(split.policy_selection, ("dino",), channel, False),
+            make_features(split.certificate, ("dino",), channel, False),
+            make_features(split.eval, ("dino",), channel, False),
+        ),
+        "ensemble": (
+            make_features(split.train, tuple(specs), channel, False),
+            make_features(split.policy_selection, tuple(specs), channel, False),
+            make_features(split.certificate, tuple(specs), channel, False),
+            make_features(split.eval, tuple(specs), channel, False),
+        ),
+        "ensemble_channel": (
+            make_features(split.train, tuple(specs), channel, True),
+            make_features(split.policy_selection, tuple(specs), channel, True),
+            make_features(split.certificate, tuple(specs), channel, True),
+            make_features(split.eval, tuple(specs), channel, True),
+        ),
     }
 
     dino = fit_model(arrays["dino"][0], train_y, train_open, n_classes, detector_open=task_name.startswith("full-open"))
@@ -190,59 +268,123 @@ def run_task(
             provenance=provenance or {},
         )
 
-    dino_cal = score_model(dino, arrays["dino"][1])
-    dino_eval = score_model(dino, arrays["dino"][2])
-    ens_cal = score_model(ens, arrays["ensemble"][1])
-    ens_eval = score_model(ens, arrays["ensemble"][2])
-    ens_ch_cal = score_model(ens_ch, arrays["ensemble_channel"][1])
-    ens_ch_eval = score_model(ens_ch, arrays["ensemble_channel"][2])
-    jscc_cal = score_deepjscc(jscc, arrays["dino"][1])
-    jscc_eval = score_deepjscc(jscc, arrays["dino"][2])
-    recv_ch_cal = score_receiver(receiver_ch, arrays["ensemble_channel"][1])
-    recv_ch_eval = score_receiver(receiver_ch, arrays["ensemble_channel"][2])
-    recv_ens_cal = score_receiver(receiver_ens, arrays["ensemble"][1])
-    recv_ens_eval = score_receiver(receiver_ens, arrays["ensemble"][2])
+    dino_selection = score_model(dino, arrays["dino"][1])
+    dino_certificate = score_model(dino, arrays["dino"][2])
+    dino_eval = score_model(dino, arrays["dino"][3])
+    ens_selection = score_model(ens, arrays["ensemble"][1])
+    ens_certificate = score_model(ens, arrays["ensemble"][2])
+    ens_eval = score_model(ens, arrays["ensemble"][3])
+    ens_ch_selection = score_model(ens_ch, arrays["ensemble_channel"][1])
+    ens_ch_certificate = score_model(ens_ch, arrays["ensemble_channel"][2])
+    ens_ch_eval = score_model(ens_ch, arrays["ensemble_channel"][3])
+    jscc_selection = score_deepjscc(jscc, arrays["dino"][1])
+    jscc_certificate = score_deepjscc(jscc, arrays["dino"][2])
+    jscc_eval = score_deepjscc(jscc, arrays["dino"][3])
+    recv_ch_selection = score_receiver(receiver_ch, arrays["ensemble_channel"][1])
+    recv_ch_certificate = score_receiver(receiver_ch, arrays["ensemble_channel"][2])
+    recv_ch_eval = score_receiver(receiver_ch, arrays["ensemble_channel"][3])
+    recv_ens_selection = score_receiver(receiver_ens, arrays["ensemble"][1])
+    recv_ens_certificate = score_receiver(receiver_ens, arrays["ensemble"][2])
+    recv_ens_eval = score_receiver(receiver_ens, arrays["ensemble"][3])
 
     methods = {
-        "dino_detector": (dino_cal, dino_eval, 1.0),
-        "ensemble_detector": (ens_cal, ens_eval, 1.2),
-        "deepjscc_pca": (jscc_cal, jscc_eval, 0.7),
-        "witt_context_style": (ens_ch_cal, ens_ch_eval, 1.4),
-        "fixed_refine_all": (ens_ch_cal, ens_ch_eval, 1.6),
-        "opensemcom_receiver_only": (recv_ch_cal, recv_ch_eval, 1.2),
-        "opensemcom_no_channel": (recv_ens_cal, recv_ens_eval, 1.2),
+        "dino_detector": (dino_selection, dino_certificate, dino_eval, 1.0),
+        "ensemble_detector": (ens_selection, ens_certificate, ens_eval, 1.2),
+        "deepjscc_pca": (jscc_selection, jscc_certificate, jscc_eval, 0.7),
+        "witt_context_style": (ens_ch_selection, ens_ch_certificate, ens_ch_eval, 1.4),
+        "fixed_refine_all": (ens_ch_selection, ens_ch_certificate, ens_ch_eval, 1.6),
+        "opensemcom_receiver_only": (recv_ch_selection, recv_ch_certificate, recv_ch_eval, 1.2),
+        "opensemcom_no_channel": (recv_ens_selection, recv_ens_certificate, recv_ens_eval, 1.2),
     }
-    dino_channel_cal = fuse_scores(dino_cal, ens_ch_cal, disagreement_penalty=0.04)
+    declared_methods = {*methods, "opensemcom_progressive"}
+    if args.primary_method not in declared_methods:
+        raise ValueError(
+            f"Unknown --primary-method {args.primary_method!r}; "
+            f"choose one of {sorted(declared_methods)}"
+        )
+    dino_channel_selection = fuse_scores(dino_selection, ens_ch_selection, disagreement_penalty=0.04)
+    dino_channel_certificate = fuse_scores(dino_certificate, ens_ch_certificate, disagreement_penalty=0.04)
     dino_channel_eval = fuse_scores(dino_eval, ens_ch_eval, disagreement_penalty=0.04)
-    ensemble_channel_cal = fuse_scores(ens_cal, ens_ch_cal, disagreement_penalty=0.04)
+    ensemble_channel_selection = fuse_scores(ens_selection, ens_ch_selection, disagreement_penalty=0.04)
+    ensemble_channel_certificate = fuse_scores(ens_certificate, ens_ch_certificate, disagreement_penalty=0.04)
     ensemble_channel_eval = fuse_scores(ens_eval, ens_ch_eval, disagreement_penalty=0.04)
-    receiver_channel_cal = fuse_scores(recv_ch_cal, ens_ch_cal, disagreement_penalty=0.03)
+    receiver_channel_selection = fuse_scores(recv_ch_selection, ens_ch_selection, disagreement_penalty=0.03)
+    receiver_channel_certificate = fuse_scores(recv_ch_certificate, ens_ch_certificate, disagreement_penalty=0.03)
     receiver_channel_eval = fuse_scores(recv_ch_eval, ens_ch_eval, disagreement_penalty=0.03)
-    receiver_dino_cal = fuse_scores(recv_ch_cal, dino_channel_cal, disagreement_penalty=0.03)
+    receiver_dino_selection = fuse_scores(recv_ch_selection, dino_channel_selection, disagreement_penalty=0.03)
+    receiver_dino_certificate = fuse_scores(recv_ch_certificate, dino_channel_certificate, disagreement_penalty=0.03)
     receiver_dino_eval = fuse_scores(recv_ch_eval, dino_channel_eval, disagreement_penalty=0.03)
     progressive_candidates = {
-        "dino_core": (dino_cal, dino_eval, ens_ch_cal, ens_ch_eval),
-        "ensemble_core": (ens_cal, ens_eval, ens_ch_cal, ens_ch_eval),
-        "dino_channel_fusion_core": (dino_channel_cal, dino_channel_eval, ens_ch_cal, ens_ch_eval),
-        "ensemble_channel_fusion_core": (ensemble_channel_cal, ensemble_channel_eval, ens_ch_cal, ens_ch_eval),
-        "trained_receiver_core": (recv_ch_cal, recv_ch_eval, ens_ch_cal, ens_ch_eval),
-        "trained_receiver_channel_fusion_core": (receiver_channel_cal, receiver_channel_eval, ens_ch_cal, ens_ch_eval),
-        "trained_receiver_dino_fusion_core": (receiver_dino_cal, receiver_dino_eval, ens_ch_cal, ens_ch_eval),
-        "trained_receiver_no_channel_core": (recv_ens_cal, recv_ens_eval, ens_ch_cal, ens_ch_eval),
+        "dino_core": (dino_selection, dino_certificate, dino_eval, ens_ch_selection, ens_ch_certificate, ens_ch_eval),
+        "ensemble_core": (ens_selection, ens_certificate, ens_eval, ens_ch_selection, ens_ch_certificate, ens_ch_eval),
+        "dino_channel_fusion_core": (dino_channel_selection, dino_channel_certificate, dino_channel_eval, ens_ch_selection, ens_ch_certificate, ens_ch_eval),
+        "ensemble_channel_fusion_core": (ensemble_channel_selection, ensemble_channel_certificate, ensemble_channel_eval, ens_ch_selection, ens_ch_certificate, ens_ch_eval),
+        "trained_receiver_core": (recv_ch_selection, recv_ch_certificate, recv_ch_eval, ens_ch_selection, ens_ch_certificate, ens_ch_eval),
+        "trained_receiver_channel_fusion_core": (receiver_channel_selection, receiver_channel_certificate, receiver_channel_eval, ens_ch_selection, ens_ch_certificate, ens_ch_eval),
+        "trained_receiver_dino_fusion_core": (receiver_dino_selection, receiver_dino_certificate, receiver_dino_eval, ens_ch_selection, ens_ch_certificate, ens_ch_eval),
+        "trained_receiver_no_channel_core": (recv_ens_selection, recv_ens_certificate, recv_ens_eval, ens_ch_selection, ens_ch_certificate, ens_ch_eval),
     }
 
+    policy_alpha = args.certification_alpha / args.certificate_family_size
     rows: list[dict] = []
     for target in targets:
         for budget in budgets:
-            for name, (cal_score, eval_score, accept_cost) in methods.items():
-                policy = select_single_policy(cal_score, cal_y, cal_open, target, budget, accept_cost)
-                policy_rows.append({"task": task_name, "method": name, "seed": seed, "target_openout": target, "resource_budget": budget, **policy})
-                rows.append({"task": task_name, "method": name, "seed": seed, "target_openout": target, "resource_budget": budget, **eval_single(eval_score, eval_y, eval_open, policy["threshold"], accept_cost)})
-            policy = select_best_progressive_policy(progressive_candidates, cal_y, cal_open, target, budget)
+            for name, (selection_score, certificate_score, eval_score, accept_cost) in methods.items():
+                policy = select_single_policy(
+                    selection_score,
+                    selection_y,
+                    selection_open,
+                    target,
+                    budget,
+                    accept_cost,
+                    safety_factor=args.selection_safety_factor,
+                )
+                policy = certify_single_policy(
+                    policy,
+                    certificate_score,
+                    certificate_y,
+                    certificate_open,
+                    target,
+                    accept_cost,
+                    alpha=policy_alpha,
+                    minimum_accepts=args.minimum_certified_accepts,
+                )
+                policy["certificate_family_alpha"] = args.certification_alpha
+                policy["certificate_family_size"] = args.certificate_family_size
+                policy_rows.append({"task": task_name, "method": name, "is_primary_policy": name == args.primary_method, "seed": seed, "target_openout": target, "resource_budget": budget, **policy})
+                metrics = eval_single(eval_score, eval_y, eval_open, policy["threshold"], accept_cost)
+                rows.append({"task": task_name, "method": name, "is_primary_policy": name == args.primary_method, "seed": seed, "target_openout": target, "resource_budget": budget, **certificate_columns(policy), **metrics})
+            policy = select_best_progressive_policy(
+                progressive_candidates,
+                selection_y,
+                selection_open,
+                target,
+                budget,
+                safety_factor=args.selection_safety_factor,
+            )
             route = policy["route"]
-            _, core_eval, _, refine_eval = progressive_candidates[route]
-            policy_rows.append({"task": task_name, "method": "opensemcom_progressive", "seed": seed, "target_openout": target, "resource_budget": budget, **policy})
-            rows.append({"task": task_name, "method": "opensemcom_progressive", "seed": seed, "target_openout": target, "resource_budget": budget, **eval_progressive(core_eval, refine_eval, eval_y, eval_open, policy)})
+            (
+                _core_selection,
+                core_certificate,
+                core_eval,
+                _refine_selection,
+                refine_certificate,
+                refine_eval,
+            ) = progressive_candidates[route]
+            policy = certify_progressive_policy(
+                policy,
+                core_certificate,
+                refine_certificate,
+                certificate_y,
+                certificate_open,
+                target,
+                alpha=policy_alpha,
+                minimum_accepts=args.minimum_certified_accepts,
+            )
+            policy["certificate_family_alpha"] = args.certification_alpha
+            policy["certificate_family_size"] = args.certificate_family_size
+            policy_rows.append({"task": task_name, "method": "opensemcom_progressive", "is_primary_policy": args.primary_method == "opensemcom_progressive", "seed": seed, "target_openout": target, "resource_budget": budget, **policy})
+            rows.append({"task": task_name, "method": "opensemcom_progressive", "is_primary_policy": args.primary_method == "opensemcom_progressive", "seed": seed, "target_openout": target, "resource_budget": budget, **certificate_columns(policy), **eval_progressive(core_eval, refine_eval, eval_y, eval_open, policy)})
     return rows
 
 
@@ -328,30 +470,97 @@ def row_key(row: dict[str, str]) -> tuple[str, ...]:
 
 def make_fullopen_split(rows: list[Row], seed: int, args, open_fraction: float = 0.50) -> SplitData:
     rng = np.random.default_rng(seed)
-    known_all = [r for r in rows if r.known_id]
-    open_all = [r for r in rows if r.regime == "full-open" and r.open_exposure]
+    known_all = unique_source_rows(
+        sorted(
+            (row for row in rows if row.known_id),
+            key=lambda row: (row.regime != "closed-id", row.split != "calibration"),
+        )
+    )
+    open_all = unique_source_rows(
+        row
+        for row in rows
+        if row.regime == "full-open" and row.open_exposure
+    )
     by_class = {label: [] for label in range(KNOWN_CLASSES)}
     for row in known_all:
         by_class[row.label].append(row)
-    train, cal, eval_known = [], [], []
+    train, known_cal_pool, eval_known = [], [], []
     for label, values in by_class.items():
         values = shuffled(values, rng)
         train += values[: args.train_known_per_class]
-        cal += values[args.train_known_per_class : args.train_known_per_class + args.cal_known_per_class]
+        known_cal_pool += values[
+            args.train_known_per_class :
+            args.train_known_per_class + args.cal_known_per_class
+        ]
         eval_known += values[args.train_known_per_class + args.cal_known_per_class :]
     open_values = shuffled(open_all, rng)
     train += open_values[: args.train_open]
-    cal += open_values[args.train_open : args.train_open + args.cal_open]
+    open_cal_pool = open_values[args.train_open : args.train_open + args.cal_open]
     eval_open = open_values[args.train_open + args.cal_open :]
-    open_n = min(len(eval_open), int(round(args.eval_size * float(open_fraction))))
-    known_n = min(len(eval_known), max(0, args.eval_size - open_n))
+
+    calibration_total = maximum_mixture_size(
+        len(known_cal_pool),
+        len(open_cal_pool),
+        open_fraction,
+    )
+    calibration_open_n = min(
+        len(open_cal_pool),
+        int(round(calibration_total * open_fraction)),
+    )
+    calibration_known_n = min(
+        len(known_cal_pool),
+        calibration_total - calibration_open_n,
+    )
+    selected_known = shuffled(known_cal_pool, rng)[:calibration_known_n]
+    selected_open = shuffled(open_cal_pool, rng)[:calibration_open_n]
+    validate_mixture_fraction(
+        "calibration",
+        len(selected_known),
+        len(selected_open),
+        open_fraction,
+    )
+    certificate_fraction = float(np.clip(args.certificate_fraction, 0.05, 0.95))
+    known_certificate_n = int(round(len(selected_known) * certificate_fraction))
+    open_certificate_n = int(round(len(selected_open) * certificate_fraction))
+    certificate = (
+        selected_known[:known_certificate_n]
+        + selected_open[:open_certificate_n]
+    )
+    policy_selection = (
+        selected_known[known_certificate_n:]
+        + selected_open[open_certificate_n:]
+    )
+
+    evaluation_total = min(
+        int(args.eval_size),
+        maximum_mixture_size(
+            len(eval_known),
+            len(eval_open),
+            open_fraction,
+        ),
+    )
+    open_n = min(
+        len(eval_open),
+        int(round(evaluation_total * float(open_fraction))),
+    )
+    known_n = min(len(eval_known), evaluation_total - open_n)
+    validate_mixture_fraction("evaluation", known_n, open_n, open_fraction)
     eval_rows = shuffled(eval_known, rng)[:known_n] + shuffled(eval_open, rng)[:open_n]
-    return SplitData(shuffled(train, rng), shuffled(cal, rng), shuffled(eval_rows, rng))
+    return SplitData(
+        shuffled(train, rng),
+        shuffled(policy_selection, rng),
+        shuffled(certificate, rng),
+        shuffled(eval_rows, rng),
+    )
 
 
 def make_deepsense_split(rows: list[Row], seed: int, sectors: bool = True) -> SplitData:
     rng = np.random.default_rng(seed)
-    ds = [r for r in rows if r.dataset == "deepsense6g" and r.task == "beam-prediction"]
+    ds = unique_source_rows(
+        r
+        for r in rows
+        if r.dataset == "deepsense6g" and r.task == "beam-prediction"
+    )
     if len(ds) < 100:
         raise ValueError("Not enough DeepSense rows for beam task")
     raw_labels = sorted({r.label for r in ds})
@@ -366,14 +575,130 @@ def make_deepsense_split(rows: list[Row], seed: int, sectors: bool = True) -> Sp
     by_label: dict[int, list[Row]] = {}
     for row in remapped:
         by_label.setdefault(row.label, []).append(row)
-    train, cal, ev = [], [], []
+    train, policy_selection, certificate, ev = [], [], [], []
     for values in by_label.values():
         values = shuffled(values, rng)
         n = len(values)
-        train += values[: max(1, int(0.50 * n))]
-        cal += values[max(1, int(0.50 * n)) : max(2, int(0.75 * n))]
-        ev += values[max(2, int(0.75 * n)) :]
-    return SplitData(shuffled(train, rng), shuffled(cal, rng), shuffled(ev, rng))
+        train_end = max(1, int(0.50 * n))
+        policy_end = max(train_end + 1, int(0.65 * n))
+        certificate_end = max(policy_end + 1, int(0.85 * n))
+        train += values[:train_end]
+        policy_selection += values[train_end:policy_end]
+        certificate += values[policy_end:certificate_end]
+        ev += values[certificate_end:]
+    return SplitData(
+        shuffled(train, rng),
+        shuffled(policy_selection, rng),
+        shuffled(certificate, rng),
+        shuffled(ev, rng),
+    )
+
+
+def maximum_mixture_size(
+    known_available: int,
+    open_available: int,
+    open_fraction: float,
+) -> int:
+    """Largest cohort with the requested known/open mixture."""
+
+    fraction = float(np.clip(open_fraction, 0.0, 1.0))
+    if fraction <= 0.0:
+        return int(known_available)
+    if fraction >= 1.0:
+        return int(open_available)
+    return max(
+        0,
+        int(
+            min(
+                known_available / (1.0 - fraction),
+                open_available / fraction,
+            )
+        ),
+    )
+
+
+def unique_source_rows(rows) -> list[Row]:
+    """Keep one deterministic row per raw source identity."""
+
+    unique: dict[tuple[str, ...], Row] = {}
+    for row in rows:
+        unique.setdefault(row.key[:2], row)
+    return list(unique.values())
+
+
+def validate_mixture_fraction(
+    cohort: str,
+    known_count: int,
+    open_count: int,
+    requested_open_fraction: float,
+) -> None:
+    total = known_count + open_count
+    if total <= 0:
+        raise ValueError(f"{cohort} cohort is empty")
+    actual = open_count / total
+    tolerance = max(0.01, 1.0 / total)
+    if abs(actual - requested_open_fraction) > tolerance:
+        raise ValueError(
+            f"{cohort} open fraction {actual:.4f} does not match requested "
+            f"{requested_open_fraction:.4f}; add source rows instead of "
+            "silently changing severity"
+        )
+
+
+def validate_split_disjoint(split: SplitData) -> None:
+    """Fail on source leakage across fit, selection, certificate, and eval."""
+
+    groups = {
+        "train": {row.key[:2] for row in split.train},
+        "policy_selection": {row.key[:2] for row in split.policy_selection},
+        "certificate": {row.key[:2] for row in split.certificate},
+        "eval": {row.key[:2] for row in split.eval},
+    }
+    rows_by_name = {
+        "train": split.train,
+        "policy_selection": split.policy_selection,
+        "certificate": split.certificate,
+        "eval": split.eval,
+    }
+    for name, identities in groups.items():
+        if len(identities) != len(rows_by_name[name]):
+            raise ValueError(f"Duplicate source artifact inside {name} split.")
+    names = list(groups)
+    for index, left in enumerate(names):
+        for right in names[index + 1 :]:
+            overlap = groups[left] & groups[right]
+            if overlap:
+                example = next(iter(overlap))
+                raise ValueError(
+                    f"Source leakage between {left} and {right}: {example}"
+                )
+
+
+def split_audit(task: str, seed: int, split: SplitData) -> dict:
+    validate_split_disjoint(split)
+    groups = {
+        "train": split.train,
+        "policy_selection": split.policy_selection,
+        "certificate": split.certificate,
+        "eval": split.eval,
+    }
+    return {
+        "task": task,
+        "seed": seed,
+        "rows": {name: len(values) for name, values in groups.items()},
+        "row_key_sha256": {
+            name: row_key_sha256(values)
+            for name, values in groups.items()
+        },
+        "open_fraction": {
+            name: (
+                float(np.mean([row.open_exposure for row in values]))
+                if values
+                else 0.0
+            )
+            for name, values in groups.items()
+        },
+    }
 
 
 def labels_for(task_name: str, rows: list[Row]) -> tuple[np.ndarray, np.ndarray]:
@@ -701,21 +1026,84 @@ def score_deepjscc(model, x: np.ndarray) -> Scored:
     return Scored(pred=pred.astype(np.int64), risk=np.clip(0.5 * msp + 0.5 * recon_risk, 0.0, 1.0))
 
 
-def select_single_policy(cal: Scored, y: np.ndarray, open_label: np.ndarray, target: float, budget: float, accept_cost: float) -> dict:
+def select_single_policy(
+    cal: Scored,
+    y: np.ndarray,
+    open_label: np.ndarray,
+    target: float,
+    budget: float,
+    accept_cost: float,
+    safety_factor: float = 0.5,
+) -> dict:
     best = None
+    selection_target = float(np.clip(target * safety_factor, 0.0, 1.0))
     for threshold in candidate_thresholds(cal.risk):
         metrics = eval_single(cal, y, open_label, threshold, accept_cost, include_detection=False)
-        upper = wilson_upper(metrics["accepted_unsafe"], metrics["accepted"])
-        if upper <= target and metrics["resource_per_sample"] <= budget:
-            score = (metrics["semantic_goodput"], metrics["goodput_per_resource"], -upper)
+        empirical_outage = metrics["accepted_open_outage"]
+        if empirical_outage <= selection_target and metrics["resource_per_sample"] <= budget:
+            score = (
+                metrics["semantic_goodput"],
+                metrics["goodput_per_resource"],
+                -empirical_outage,
+            )
             if best is None or score > best[0]:
-                best = (score, threshold, metrics, upper)
+                best = (score, threshold, metrics)
     if best is None:
-        threshold = float(np.min(cal.risk) - 1e-6)
+        threshold = reject_threshold(cal.risk)
         metrics = eval_single(cal, y, open_label, threshold, accept_cost, include_detection=False)
-        upper = wilson_upper(metrics["accepted_unsafe"], metrics["accepted"])
-        return {"threshold": threshold, "cal_goodput": metrics["semantic_goodput"], "cal_openout": metrics["accepted_open_outage"], "cal_openout_upper": upper}
-    return {"threshold": float(best[1]), "cal_goodput": best[2]["semantic_goodput"], "cal_openout": best[2]["accepted_open_outage"], "cal_openout_upper": best[3]}
+        return {
+            "threshold": threshold,
+            "cal_goodput": metrics["semantic_goodput"],
+            "cal_openout": metrics["accepted_open_outage"],
+            "cal_openout_upper": 1.0,
+        }
+    return {
+        "threshold": float(best[1]),
+        "cal_goodput": best[2]["semantic_goodput"],
+        "cal_openout": best[2]["accepted_open_outage"],
+        "cal_openout_upper": 1.0,
+    }
+
+
+def certify_single_policy(
+    policy: dict,
+    certificate_score: Scored,
+    y: np.ndarray,
+    open_label: np.ndarray,
+    target: float,
+    accept_cost: float,
+    alpha: float = 0.05,
+    minimum_accepts: int = 0,
+) -> dict:
+    """Certify one threshold selected without inspecting this split."""
+
+    selected_threshold = float(policy["threshold"])
+    metrics = eval_single(
+        certificate_score,
+        y,
+        open_label,
+        selected_threshold,
+        accept_cost,
+        include_detection=False,
+    )
+    certificate = certificate_fields(
+        metrics,
+        len(y),
+        target,
+        alpha,
+        minimum_accepts,
+    )
+    deployed_threshold = (
+        selected_threshold
+        if certificate["certificate_valid"]
+        else float("-inf")
+    )
+    return {
+        **policy,
+        "selected_threshold": selected_threshold,
+        "threshold": deployed_threshold,
+        **certificate,
+    }
 
 
 def eval_single(scored: Scored, y: np.ndarray, open_label: np.ndarray, threshold: float, accept_cost: float, include_detection: bool = True) -> dict:
@@ -730,10 +1118,32 @@ def eval_single(scored: Scored, y: np.ndarray, open_label: np.ndarray, threshold
     return metrics_dict(selected, np.zeros_like(selected, dtype=bool), rejected, accepted_correct, accepted_unsafe, y, scored.pred, scored.risk, unsafe, resource, latency, include_detection)
 
 
-def select_best_progressive_policy(candidates: dict[str, tuple[Scored, Scored, Scored, Scored]], y: np.ndarray, open_label: np.ndarray, target: float, budget: float) -> dict:
+def select_best_progressive_policy(
+    candidates: dict[str, tuple[Scored, Scored, Scored, Scored, Scored, Scored]],
+    y: np.ndarray,
+    open_label: np.ndarray,
+    target: float,
+    budget: float,
+    safety_factor: float = 0.5,
+) -> dict:
     best = None
-    for route, (core_cal, _core_eval, refine_cal, _refine_eval) in candidates.items():
-        policy = select_progressive_policy(core_cal, refine_cal, y, open_label, target, budget)
+    for route, (
+        core_selection,
+        _core_certificate,
+        _core_eval,
+        refine_selection,
+        _refine_certificate,
+        _refine_eval,
+    ) in candidates.items():
+        policy = select_progressive_policy(
+            core_selection,
+            refine_selection,
+            y,
+            open_label,
+            target,
+            budget,
+            safety_factor=safety_factor,
+        )
         score = (policy["cal_goodput"], policy.get("cal_goodput_per_resource", 0.0), -policy.get("cal_openout_upper", 0.0))
         if best is None or score > best[0]:
             best = (score, route, policy)
@@ -742,23 +1152,155 @@ def select_best_progressive_policy(candidates: dict[str, tuple[Scored, Scored, S
     return {"route": best[1], **best[2]}
 
 
-def select_progressive_policy(core: Scored, refine: Scored, y: np.ndarray, open_label: np.ndarray, target: float, budget: float) -> dict:
-    thresholds = candidate_thresholds(np.concatenate([core.risk, refine.risk]))
+def select_progressive_policy(
+    core: Scored,
+    refine: Scored,
+    y: np.ndarray,
+    open_label: np.ndarray,
+    target: float,
+    budget: float,
+    safety_factor: float = 0.5,
+) -> dict:
+    core_thresholds = candidate_thresholds(core.risk)
+    refine_thresholds = candidate_thresholds(refine.risk)
     best = None
-    for q1 in thresholds:
-        for q2 in thresholds:
+    selection_target = float(np.clip(target * safety_factor, 0.0, 1.0))
+    for q1 in core_thresholds:
+        for q2 in core_thresholds:
             if q2 < q1:
                 continue
-            for qr in thresholds:
+            for qr in refine_thresholds:
                 metrics = eval_progressive(core, refine, y, open_label, {"q1": q1, "q2": q2, "qr": qr}, include_detection=False)
-                upper = wilson_upper(metrics["accepted_unsafe"], metrics["accepted"])
-                if upper <= target and metrics["resource_per_sample"] <= budget:
-                    score = (metrics["semantic_goodput"], metrics["goodput_per_resource"], -upper)
+                empirical_outage = metrics["accepted_open_outage"]
+                if empirical_outage <= selection_target and metrics["resource_per_sample"] <= budget:
+                    score = (
+                        metrics["semantic_goodput"],
+                        metrics["goodput_per_resource"],
+                        -empirical_outage,
+                    )
                     if best is None or score > best[0]:
-                        best = (score, q1, q2, qr, metrics, upper)
+                        best = (score, q1, q2, qr, metrics)
     if best is None:
-        return {"q1": float(np.min(core.risk) - 1e-6), "q2": float(np.min(core.risk) - 1e-6), "qr": float(np.min(refine.risk) - 1e-6), "cal_goodput": 0.0, "cal_openout": 0.0, "cal_openout_upper": 0.0, "cal_goodput_per_resource": 0.0, "cal_resource_per_sample": 0.0, "cal_refine_rate": 0.0}
-    return {"q1": float(best[1]), "q2": float(best[2]), "qr": float(best[3]), "cal_goodput": best[4]["semantic_goodput"], "cal_openout": best[4]["accepted_open_outage"], "cal_openout_upper": best[5], "cal_goodput_per_resource": best[4]["goodput_per_resource"], "cal_resource_per_sample": best[4]["resource_per_sample"], "cal_refine_rate": best[4]["refine_rate"]}
+        return {
+            "q1": reject_threshold(core.risk),
+            "q2": reject_threshold(core.risk),
+            "qr": reject_threshold(refine.risk),
+            "cal_goodput": 0.0,
+            "cal_openout": 0.0,
+            "cal_openout_upper": 1.0,
+            "cal_goodput_per_resource": 0.0,
+            "cal_resource_per_sample": 0.0,
+            "cal_refine_rate": 0.0,
+        }
+    return {
+        "q1": float(best[1]),
+        "q2": float(best[2]),
+        "qr": float(best[3]),
+        "cal_goodput": best[4]["semantic_goodput"],
+        "cal_openout": best[4]["accepted_open_outage"],
+        "cal_openout_upper": 1.0,
+        "cal_goodput_per_resource": best[4]["goodput_per_resource"],
+        "cal_resource_per_sample": best[4]["resource_per_sample"],
+        "cal_refine_rate": best[4]["refine_rate"],
+    }
+
+
+def certify_progressive_policy(
+    policy: dict,
+    core_certificate: Scored,
+    refine_certificate: Scored,
+    y: np.ndarray,
+    open_label: np.ndarray,
+    target: float,
+    alpha: float = 0.05,
+    minimum_accepts: int = 0,
+) -> dict:
+    """Certify the selected route and complete progressive decision policy."""
+
+    selected = {
+        "q1": float(policy["q1"]),
+        "q2": float(policy["q2"]),
+        "qr": float(policy["qr"]),
+    }
+    metrics = eval_progressive(
+        core_certificate,
+        refine_certificate,
+        y,
+        open_label,
+        selected,
+        include_detection=False,
+    )
+    certificate = certificate_fields(
+        metrics,
+        len(y),
+        target,
+        alpha,
+        minimum_accepts,
+    )
+    if certificate["certificate_valid"]:
+        deployed = selected
+    else:
+        deployed = {
+            "q1": float("-inf"),
+            "q2": float("-inf"),
+            "qr": float("-inf"),
+        }
+    return {
+        **policy,
+        "selected_q1": selected["q1"],
+        "selected_q2": selected["q2"],
+        "selected_qr": selected["qr"],
+        **deployed,
+        **certificate,
+    }
+
+
+def certificate_fields(
+    metrics: dict,
+    certificate_samples: int,
+    target: float,
+    alpha: float,
+    minimum_accepts: int,
+) -> dict:
+    required = max(
+        int(minimum_accepts),
+        minimum_zero_error_accepts(target, alpha),
+    )
+    accepted = int(metrics["accepted"])
+    unsafe = int(metrics["accepted_unsafe"])
+    upper = (
+        clopper_pearson_upper(unsafe, accepted, alpha)
+        if accepted > 0
+        else 1.0
+    )
+    valid = accepted >= required and upper <= target
+    if accepted < required:
+        reason = f"accepted {accepted} certificate examples; {required} required"
+    elif upper > target:
+        reason = "exact one-sided accepted-outage bound exceeds target"
+    else:
+        reason = ""
+    return {
+        "certificate_valid": bool(valid),
+        "certificate_method": "clopper-pearson-composed-policy",
+        "certificate_alpha": float(alpha),
+        "certificate_confidence": float(1.0 - alpha),
+        "certificate_target_outage": float(target),
+        "certificate_upper_bound": float(upper),
+        "certificate_samples": int(certificate_samples),
+        "certificate_accepted": accepted,
+        "certificate_unsafe": unsafe,
+        "certificate_minimum_accepts": required,
+        "certificate_reason": reason,
+    }
+
+
+def certificate_columns(policy: dict) -> dict:
+    return {
+        key: value
+        for key, value in policy.items()
+        if key.startswith("certificate_")
+    }
 
 
 def eval_progressive(core: Scored, refine: Scored, y: np.ndarray, open_label: np.ndarray, policy: dict, include_detection: bool = True) -> dict:
@@ -835,18 +1377,16 @@ def fpr_at_tpr(scores: np.ndarray, labels: np.ndarray, target: float = 0.95) -> 
     return float(best)
 
 
-def wilson_upper(errors: int, total: int, z: float = 1.64) -> float:
-    if total <= 0:
-        return 0.0
-    phat = errors / total
-    denom = 1.0 + z * z / total
-    centre = phat + z * z / (2.0 * total)
-    margin = z * math.sqrt((phat * (1.0 - phat) + z * z / (4.0 * total)) / total)
-    return float(min(1.0, (centre + margin) / denom))
-
-
 def candidate_thresholds(risk: np.ndarray) -> np.ndarray:
+    if risk.size == 0:
+        return np.asarray([-1.0], dtype=np.float64)
     return np.unique(np.quantile(risk, np.linspace(0.0, 1.0, 11)))
+
+
+def reject_threshold(risk: np.ndarray) -> float:
+    if risk.size == 0:
+        return -1.0
+    return float(np.min(risk) - 1e-6)
 
 
 def scale01(values: np.ndarray) -> np.ndarray:
@@ -887,7 +1427,7 @@ def build_provenance(args, specs: dict[str, Path], manifest_summary: dict, chann
     import torch
 
     return {
-        "format_version": 1,
+        "format_version": 2,
         "suite": "communication_control_suite",
         "python_version": platform.python_version(),
         "numpy_version": np.__version__,
@@ -913,6 +1453,15 @@ def build_provenance(args, specs: dict[str, Path], manifest_summary: dict, chann
             "train_open": args.train_open,
             "cal_known_per_class": args.cal_known_per_class,
             "cal_open": args.cal_open,
+            "certificate_fraction": args.certificate_fraction,
+            "certification_family_alpha": args.certification_alpha,
+            "certificate_family_size": args.certificate_family_size,
+            "certification_policy_alpha": (
+                args.certification_alpha / args.certificate_family_size
+            ),
+            "primary_method": args.primary_method,
+            "selection_safety_factor": args.selection_safety_factor,
+            "minimum_certified_accepts": args.minimum_certified_accepts,
             "full_open_severity": dict(severities),
             "deepsense_scenario_root": str(Path(args.deepsense_scenario_root).expanduser().resolve()),
         },
@@ -943,18 +1492,20 @@ def save_task_checkpoint_bundle(
 
     model_files = [classical_path, receiver_channel_path, receiver_no_channel_path]
     metadata = {
-        "format_version": 1,
+        "format_version": 2,
         "task": task_name,
         "seed": seed,
         "n_classes": n_classes,
         "split_rows": {
             "train": len(split.train),
-            "calibration": len(split.calibration),
+            "policy_selection": len(split.policy_selection),
+            "certificate": len(split.certificate),
             "eval": len(split.eval),
         },
         "split_key_sha256": {
             "train": row_key_sha256(split.train),
-            "calibration": row_key_sha256(split.calibration),
+            "policy_selection": row_key_sha256(split.policy_selection),
+            "certificate": row_key_sha256(split.certificate),
             "eval": row_key_sha256(split.eval),
         },
         "feature_manifests": provenance.get("feature_manifests", {}),

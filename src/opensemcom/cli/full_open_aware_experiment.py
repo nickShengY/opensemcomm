@@ -1,4 +1,8 @@
-"""Full-open-aware receiver training and open-set baseline evaluation."""
+"""Legacy empirical full-open receiver experiment.
+
+This module predates the independent certificate cohort. Use
+``communication_control_suite`` for paper-facing finite-sample certification.
+"""
 
 from __future__ import annotations
 

@@ -32,3 +32,27 @@ def test_enabled_vim_still_requests_refinement():
 def test_openmax_gate_respects_detector_weight():
     assert make_receiver(openmax_weight=0.0)._decision(0.20, {0}, {"confidence": 1.0, "openmax": 1.0}) == Decision.ACCEPT
     assert make_receiver(openmax_weight=0.10)._decision(0.20, {0}, {"confidence": 1.0, "openmax": 1.0}) == Decision.REFINE
+
+
+def test_unsupported_channel_cannot_be_accepted():
+    decision = make_receiver()._decision(
+        0.10,
+        {0},
+        {"confidence": 1.0},
+        channel_supported=False,
+        certificate_valid=True,
+    )
+
+    assert decision == Decision.REFINE
+
+
+def test_invalid_certificate_cannot_be_accepted():
+    decision = make_receiver()._decision(
+        0.10,
+        {0},
+        {"confidence": 1.0},
+        channel_supported=True,
+        certificate_valid=False,
+    )
+
+    assert decision == Decision.REFINE

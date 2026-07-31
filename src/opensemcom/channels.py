@@ -11,6 +11,12 @@ from opensemcom.phy import SionnaDigitalLink
 from opensemcom.types import Array, ChannelBackend, ChannelKind
 
 
+def channel_kind_code(kind: ChannelKind) -> float:
+    """Stable numeric channel-family identifier used by support guards."""
+
+    return float(list(ChannelKind).index(kind))
+
+
 def snr_to_noise_std(signal: Array, snr_db: float) -> float:
     power = float(np.mean(np.square(signal))) if signal.size else 1.0
     snr_linear = 10.0 ** (snr_db / 10.0)
@@ -69,6 +75,7 @@ class WirelessChannel:
 
         effective_snr = 10.0 * np.log10((h_gain**2 + 1e-9) / (noise_std**2 + 1e-9))
         state = {
+            "channel_kind_code": channel_kind_code(self.config.kind),
             "snr_db": float(self.config.snr_db),
             "effective_snr_db": float(effective_snr),
             "gain": float(h_gain),
@@ -100,12 +107,19 @@ class SionnaChannel(WirelessChannel):
 
     def transmit(self, symbols: Array) -> ChannelObservation:
         observation = self._link.transmit(symbols)
-        return ChannelObservation(received=observation.received, state=observation.state)
+        return ChannelObservation(
+            received=observation.received,
+            state={
+                **observation.state,
+                "channel_kind_code": channel_kind_code(self.config.kind),
+            },
+        )
 
     def transmit_repeated(self, symbols: Array, repetitions: int, power: float = 1.0) -> ChannelObservation:
         amplitude = float(np.sqrt(max(power, 1e-9)))
         observation = self._link.transmit(np.asarray(symbols, dtype=np.float64) * amplitude, repetitions)
         state = dict(observation.state)
+        state["channel_kind_code"] = channel_kind_code(self.config.kind)
         # Link MSEs are measured before undoing the transmit-power amplitude.
         for key in ("phy_payload_mse", "phy_quantization_mse"):
             state[key] = float(state.get(key, 0.0) / max(power, 1e-9))

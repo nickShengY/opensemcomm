@@ -47,7 +47,7 @@ class DetectorWeights:
 @dataclass(frozen=True)
 class CalibrationConfig:
     delta: float = 0.1
-    stage_aware: bool = False
+    stage_aware: bool = True
     epsilon_task: float = 0.0
     accept_quantile: float = 0.45
     refine_quantile: float = 0.65
@@ -57,16 +57,32 @@ class CalibrationConfig:
     open_split: str = "open-calibration"
     open_fraction: float = 0.5
     target_open_outage: float = 0.05
+    certification_enabled: bool = True
+    certification_alpha: float = 0.05
+    minimum_certification_samples: int = 64
+    # A target/alpha-specific lower bound is computed at runtime.
+    minimum_certified_accepts: int = 0
+    model_fit_fraction: float = 0.50
+    conformal_fraction: float = 0.20
+    threshold_fraction: float = 0.15
+    threshold_safety_factor: float = 0.50
+    channel_support_enabled: bool = True
+    channel_support_lower_quantile: float = 0.005
+    channel_support_upper_quantile: float = 0.995
+    channel_support_relative_margin: float = 0.10
+    channel_support_absolute_margin: float = 1e-6
 
 
 @dataclass(frozen=True)
 class AdaptationConfig:
     alpha: float = 0.05
-    horizon: int = 1000
     min_buffer: int = 16
     kappa: float = 0.01
     pseudo_label_threshold: float = 0.75
     update_strength: float = 0.05
+    require_verified_feedback: bool = True
+    verified_feedback_key: str = "verified_label"
+    verified_received_key: str = "verified_received"
 
 
 @dataclass(frozen=True)
@@ -74,7 +90,9 @@ class AblationConfig:
     use_detector: bool = True
     use_conformal: bool = True
     use_harq: bool = True
-    use_adaptation: bool = True
+    # Adaptation changes the certified policy. It is opt-in and requires
+    # independent verified proposal/validation feedback.
+    use_adaptation: bool = False
     use_scheduler: bool = True
 
 
@@ -129,4 +147,3 @@ class OpenSemComConfig:
     resource_weights: ResourceWeights = field(default_factory=ResourceWeights)
     resource_budget: ResourceBudget = field(default_factory=ResourceBudget)
     ablation: AblationConfig = field(default_factory=AblationConfig)
-

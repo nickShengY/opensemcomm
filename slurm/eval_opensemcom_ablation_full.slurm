@@ -14,10 +14,10 @@ source /home/nickyun/links/scratch/new_study/opensemcom/scripts/env_scratch.sh
 MANIFEST="${OPENSEMCOM_FEATURE_MANIFEST:?Set OPENSEMCOM_FEATURE_MANIFEST}"
 RUN_TAG="${OPENSEMCOM_RUN_TAG:-dinov3_ablation}"
 SAMPLES="${OPENSEMCOM_FULL_SAMPLES:-20000}"
-CALIBRATION_SAMPLES="${OPENSEMCOM_FULL_CALIBRATION_SAMPLES:-384}"
+CALIBRATION_SAMPLES="${OPENSEMCOM_FULL_CALIBRATION_SAMPLES:-640}"
 USERS="${OPENSEMCOM_FULL_USERS:-4}"
 SEEDS="${OPENSEMCOM_FULL_SEEDS:-0}"
-VARIANTS="${OPENSEMCOM_ABLATION_VARIANTS:-full no_detector no_conformal no_harq no_adaptation fixed_scheduler}"
+VARIANTS="${OPENSEMCOM_ABLATION_VARIANTS:-full no_detector no_conformal no_harq fixed_scheduler}"
 CONFIG_ROOT="$OPENSEMCOM_PROJECT_ROOT/tmp/configs_${RUN_TAG}_${SLURM_JOB_ID}"
 export RUN_TAG VARIANTS
 
@@ -77,7 +77,6 @@ variant_flags = {
     "no_detector": {"use_detector": False},
     "no_conformal": {"use_conformal": False},
     "no_harq": {"use_harq": False},
-    "no_adaptation": {"use_adaptation": False},
     "fixed_scheduler": {"use_scheduler": False},
 }
 for variant in variants:
@@ -90,14 +89,26 @@ for variant in variants:
             "dataset_manifest": manifest,
             "output_dir": str(Path(os.environ["OPENSEMCOM_PROJECT_ROOT"]) / "runs"),
             "samples": int(os.environ.get("OPENSEMCOM_FULL_SAMPLES", "20000")),
-            "calibration_samples": int(os.environ.get("OPENSEMCOM_FULL_CALIBRATION_SAMPLES", "384")),
+            "calibration_samples": int(os.environ.get("OPENSEMCOM_FULL_CALIBRATION_SAMPLES", "640")),
             "users": int(os.environ.get("OPENSEMCOM_FULL_USERS", "4")),
             "seed": 0,
             "write_traces": regime == "full-open",
             "model": base_model,
             "channel": {"kind": "awgn", "snr_db": 12.0 if regime == "resource-open" else 18.0},
+            "calibration": {
+                "stage_aware": True,
+                "certification_enabled": True,
+                "certification_alpha": 0.05,
+                "target_open_outage": 0.05,
+                "minimum_certification_samples": 64,
+                "minimum_certified_accepts": 59,
+                "mixed_open": regime in {"source-open", "class-open", "task-open", "full-open"},
+                "open_split": "open-calibration",
+                "open_fraction": 0.50,
+                "channel_support_enabled": True,
+            },
             "detector_weights": detector,
-            "ablation": {"use_detector": True, "use_conformal": True, "use_harq": True, "use_adaptation": True, "use_scheduler": True, **variant_flags[variant]},
+            "ablation": {"use_detector": True, "use_conformal": True, "use_harq": True, "use_adaptation": False, "use_scheduler": True, **variant_flags[variant]},
         }
         path = config_root / variant / f"{regime}.yaml"
         path.parent.mkdir(parents=True, exist_ok=True)

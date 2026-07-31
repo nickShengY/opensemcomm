@@ -138,6 +138,7 @@ class SemanticHARQ:
             decision=decision,
             features=features,
             action=action,
+            certificate=output.certificate,
         )
 
     def _transmit_repeated(self, symbols, repetitions: int, power: float = 1.0):

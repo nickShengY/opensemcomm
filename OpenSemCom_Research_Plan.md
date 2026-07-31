@@ -38,6 +38,36 @@ The research contribution is a mathematically grounded framework for **open-envi
 
 ---
 
+## Implemented Guarantee Boundary
+
+This document contains both the long-term research design and proposed
+theoretical results. The authoritative specification of what the current code
+actually guarantees is [CERTIFIED_FRAMEWORK.md](CERTIFIED_FRAMEWORK.md).
+The experiment and artifact gates for paper claims are specified in
+[PAPER_VALIDATION_PLAN.md](PAPER_VALIDATION_PLAN.md).
+
+As of the current implementation:
+
+- the complete accept/refine/HARQ/reject policy is selected before an
+  independent certificate split is inspected;
+- accepted outage is bounded with an exact one-sided Clopper-Pearson
+  certificate under explicit i.i.d.-deployment and fixed-policy assumptions;
+- model fitting, conformal calibration, policy selection, and certification
+  use disjoint data roles;
+- unseen channel families are outside the empirical support envelope and
+  cannot be immediately accepted;
+- online adaptation requires verified independent proposal and validation
+  feedback, uses an anytime alpha-spending gate, and invalidates the old
+  decision certificate after an accepted update.
+
+The other theorems and modules in this research plan are research targets
+unless they are restated in the certificate contract and covered by tests.
+In particular, arbitrary channel-shift guarantees, physical resource
+optimality, refinement monotonicity, and unconditional test-time adaptation
+safety must not be claimed from the current implementation.
+
+---
+
 ## 1. Research Vision
 
 Semantic communication aims to transmit task-relevant meaning rather than raw bits. This paradigm is attractive for 6G wireless systems because many emerging applications care more about **task success** than exact signal reconstruction. Examples include autonomous driving, edge AI inference, digital twins, smart city sensing, vehicular networks, robotic control, extended reality, and mission-critical IoT.
@@ -1088,37 +1118,36 @@ Primal-dual scheduling updates:
 
 ### Algorithm 2: Risk-Certified Safe Adaptation
 
-**Input:** current receiver \(\psi_t\), candidate receiver \(\psi_t'\), buffer \(B_t\), confidence \(\alpha\), horizon \(T\), safety margin \(\kappa\).
+**Input:** current receiver \(\psi_t\), fresh verified proposal split \(P_t\),
+fresh independent verified validation split \(V_t\), confidence
+\(\alpha\), update index \(t\), safety margin \(\kappa\).
 
-1. Compute empirical risk:
+1. Construct and freeze candidate \(\psi_t'\) using only \(P_t\).
+2. On \(V_t\), compute paired bounded loss differences:
    \[
-   \widehat{R}_{B_t}(\psi_t),
-   \quad
-   \widehat{R}_{B_t}(\psi_t').
+   D_i
+   =
+   \ell(\psi_t';Z_i)-\ell(\psi_t;Z_i)
+   \in[-1,1].
    \]
-2. Compute confidence radius:
+3. Allocate:
+   \[
+   \alpha_t=\frac{\alpha}{t(t+1)}.
+   \]
+4. Compute:
    \[
    \epsilon_t
    =
-   \sqrt{
-   \frac{\log(4T/\alpha)}
-   {2|B_t|}
-   }.
+   \sqrt{\frac{2\log(1/\alpha_t)}{|V_t|}}.
    \]
-3. Accept update if:
+5. Accept the update only if:
    \[
-   \widehat{R}_{B_t}(\psi_t')
-   +
-   \epsilon_t
-   \le
-   \widehat{R}_{B_t}(\psi_t)
-   -
-   \epsilon_t
-   -
-   \kappa.
+   \overline D_t+\epsilon_t\le-\kappa.
    \]
-4. Otherwise reject the update.
-5. Keep the selective safety gate active at all times.
+6. Discard both splits after the gate; never reuse validation examples.
+7. Whether accepted or rejected, consume \(\alpha_t\). If accepted, invalidate
+   the old composed-policy certificate and prohibit semantic acceptance until
+   a fresh policy is selected and recertified.
 
 ---
 
@@ -1197,20 +1226,17 @@ w(x,h,\tau)
 
 The paper-facing receiver does not switch to a fallback decoder. Unsafe samples are refined through semantic HARQ or rejected/open.
 
-**A4. Finite adaptation horizon**
+**A4. Fresh sequential validation**
 
-There are at most \(T\) adaptation decisions.
+Each candidate is fixed before a fresh independent validation split is
+inspected. Validation examples are i.i.d. draws from the update's declared
+target distribution, carry verified labels, and are never reused.
 
-**A5. Reliable validation or bounded pseudo-label noise**
+**A5. Verified adaptation feedback**
 
-The adaptation buffer \(B_t\) is labeled, delayed-labeled, or pseudo-labeled with bounded noise rate:
-
-\[
-\rho_t
-=
-\mathbb{P}(\tilde{Y}\ne Y)
-\le \rho_{\max}.
-\]
+The implemented gate does not claim safety from unverified pseudo-labels.
+Proposal and validation examples must contain externally verified labels and
+the corresponding received representations.
 
 **A6. Semantic utility regularity**
 
@@ -1369,116 +1395,69 @@ This links conformal reliability to open semantic outage.
 
 ---
 
-### Theorem 3: Safe Adaptation Non-Degradation by Induction
+### Theorem 3: Anytime Safe-Adaptation Gate
 
-Let \(\psi_t\) be the current receiver and \(\psi_t'\) be a candidate adapted receiver. Define empirical risk on buffer \(B_t\):
+At update \(t\), let the candidate \(\psi_t'\) be fixed using only proposal
+data \(P_t\). On the fresh independent validation split \(V_t\), define
 
 \[
-\widehat{R}_{B_t}(\psi)
+D_i
 =
-\frac{1}{|B_t|}
-\sum_{(x_i,y_i)\in B_t}
-\ell(q_\psi(x_i),y_i).
+\ell(\psi_t';Z_i)-\ell(\psi_t;Z_i)
+\in[-1,1].
 \]
 
-The adaptation gate is:
+Let
 
 \[
-\widehat{R}_{B_t}(\psi_t')
-+
-\epsilon_t
-\le
-\widehat{R}_{B_t}(\psi_t)
--
-\epsilon_t
--
-\kappa,
-\]
-
-where:
-
-\[
+\alpha_t=\frac{\alpha}{t(t+1)}
+\quad\text{and}\quad
 \epsilon_t
 =
-\sqrt{
-\frac{\log(4T/\alpha)}
-{2|B_t|}
-}.
+\sqrt{\frac{2\log(1/\alpha_t)}{|V_t|}}.
 \]
 
-If \(B_t\) contains true or delayed labels sampled from the current deployment distribution, then with probability at least \(1-\alpha\), every accepted adaptation satisfies:
+Accept the candidate only when
 
 \[
-R_t(\psi_{t+1})
-\le
-R_t(\psi_t)-\kappa.
+\overline D_t+\epsilon_t\le-\kappa.
 \]
 
-If pseudo-labels are used with noise rate \(\rho_t\), then:
+Under A1, A4, and A5, with probability at least \(1-\alpha\), every
+accepted update satisfies
 
 \[
-R_t(\psi_{t+1})
-\le
-R_t(\psi_t)-\kappa+2\rho_t.
+\mathbb E[D_t]\le-\kappa.
 \]
 
-Thus adaptation is safe when:
+**Proof.**
+
+Because \(D_i\in[-1,1]\), the one-sided Hoeffding inequality gives
 
 \[
-\kappa>2\rho_t.
+\Pr\left(
+\mathbb E[D_t]>
+\overline D_t+\epsilon_t
+\right)
+\le\alpha_t.
 \]
 
-**Proof by Induction.**
-
-Base case: At \(t=0\), the deployed model is the frozen receiver \(\psi_0\). No adaptation harm has occurred.
-
-Induction hypothesis: Assume that up to time \(t\), every accepted update has satisfied the certified non-degradation condition.
-
-Induction step: Hoeffding's inequality gives, with probability at least \(1-\alpha/T\):
+Whenever the gate accepts, its empirical upper bound is at most
+\(-\kappa\). Finally,
 
 \[
-|R_t(\psi_t)-\widehat{R}_{B_t}(\psi_t)|\le \epsilon_t,
+\sum_{t=1}^{\infty}\alpha_t
+=
+\alpha
 \]
 
-and:
+and a union bound controls all update gates simultaneously. Validation
+examples are discarded after each gate, so later candidates do not reuse
+them. \(\square\)
 
-\[
-|R_t(\psi_t')-\widehat{R}_{B_t}(\psi_t')|\le \epsilon_t.
-\]
-
-If the gate accepts:
-
-\[
-R_t(\psi_t')
-\le
-\widehat{R}_{B_t}(\psi_t')+\epsilon_t,
-\]
-
-\[
-\le
-\widehat{R}_{B_t}(\psi_t)-\epsilon_t-\kappa,
-\]
-
-\[
-\le
-R_t(\psi_t)-\kappa.
-\]
-
-Therefore:
-
-\[
-R_t(\psi_{t+1})\le R_t(\psi_t)-\kappa.
-\]
-
-If the gate rejects:
-
-\[
-\psi_{t+1}=\psi_t,
-\]
-
-so adaptation does not increase risk. Applying a union bound over \(T\) rounds gives probability at least \(1-\alpha\).
-
-For pseudo-labels, the true and pseudo-label risks differ by at most \(\rho_t\) for each model, so the comparison incurs an additional \(2\rho_t\) term.
+This theorem controls the declared bounded receiver loss, not conditional
+accepted outage. Every accepted update invalidates the prior composed-policy
+certificate; semantic acceptance remains disabled until recertification.
 
 ---
 

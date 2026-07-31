@@ -34,6 +34,10 @@ class MetricsAccumulator:
     harq_hit_max_refinements: list[float] = field(default_factory=list)
     decision_counts: Counter[str] = field(default_factory=Counter)
     ood_scores: list[tuple[float, bool]] = field(default_factory=list)
+    certificate_valid: list[float] = field(default_factory=list)
+    certificate_upper_bounds: list[float] = field(default_factory=list)
+    channel_supported: list[float] = field(default_factory=list)
+    certified_accepted: int = 0
 
     def add(
         self,
@@ -54,6 +58,8 @@ class MetricsAccumulator:
             self.accepted_open_errors.append(float(error > 0.0 or breakdown.unknown_acceptance > 0.0 or breakdown.task_mismatch > 0.0))
             if error == 0.0:
                 self.correct_accepted += 1
+            if output.features.get("certificate_valid", 0.0) >= 1.0:
+                self.certified_accepted += 1
         self.covered.append(sample.y in output.prediction_set)
         self.prediction_set_sizes.append(len(output.prediction_set))
         self.channel_uses += max(1, len(output.action.layers)) * max(1, output.action.repetitions)
@@ -69,6 +75,12 @@ class MetricsAccumulator:
         self.harq_hit_max_refinements.append(float(output.features.get("harq_hit_max_refinements", 0.0)))
         self.decision_counts[output.decision.value] += 1
         self.ood_scores.append((output.risk_score, sample.is_unknown if ood_label is None else ood_label))
+        self.certificate_valid.append(
+            float(output.features.get("certificate_valid", 0.0))
+        )
+        if output.certificate is not None:
+            self.certificate_upper_bounds.append(float(output.certificate.upper_bound))
+        self.channel_supported.append(float(output.features.get("channel_supported", 0.0)))
 
     def summarize(self, adaptation_harm_rate: float = 0.0, certified_accept_rate: float = 0.0) -> dict[str, float]:
         open_risk = mean(self.risks)
@@ -78,12 +90,29 @@ class MetricsAccumulator:
             "open_semantic_risk": open_risk,
             "semantic_outage": mean([float(e > 0.0) for e in self.task_errors]),
             "open_semantic_outage": mean(self.accepted_open_errors),
+            "accepted_outage": mean(self.accepted_open_errors),
             "accuracy": 1.0 - mean(self.task_errors),
-            "coverage": mean([float(x) for x in self.covered]),
+            "coverage": self.accepted_samples / num_samples,
+            "decision_coverage": self.accepted_samples / num_samples,
+            "prediction_set_coverage": mean([float(x) for x in self.covered]),
             "prediction_set_size": mean([float(x) for x in self.prediction_set_sizes]),
-            "semantic_goodput": self.correct_accepted / max(self.channel_uses, 1),
+            "semantic_goodput": self.correct_accepted / num_samples,
+            "goodput_per_channel_use": self.correct_accepted / max(self.channel_uses, 1),
             "accepted_samples": float(self.accepted_samples),
             "correct_accepted_samples": float(self.correct_accepted),
+            "certified_accepted_samples": float(self.certified_accepted),
+            "accepted_decision_certificate_rate": (
+                self.certified_accepted / self.accepted_samples
+                if self.accepted_samples
+                else 0.0
+            ),
+            "certificate_valid_rate": mean(self.certificate_valid),
+            "certificate_upper_bound_max": (
+                max(self.certificate_upper_bounds)
+                if self.certificate_upper_bounds
+                else 1.0
+            ),
+            "channel_support_rate": mean(self.channel_supported),
             "total_bandwidth": self.total_bandwidth,
             "avg_bandwidth": self.total_bandwidth / num_samples,
             "bandwidth_per_accepted": self.total_bandwidth / self.accepted_samples if self.accepted_samples else 0.0,
@@ -115,6 +144,9 @@ class MetricsAccumulator:
             "harq_full_payload_sample_rate": mean([float(x > 0.0) for x in self.harq_full_payload_rounds]),
             "harq_hit_max_refinements_rate": mean(self.harq_hit_max_refinements),
             "adaptation_harm_rate": adaptation_harm_rate,
+            "adaptation_update_accept_rate": certified_accept_rate,
+            # Backward-compatible alias for archived consumers.  This metric
+            # refers to adaptation updates, not accepted semantic decisions.
             "certified_accept_rate": certified_accept_rate,
             "auroc_ood": auroc(self.ood_scores),
             "fpr95": fpr_at_tpr(self.ood_scores, target_tpr=0.95),
@@ -167,4 +199,3 @@ def open_set_f1(scores_and_labels: list[tuple[float, bool]]) -> float:
     precision = tp / max(tp + fp, 1)
     recall = tp / max(tp + fn, 1)
     return 2 * precision * recall / max(precision + recall, 1e-9)
-

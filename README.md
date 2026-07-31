@@ -16,7 +16,37 @@ risk > q2           reject as open or unsafe
 
 The current implementation never turns a high-risk rejection into an acceptance through a separate recovery rule. Historical filenames may contain terms from earlier development; those names are archival run identifiers and are not names for the current method.
 
-## Current Result in Plain Language
+## Guarantee Status
+
+The implemented guarantee is now defined precisely in
+[CERTIFIED_FRAMEWORK.md](CERTIFIED_FRAMEWORK.md). In certificate-enforced
+runs, model fitting, conformal calibration, policy selection, and final
+certification use four disjoint splits. The independent certificate split
+evaluates the complete accept/refine/HARQ/reject trajectory and computes an
+exact one-sided Clopper-Pearson upper bound on unsafe acceptance. A decision
+can be accepted only when that composed-policy certificate is valid and the
+observed channel is inside the fitted support envelope.
+
+The June 29 and July 11 artifacts below predate this certificate contract.
+They remain empirical and reproducibility evidence for the archived method,
+but they are not retroactively certified. A new paper-facing run must be
+generated before making finite-sample reliability claims from the revised
+code. A reconstruction audit also found that the archived splitter could
+reuse one raw source under multiple regime labels and silently miss the
+requested severity mixture (the requested 25% case reconstructed as 40%).
+The archived severity names and table are therefore provenance only, not
+valid evidence for the new paper.
+
+[PAPER_VALIDATION_PLAN.md](PAPER_VALIDATION_PLAN.md) defines the predeclared
+claims, experiment matrix, sample-size requirements, and artifact acceptance
+checks for the next paper-facing runs.
+
+Channel-open and full-open runs now calibrate on the configured nominal
+channel and evaluate on the shifted channel. Earlier generic runs used the
+shifted channel for both phases and therefore did not isolate channel
+generalization correctly.
+
+## Archived Result in Plain Language
 
 The latest five-seed communication-control experiment evaluates four levels of full-open exposure. At an accepted-outage target of 5%, the best OpenSemCom operating point produced:
 
@@ -115,7 +145,7 @@ pytest
 
 Foundation-model extraction requires the corresponding PyTorch, Transformers, timm/open-clip dependencies used by the selected extractor. Install them into the scratch-local virtual environment, then submit extraction through Slurm.
 
-## Reproduce the Latest Suite
+## Reproduce the Archived Suite Inputs with Current Certification
 
 The complete command, input mapping, output mapping, and cluster workflow are documented in [EXPERIMENTS.md](EXPERIMENTS.md). The core command is:
 
@@ -124,18 +154,30 @@ python -m opensemcom.cli.communication_control_suite \
   --feature-manifest dino=manifests/opensemcom_real_dinov3_mixed_open_calibration.csv \
   --feature-manifest siglip2=manifests/opensemcom_real_siglip2_base.csv \
   --feature-manifest openclip=manifests/opensemcom_real_openclip_dfn5b.csv \
-  --output-prefix runs/comm_control_extra_experiments_20260629 \
-  --checkpoint-dir models/checkpoints/communication_control_20260711 \
+  --output-prefix runs/comm_control_certified_manual \
+  --checkpoint-dir models/checkpoints/communication_control_certified_manual \
   --seeds 0,1,2,3,4 \
   --targets 0.01,0.02,0.05,0.10 \
   --resource-budgets 0.30,0.45,0.60,0.80,1.00 \
   --eval-size 1024 \
-  --train-known-per-class 192 \
-  --train-open 1024 \
-  --cal-known-per-class 64 \
-  --cal-open 768 \
+  --train-known-per-class 64 \
+  --train-open 512 \
+  --cal-known-per-class 32 \
+  --cal-open 2000 \
+  --certificate-fraction 0.70 \
+  --certification-alpha 0.05 \
+  --certificate-family-size 1 \
+  --primary-method opensemcom_progressive \
+  --selection-safety-factor 0.50 \
   --full-open-severity mild:0.25,medium:0.50,hard:0.75,extreme:0.91
 ```
+
+The current suite partitions the former calibration cohort into policy
+selection and an independent certificate cohort. It fits each policy on the
+selection cohort, evaluates the fixed final policy once on the certificate
+cohort, and deploys a reject-all policy when the exact certificate fails. It
+does not retroactively reproduce the archived metric values because the
+protocol has changed.
 
 This command consumes precomputed features. Feature extraction and other GPU-heavy work must be submitted to a compute node. Example:
 
@@ -152,6 +194,10 @@ sbatch slurm/extract_foundation_features.slurm
 | Semantic goodput | Correct accepted decisions divided by all evaluated samples | Higher |
 | Coverage | Accepted decisions divided by all evaluated samples | Higher, subject to safety |
 | Accepted OpenOut | Unsafe accepted decisions divided by accepted decisions | Lower |
+| Certificate upper bound | One-sided bound on accepted outage for the fixed composed policy | Must be at or below target |
+| Certificate-valid rate | Fraction evaluated under a valid attached certificate | Must be 1 for certified accepted decisions |
+| Channel-support rate | Fraction inside the empirical calibrated channel envelope | Context for shift handling |
+| Prediction-set coverage | Fraction whose conformal set contains the target | Higher, interpreted under stated assumptions |
 | Accepted accuracy | Correct decisions divided by accepted decisions | Higher |
 | AUROC | Ability of risk score to rank unsafe samples above safe samples | Higher |
 | FPR95 | Safe samples incorrectly flagged when unsafe recall is 95% | Lower |
@@ -188,11 +234,17 @@ slurm/                 compute-node extraction, training, and evaluation jobs
 src/opensemcom/        Python package
 tests/                 manifest, channel, calibration, risk, and simulation tests
 EXPERIMENTS.md         reproducibility and cluster runbook
+CERTIFIED_FRAMEWORK.md normative assumptions, guarantees, and proofs
+PAPER_VALIDATION_PLAN.md predeclared claims and paper artifact gates
 OpenSemCom_Research_Plan.md  research formulation and design history
 ```
 
 ## Current Limitations
 
+- The archived headline runs predate composed-policy certification and must be rerun.
+- A 5% outage certificate at 95% confidence needs at least 59 accepted examples with zero unsafe acceptances in the independent certificate split; low-coverage regimes need substantially larger calibration sets.
+- The empirical channel-support guard rejects unseen channel families, but it does not certify arbitrary in-envelope distribution shifts.
+- Online model adaptation is disabled by default and requires verified, independent proposal and validation feedback. Any accepted model update invalidates the prior decision certificate until recertification.
 - Exact DeepSense beam experiments use 512 common feature rows rather than all 2,411 Scenario 1 rows.
 - Exact-beam safety-constrained goodput remains low even though unconstrained top-5 accuracy is substantially higher.
 - Some communication baselines are implementation-style approximations rather than official pretrained WITT or DeepJSCC checkpoints; the reports identify them explicitly.

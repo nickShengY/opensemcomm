@@ -1,4 +1,8 @@
-"""SOTA full-open safety-goodput comparison suite on feature manifests."""
+"""Legacy empirical full-open comparison suite.
+
+This module predates the independent certificate cohort. Use
+``communication_control_suite`` for paper-facing finite-sample certification.
+"""
 
 from __future__ import annotations
 

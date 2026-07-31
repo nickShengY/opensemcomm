@@ -12,12 +12,14 @@ from typing import Any
 from opensemcom.benchmark import BenchmarkRegime
 from opensemcom.config import (
     AblationConfig,
+    AdaptationConfig,
     CalibrationConfig,
     ChannelConfig,
     DetectorWeights,
     ModelConfig,
     OpenSemComConfig,
     ResourceWeights,
+    RiskWeights,
 )
 from opensemcom.manifest import validate_manifest
 from opensemcom.simulation import run_experiment
@@ -115,8 +117,12 @@ def _config_from_dict(raw: dict[str, Any]) -> OpenSemComConfig:
         config = replace(config, channel=_dataclass_from_dict(ChannelConfig, channel_raw))
     if "calibration" in raw:
         config = replace(config, calibration=_dataclass_from_dict(CalibrationConfig, raw["calibration"]))
+    if "adaptation" in raw:
+        config = replace(config, adaptation=_dataclass_from_dict(AdaptationConfig, raw["adaptation"]))
     if "resource_weights" in raw:
         config = replace(config, resource_weights=_dataclass_from_dict(ResourceWeights, raw["resource_weights"]))
+    if "risk_weights" in raw:
+        config = replace(config, risk_weights=_dataclass_from_dict(RiskWeights, raw["risk_weights"]))
     if "detector_weights" in raw:
         config = replace(config, detector_weights=_dataclass_from_dict(DetectorWeights, raw["detector_weights"]))
     if "ablation" in raw:

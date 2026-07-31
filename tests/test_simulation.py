@@ -13,21 +13,24 @@ from opensemcom.types import ChannelBackend, ChannelKind, ResourceAction
 
 
 def write_manifest(tmp_path):
-    plan = (tmp_path.cwd() / "OpenSemCom_Research_Plan.md").resolve()
-    readme = (tmp_path.cwd() / "README.md").resolve()
+    artifacts = []
+    for index in range(8):
+        artifact = tmp_path / f"artifact_{index}.txt"
+        artifact.write_text(f"semantic artifact {index}\n", encoding="utf-8")
+        artifacts.append(artifact.resolve())
     manifest = tmp_path / "manifest.csv"
     manifest.write_text(
         "\n".join(
             [
                 "source_path,label,task,domain,is_unknown,split,regime",
-                f"{plan},0,classification,paper,false,calibration,closed-id",
-                f"{readme},1,classification,docs,false,calibration,closed-id",
-                f"{plan},0,classification,paper,false,eval,closed-id",
-                f"{readme},1,classification,docs,false,eval,closed-id",
-                f"{plan},6,hazard,paper,true,eval,full-open",
-                f"{readme},1,retrieval,docs,false,eval,full-open",
-                f"{plan},0,classification,paper,false,eval,full-open",
-                f"{readme},6,hazard,docs,true,eval,full-open",
+                f"{artifacts[0]},0,classification,paper,false,calibration,closed-id",
+                f"{artifacts[1]},1,classification,docs,false,calibration,closed-id",
+                f"{artifacts[2]},0,classification,paper,false,eval,closed-id",
+                f"{artifacts[3]},1,classification,docs,false,eval,closed-id",
+                f"{artifacts[4]},6,hazard,paper,true,eval,full-open",
+                f"{artifacts[5]},1,retrieval,docs,false,eval,full-open",
+                f"{artifacts[6]},0,classification,paper,false,eval,full-open",
+                f"{artifacts[7]},6,hazard,docs,true,eval,full-open",
             ]
         ),
         encoding="utf-8",
