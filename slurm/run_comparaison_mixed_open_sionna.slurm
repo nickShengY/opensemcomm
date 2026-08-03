@@ -34,7 +34,9 @@ SEED="${OPENSEMCOM_MIXED_SEED:-0}"
 PAYLOAD_BLOCKS="${OPENSEMCOM_MIXED_PAYLOAD_BLOCKS:-1}"
 EXPECTED_CALIBRATION_KNOWN="${OPENSEMCOM_MIXED_EXPECTED_CALIBRATION_KNOWN:-384}"
 EXPECTED_CALIBRATION_OPEN="${OPENSEMCOM_MIXED_EXPECTED_CALIBRATION_OPEN:-256}"
-REGIMES=(closed-id channel-open source-open class-open task-open resource-open full-open)
+REGIME_LIST="${OPENSEMCOM_MIXED_REGIMES:-closed-id channel-open source-open class-open task-open resource-open full-open}"
+read -r -a REGIMES <<< "$REGIME_LIST"
+
 
 mkdir -p "$OUTPUT_ROOT"
 git rev-parse HEAD
@@ -48,6 +50,10 @@ for REGIME in "${REGIMES[@]}"; do
     task-open) CONFIG="$CONFIG_ROOT/task-open.yaml" ;;
     resource-open) CONFIG="$CONFIG_ROOT/resource-open.yaml" ;;
     full-open) CONFIG="$CONFIG_ROOT/full-open.yaml" ;;
+    *)
+      echo "Unsupported comparison regime: $REGIME" >&2
+      exit 2
+      ;;
   esac
 
   python -m opensemcom.cli.run_comparaison \
