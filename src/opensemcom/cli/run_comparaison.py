@@ -69,6 +69,7 @@ def main() -> None:
                     raw_manifest=filtered_raw,
                     manifests=filtered_manifests,
                     channel=base_config.channel,
+                    regime=args.regime,
                     cohort_methods=tuple(methods),
                     seed=args.seed,
                     payload_blocks=args.payload_blocks,

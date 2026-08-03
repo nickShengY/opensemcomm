@@ -129,6 +129,30 @@ def test_orchestrator_supports_a_selected_three_method_cohort(tmp_path):
     assert run.method == "openclip"
 
 
+
+@pytest.mark.parametrize(
+    ("regime", "expected_kind", "expected_snr"),
+    [
+        ("closed-id", ChannelKind.AWGN, 24.0),
+        ("channel-open", ChannelKind.RAYLEIGH, 18.0),
+        ("full-open", ChannelKind.INTERFERENCE, 16.0),
+    ],
+)
+def test_comparison_uses_the_native_regime_channel_definition(tmp_path, regime, expected_kind, expected_snr):
+    config = _config(tmp_path, ComparisonMethod.DINO)
+    config = ComparisonConfig(
+        method=config.method,
+        raw_manifest=config.raw_manifest,
+        manifests=config.manifests,
+        channel=ChannelConfig(backend=ChannelBackend.NUMPY, kind=ChannelKind.AWGN, snr_db=24.0),
+        regime=regime,
+        seed=config.seed,
+    )
+
+    channel = ComparisonOrchestrator(config)._channel_config_with_seed()
+
+    assert channel.kind == expected_kind
+    assert channel.snr_db == expected_snr
 def test_static_ood_target_includes_unseen_task_and_domain(tmp_path):
     orchestrator = ComparisonOrchestrator(_config(tmp_path, ComparisonMethod.DINO))
     config = OpenSemComConfig(

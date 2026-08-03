@@ -28,6 +28,23 @@ class BenchmarkRegime(str, Enum):
     FULL_OPEN = "full-open"
 
 
+def channel_config_for_regime(
+    base: ChannelConfig,
+    regime: BenchmarkRegime | str,
+) -> ChannelConfig:
+    """Return the effective channel for a benchmark regime.
+
+    Both native and external-backbone comparisons must use this function so a
+    regime label cannot silently select a different physical link protocol.
+    """
+
+    resolved_regime = BenchmarkRegime(regime)
+    if resolved_regime == BenchmarkRegime.CHANNEL_OPEN:
+        return shifted_channel(base, ChannelKind.RAYLEIGH, snr_delta=-6.0)
+    if resolved_regime == BenchmarkRegime.FULL_OPEN:
+        return shifted_channel(base, ChannelKind.INTERFERENCE, snr_delta=-8.0)
+    return base
+
 @dataclass(frozen=True)
 class ManifestRow:
     source_path: Path
@@ -135,12 +152,7 @@ class OpenSemComBench:
         )
 
     def channel_config(self) -> ChannelConfig:
-        base = self.config.channel
-        if self.regime == BenchmarkRegime.CHANNEL_OPEN:
-            return shifted_channel(base, ChannelKind.RAYLEIGH, snr_delta=-6.0)
-        if self.regime == BenchmarkRegime.FULL_OPEN:
-            return shifted_channel(base, ChannelKind.INTERFERENCE, snr_delta=-8.0)
-        return base
+        return channel_config_for_regime(self.config.channel, self.regime)
 
     def _read_manifest(self) -> list[ManifestRow]:
         with self.manifest_path.open("r", encoding="utf-8-sig", newline="") as handle:

@@ -14,7 +14,7 @@ from pathlib import Path
 
 import numpy as np
 
-from opensemcom.benchmark import load_feature_vector
+from opensemcom.benchmark import BenchmarkRegime, channel_config_for_regime, load_feature_vector
 from opensemcom.channels import build_channel
 from opensemcom.config import ChannelConfig, OpenSemComConfig
 from opensemcom.metrics import MetricsAccumulator
@@ -53,6 +53,7 @@ class ComparisonConfig:
     raw_manifest: str | Path
     manifests: dict[str, str | Path]
     channel: ChannelConfig
+    regime: BenchmarkRegime | str = BenchmarkRegime.CLOSED_ID
     # This benchmark protocol treats task/domain as request metadata that is
     # available to every receiver. Ground-truth ``is_unknown`` is never
     # available at evaluation time; it is an evaluation/calibration label only.
@@ -287,9 +288,10 @@ class ComparisonOrchestrator:
         return build_channel(self._channel_config_with_seed(), np.random.default_rng(self.config.seed + 100))
 
     def _channel_config_with_seed(self) -> ChannelConfig:
-        if self.config.channel.backend == ChannelBackend.SIONNA and self.config.channel.sionna_seed is None:
-            return replace(self.config.channel, sionna_seed=self.config.seed + 100)
-        return self.config.channel
+        channel = channel_config_for_regime(self.config.channel, self.config.regime)
+        if channel.backend == ChannelBackend.SIONNA and channel.sionna_seed is None:
+            return replace(channel, sionna_seed=self.config.seed + 100)
+        return channel
 
     def _calibration_open_row(self, row: _Row, config: OpenSemComConfig) -> bool:
         """Use labels only while fitting/calibrating on the labelled cohort."""
