@@ -29,6 +29,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--payload-blocks", type=int, default=1)
     parser.add_argument("--accept-quantile", type=float, default=0.95)
     parser.add_argument("--write-traces", action="store_true")
+    parser.add_argument("--profile-timing", action="store_true", help="Print per-method cohort, calibration, and evaluation timings.")
     parser.add_argument("--expected-calibration-known", type=int, help="Fail unless the common cohort has this many known calibration rows.")
     parser.add_argument("--expected-calibration-open", type=int, help="Fail unless the common cohort has this many labelled open calibration rows.")
     return parser
@@ -90,6 +91,7 @@ def main() -> None:
                 "calibration_open_rows": run.calibration_open_rows,
                 "evaluation_rows": run.evaluation_rows,
                 "payload_values": run.payload_values,
+                "timing_seconds": run.timing_seconds,
                 "metrics": run.result.metrics,
                 "protocol": {
                     "task_domain_metadata_available": run.task_domain_metadata_available,
@@ -97,6 +99,8 @@ def main() -> None:
                 },
                 "decisions": run.result.decisions,
             }
+            if args.profile_timing:
+                print(json.dumps({"method": run.method, "regime": args.regime, "timing_seconds": run.timing_seconds}, sort_keys=True), flush=True)
             (output_dir / f"{run.method}_metrics.json").write_text(
                 json.dumps(payload, indent=2, sort_keys=True) + "\n",
                 encoding="utf-8",

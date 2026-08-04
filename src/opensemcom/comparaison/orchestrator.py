@@ -8,6 +8,7 @@ PHY is called. OpenSemCom remains on its existing scheduler/HARQ path.
 from __future__ import annotations
 
 import csv
+from time import perf_counter
 from dataclasses import dataclass, replace
 from enum import Enum
 from pathlib import Path
@@ -79,6 +80,7 @@ class ComparisonRun:
     evaluation_rows: int
     payload_values: int
     result: ExperimentResult
+    timing_seconds: dict[str, float]
 
 
 @dataclass(frozen=True)
@@ -130,17 +132,19 @@ class ComparisonOrchestrator:
         return self.config.payload_blocks * self.config.channel.sionna_ldpc_info_bits // self.config.channel.sionna_quantization_bits
 
     def run(self) -> ComparisonRun:
+        started_at = perf_counter()
         rows = self._load_common_rows()
         calibration = [row for row in rows if row.split == "calibration"]
         evaluation = [row for row in rows if row.split == "eval"]
+        cohort_load_seconds = perf_counter() - started_at
         if not calibration or not evaluation:
             raise ValueError("The shared raw-manifest cohort requires both calibration and eval rows.")
         base_config = self.config.opensemcom_config or OpenSemComConfig(seed=self.config.seed, channel=self.config.channel)
         calibration_known_rows, calibration_open_rows = self._validate_calibration_cohort(calibration, base_config)
         if self.config.method == ComparisonMethod.OPENSEMCOM:
-            result = self._run_opensemcom(calibration, evaluation)
+            result, stage_timings = self._run_opensemcom(calibration, evaluation)
         else:
-            result = self._run_static(calibration, evaluation)
+            result, stage_timings = self._run_static(calibration, evaluation)
         return ComparisonRun(
             method=self.config.method.value,
             calibration_known_rows=calibration_known_rows,
@@ -152,12 +156,19 @@ class ComparisonOrchestrator:
             evaluation_rows=len(evaluation),
             payload_values=self.payload_values,
             result=result,
+            timing_seconds={
+                "cohort_load": cohort_load_seconds,
+                "calibration": stage_timings["calibration"],
+                "evaluation": stage_timings["evaluation"],
+                "total": perf_counter() - started_at,
+            },
         )
 
-    def _run_static(self, calibration: list[_Row], evaluation: list[_Row]) -> ExperimentResult:
+    def _run_static(self, calibration: list[_Row], evaluation: list[_Row]) -> tuple[ExperimentResult, dict[str, float]]:
         method = self.config.method.value
         sender, receiver = self._static_adapters()
         config = self.config.opensemcom_config or OpenSemComConfig(seed=self.config.seed, channel=self.config.channel)
+        calibration_started_at = perf_counter()
         calibration_features = [self._load_feature(row.feature_paths[method]) for row in calibration]
         # Calibration is labelled data, so open labels may be used here. This
         # is deliberately separate from evaluation-time metadata gating.
@@ -173,6 +184,8 @@ class ComparisonOrchestrator:
         receiver.calibrate(received_calibration, labels, calibration_open)
 
         risk = OpenSemanticRisk(config.risk_weights, ResourceCostModel(config.resource_weights))
+        calibration_seconds = perf_counter() - calibration_started_at
+        evaluation_started_at = perf_counter()
         metrics = MetricsAccumulator()
         traces = []
         for index, row in enumerate(evaluation):
@@ -224,20 +237,30 @@ class ComparisonOrchestrator:
                     "is_unknown": row.is_unknown,
                 }
             )
-        return ExperimentResult(metrics=metrics.summarize(), decisions=dict(metrics.decision_counts), traces=traces)
+        return ExperimentResult(metrics=metrics.summarize(), decisions=dict(metrics.decision_counts), traces=traces), {
+            "calibration": calibration_seconds,
+            "evaluation": perf_counter() - evaluation_started_at,
+        }
 
-    def _run_opensemcom(self, calibration: list[_Row], evaluation: list[_Row]) -> ExperimentResult:
+    def _run_opensemcom(self, calibration: list[_Row], evaluation: list[_Row]) -> tuple[ExperimentResult, dict[str, float]]:
         base = self.config.opensemcom_config or OpenSemComConfig(seed=self.config.seed, channel=self.config.channel)
         channel_config = self._channel_config_with_seed()
         system_config = replace(base, seed=self.config.seed, channel=channel_config)
         channel = build_channel(channel_config, np.random.default_rng(self.config.seed + 100))
+        calibration_started_at = perf_counter()
         system = OpenSemComSystem(system_config)
         manifest_name = ComparisonMethod.OPENSEMCOM.value
         calibration_samples = [row.sample(row.feature_paths[manifest_name], system_config.model.input_dim) for row in calibration]
         evaluation_samples = [row.sample(row.feature_paths[manifest_name], system_config.model.input_dim) for row in evaluation]
         system.calibrate(calibration_samples, channel)
-        return system.run(evaluation_samples, channel)
+        calibration_seconds = perf_counter() - calibration_started_at
+        evaluation_started_at = perf_counter()
+        result = system.run(evaluation_samples, channel)
+        return result, {
+            "calibration": calibration_seconds,
+            "evaluation": perf_counter() - evaluation_started_at,
 
+        }
     def _static_adapters(self):
         if self.config.method == ComparisonMethod.DINO:
             return DinoSender(self.payload_values, self.config.seed), DinoReceiver(self.config.accept_quantile)

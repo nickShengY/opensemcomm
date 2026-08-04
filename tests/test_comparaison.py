@@ -81,6 +81,8 @@ def test_static_baseline_enforces_one_ldpc_block_payload(tmp_path):
     assert {trace["payload_values"] for trace in run.result.traces} == {32}
     assert {trace["payload_information_bits"] for trace in run.result.traces} == {256}
     assert {trace["payload_ldpc_blocks"] for trace in run.result.traces} == {1}
+    assert set(run.timing_seconds) == {"cohort_load", "calibration", "evaluation", "total"}
+    assert all(value >= 0.0 for value in run.timing_seconds.values())
 
 
 @pytest.mark.parametrize(

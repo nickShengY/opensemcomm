@@ -36,6 +36,12 @@ EXPECTED_CALIBRATION_KNOWN="${OPENSEMCOM_MIXED_EXPECTED_CALIBRATION_KNOWN:-384}"
 EXPECTED_CALIBRATION_OPEN="${OPENSEMCOM_MIXED_EXPECTED_CALIBRATION_OPEN:-256}"
 REGIME_LIST="${OPENSEMCOM_MIXED_REGIMES:-closed-id channel-open source-open class-open task-open resource-open full-open}"
 read -r -a REGIMES <<< "$REGIME_LIST"
+PROFILE_TIMING="${OPENSEMCOM_MIXED_PROFILE_TIMING:-0}"
+PROFILE_ARGS=()
+if [[ "$PROFILE_TIMING" == "1" ]]; then
+  PROFILE_ARGS+=(--profile-timing)
+fi
+
 
 
 mkdir -p "$OUTPUT_ROOT"
@@ -69,5 +75,6 @@ for REGIME in "${REGIMES[@]}"; do
     --payload-blocks "$PAYLOAD_BLOCKS" \
     --expected-calibration-known "$EXPECTED_CALIBRATION_KNOWN" \
     --expected-calibration-open "$EXPECTED_CALIBRATION_OPEN" \
+    "${PROFILE_ARGS[@]}" \
     --write-traces
 done
