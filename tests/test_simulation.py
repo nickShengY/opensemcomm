@@ -395,7 +395,7 @@ def test_stage_specific_decoder_uses_the_matching_payload_head():
     assert decoder.prototype_distance(full[0][0], ("core",)) > 0.0
 
 
-def test_stage_specific_calibration_fits_all_progressive_payload_heads(tmp_path):
+def test_stage_specific_calibration_fits_all_progressive_payload_heads(tmp_path, monkeypatch):
     manifest = write_manifest(tmp_path)
     config = OpenSemComConfig(
         model=ModelConfig(
@@ -411,8 +411,17 @@ def test_stage_specific_calibration_fits_all_progressive_payload_heads(tmp_path)
     )
     system = OpenSemComSystem(config)
     bench = OpenSemComBench(config, BenchmarkRegime.CLOSED_ID, manifest)
+    captured = {}
+    original_fit_calibration = system.detector.fit_calibration
+
+    def capture_detector_latents(latents):
+        captured["detector_latents"] = list(latents)
+        return original_fit_calibration(latents)
+
+    monkeypatch.setattr(system.detector, "fit_calibration", capture_detector_latents)
     system.calibrate(bench.calibration_samples(2), WirelessChannel(config.channel, np.random.default_rng(17)))
 
+    assert len(captured["detector_latents"]) == 2
     assert set(system.decoder.stage_heads) == {
         ("core",),
         ("core", "refinement"),

@@ -67,6 +67,10 @@ class OpenSemComSystem:
         threshold_indices = self._threshold_calibration_indices(samples)
         augmentations = max(1, int(self.config.model.channel_augmentations))
         decoder_layers = self._decoder_calibration_layer_sets()
+        # Keep detector fitting identical to the shared-head baseline. The
+        # stage-head ablation changes classification heads only, not the risk
+        # feature distribution used to calibrate thresholds.
+        detector_layers = self._calibration_layer_sets()
         for idx, sample in enumerate(samples):
             if idx in threshold_indices:
                 continue
@@ -80,7 +84,8 @@ class OpenSemComSystem:
                     observation = self._calibration_transmit(channel, symbols)
                     _, probs, latent = self.decoder.decode(observation.received, layer_names)
                     item = (latent, sample.y, open_exposure)
-                    detector_latents.append(item)
+                    if layer_names in detector_layers:
+                        detector_latents.append(item)
                     if not open_exposure:
                         known_latents.append(item)
                         known_latents_by_stage.setdefault(layer_names, []).append(item)
@@ -96,7 +101,7 @@ class OpenSemComSystem:
                 continue
             layers = self.parser.parse(sample)
             open_exposure = self._is_open_exposure(sample)
-            for layer_names in decoder_layers:
+            for layer_names in detector_layers:
                 symbols = self.encoder.encode(layers, layer_names)
                 for _ in range(selective_repeats):
                     observation = self._calibration_transmit(channel, symbols)
