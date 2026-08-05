@@ -35,11 +35,10 @@ class SafeAdapter:
         self.candidates += 1
         if len(buffer) < self.config.min_buffer:
             return AdaptationResult(False, 1.0, 1.0, 1.0, 0.0)
-        full_layers = ("core", "refinement", "evidence")
-        previous_risk = self.decoder.risk(buffer, full_layers)
+        previous_risk = self.decoder.risk(buffer)
         bias_delta = self._candidate_bias(buffer)
         candidate = self.decoder.candidate_with_bias(bias_delta)
-        candidate_risk = candidate.risk(buffer, full_layers)
+        candidate_risk = candidate.risk(buffer)
         epsilon = sqrt(log(4.0 * max(self.config.horizon, 1) / self.config.alpha) / (2.0 * len(buffer)))
         passes = candidate_risk + epsilon <= previous_risk - epsilon - self.config.kappa
         harm = max(0.0, candidate_risk - previous_risk)
@@ -52,12 +51,10 @@ class SafeAdapter:
 
     def _candidate_bias(self, buffer: list[tuple[Array, int]]) -> Array:
         errors = []
-        full_layers = ("core", "refinement", "evidence")
         for received, y in buffer:
-            y_hat, probabilities, latent = self.decoder.decode(received, full_layers)
+            y_hat, probabilities, latent = self.decoder.decode(received)
             if y_hat != y and float(np.max(probabilities)) >= self.config.pseudo_label_threshold:
-                book = self.decoder.prototype_book_for(full_layers)
-                target = book.centroids[y % len(book.centroids)]
+                target = self.decoder.prototype_book.centroids[y % len(self.decoder.prototype_book.centroids)]
                 errors.append(target - latent)
         if not errors:
             return np.zeros_like(self.decoder.adapter_bias)

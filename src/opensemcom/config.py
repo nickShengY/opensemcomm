@@ -86,8 +86,6 @@ class ModelConfig:
     num_unknown_classes: int = 2
     projection: str = "random"
     classifier: str = "prototype"
-    # Enable distinct classifier heads for core, refinement, and full payloads.
-    stage_specific_heads: bool = False
     channel_augmentations: int = 1
     torch_epochs: int = 80
     torch_hidden_dim: int = 256

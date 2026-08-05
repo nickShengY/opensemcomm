@@ -72,7 +72,7 @@ class LayeredSemanticEncoder:
 
 
 class PrototypeSemanticDecoder:
-    """Receiver decoder with an optional classifier head per payload stage."""
+    """Simple prototype receiver head that can be replaced by a neural decoder."""
 
     def __init__(self, config: ModelConfig, rng: np.random.Generator):
         self.config = config
@@ -81,38 +81,28 @@ class PrototypeSemanticDecoder:
         self.adapter_bias = np.zeros(config.latent_dim, dtype=np.float64)
         self.classifier = None
         self.class_ids = np.arange(config.num_known_classes)
-        self.stage_heads: dict[tuple[str, ...], tuple[PrototypeBook, object | None, Array]] = {}
 
-    def decode(self, received: Array, layers: tuple[str, ...] | None = None) -> tuple[int, Array, Array]:
-        """Decode using the matching payload-stage head when enabled."""
+    def decode(self, received: Array) -> tuple[int, Array, Array]:
         z = self._expand_to_latent(received) + self.adapter_bias
-        prototype_book, classifier, class_ids = self._head_state(layers)
-        if classifier is not None:
-            raw = classifier.predict_proba(z.reshape(1, -1))[0]
+        if self.classifier is not None:
+            raw = self.classifier.predict_proba(z.reshape(1, -1))[0]
             probabilities = np.zeros(self.config.num_known_classes, dtype=np.float64)
-            for idx, class_id in enumerate(class_ids):
+            for idx, class_id in enumerate(self.class_ids):
                 if 0 <= int(class_id) < probabilities.size:
                     probabilities[int(class_id)] = raw[idx]
             probabilities = probabilities / max(float(np.sum(probabilities)), 1e-12)
         else:
-            logits = -np.linalg.norm(prototype_book.centroids - z.reshape(1, -1), axis=1)
+            logits = -np.linalg.norm(self.prototype_book.centroids - z.reshape(1, -1), axis=1)
             probabilities = softmax(logits)
         y_hat = int(np.argmax(probabilities))
         return y_hat, probabilities, z
 
-    def prototype_distance(self, latent: Array, layers: tuple[str, ...] | None = None) -> float:
-        _, distance = self.prototype_book_for(layers).nearest(latent)
-        return distance
-
-    def prototype_book_for(self, layers: tuple[str, ...] | None = None) -> PrototypeBook:
-        return self._head_state(layers)[0]
-
-    def risk(self, samples: list[tuple[Array, int]], layers: tuple[str, ...] | None = None) -> float:
+    def risk(self, samples: list[tuple[Array, int]]) -> float:
         if not samples:
             return 1.0
         errors = 0
         for received, y in samples:
-            y_hat, _, _ = self.decode(received, layers)
+            y_hat, _, _ = self.decode(received)
             errors += int(y_hat != y)
         return errors / len(samples)
 
@@ -122,15 +112,7 @@ class PrototypeSemanticDecoder:
         clone.adapter_bias = self.adapter_bias + bias_delta
         clone.classifier = self.classifier
         clone.class_ids = self.class_ids
-        clone.stage_heads = self.stage_heads.copy()
         return clone
-
-    def _head_state(self, layers: tuple[str, ...] | None) -> tuple[PrototypeBook, object | None, Array]:
-        if self.config.stage_specific_heads and layers is not None:
-            head = self.stage_heads.get(tuple(layers))
-            if head is not None:
-                return head
-        return self.prototype_book, self.classifier, self.class_ids
 
     def apply_bias(self, bias_delta: Array) -> None:
         self.adapter_bias = self.adapter_bias + bias_delta
@@ -165,20 +147,6 @@ class PrototypeSemanticDecoder:
             self._fit_logistic_head(latents)
         elif self.config.classifier == "torch_mlp":
             self._fit_torch_mlp_head(latents)
-
-    def fit_stage_heads(self, latents_by_stage: dict[tuple[str, ...], list[tuple[Array, int] | tuple[Array, int, bool]]]) -> None:
-        """Fit one independent receiver head from each stage's calibration payloads."""
-        if not latents_by_stage:
-            raise ValueError("Cannot fit stage-specific receiver heads without calibration samples.")
-        stage_heads = {}
-        for layers, latents in latents_by_stage.items():
-            self.fit_prototypes(latents)
-            stage_heads[tuple(layers)] = (self.prototype_book, self.classifier, self.class_ids)
-        self.stage_heads = stage_heads
-        # Retain a sensible legacy/default head for code without an action.
-        self.prototype_book, self.classifier, self.class_ids = (
-            self.stage_heads.get(("core",)) or next(iter(self.stage_heads.values()))
-        )
 
     def _fit_logistic_head(self, latents: list[tuple[Array, int] | tuple[Array, int, bool]]) -> None:
         x_values = []
