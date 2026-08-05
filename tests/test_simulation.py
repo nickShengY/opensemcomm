@@ -8,6 +8,7 @@ import pytest
 from opensemcom.benchmark import BenchmarkRegime, OpenSemComBench
 from opensemcom.config import CalibrationConfig, ChannelConfig, ModelConfig, OpenSemComConfig, ResourceWeights
 from opensemcom.channels import ChannelObservation, WirelessChannel
+from opensemcom.semantic import PrototypeSemanticDecoder
 from opensemcom.simulation import OpenSemComSystem, run_experiment
 from opensemcom.types import ChannelBackend, ChannelKind, ResourceAction, SemanticSample
 
@@ -360,3 +361,61 @@ def test_mixed_open_calibration_keeps_text_out_of_known_decoder_fit(monkeypatch)
     assert all(not is_open for _, _, is_open in captured["prototype_latents"])
     assert len(captured["detector_latents"]) == 24
     assert sum(is_open for _, _, is_open in captured["detector_latents"]) == 6
+
+
+def test_stage_specific_decoder_uses_the_matching_payload_head():
+    config = ModelConfig(
+        input_dim=4,
+        latent_dim=4,
+        projection="identity",
+        num_known_classes=2,
+        classifier="prototype",
+        stage_specific_heads=True,
+    )
+    decoder = PrototypeSemanticDecoder(config, np.random.default_rng(13))
+    core = [
+        (np.asarray([1.0, 0.0, 0.0, 0.0]), 0),
+        (np.asarray([0.0, 1.0, 0.0, 0.0]), 1),
+    ]
+    full = [
+        (np.asarray([0.0, 0.0, 1.0, 0.0]), 0),
+        (np.asarray([0.0, 0.0, 0.0, 1.0]), 1),
+    ]
+    decoder.fit_stage_heads(
+        {
+            ("core",): core,
+            ("core", "refinement", "evidence"): full,
+        }
+    )
+
+    full_layers = ("core", "refinement", "evidence")
+    assert set(decoder.stage_heads) == {("core",), full_layers}
+    assert decoder.prototype_book_for(("core",)) is not decoder.prototype_book_for(full_layers)
+    assert decoder.prototype_distance(full[0][0], full_layers) == pytest.approx(0.0)
+    assert decoder.prototype_distance(full[0][0], ("core",)) > 0.0
+
+
+def test_stage_specific_calibration_fits_all_progressive_payload_heads(tmp_path):
+    manifest = write_manifest(tmp_path)
+    config = OpenSemComConfig(
+        model=ModelConfig(
+            input_dim=32,
+            latent_dim=32,
+            projection="identity",
+            num_known_classes=2,
+            classifier="logistic",
+            stage_specific_heads=True,
+        ),
+        calibration=CalibrationConfig(stage_aware=True),
+        channel=ChannelConfig(snr_db=100.0),
+    )
+    system = OpenSemComSystem(config)
+    bench = OpenSemComBench(config, BenchmarkRegime.CLOSED_ID, manifest)
+    system.calibrate(bench.calibration_samples(2), WirelessChannel(config.channel, np.random.default_rng(17)))
+
+    assert set(system.decoder.stage_heads) == {
+        ("core",),
+        ("core", "refinement"),
+        ("core", "refinement", "evidence"),
+    }
+    assert all(head[1] is not None for head in system.decoder.stage_heads.values())

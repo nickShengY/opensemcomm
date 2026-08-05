@@ -62,9 +62,11 @@ class OpenSemComSystem:
     def calibrate(self, samples: Iterable[SemanticSample], channel: WirelessChannel) -> None:
         samples = list(samples)
         known_latents = []
+        known_latents_by_stage: dict[tuple[str, ...], list[tuple[np.ndarray, int, bool]]] = {}
         detector_latents = []
         threshold_indices = self._threshold_calibration_indices(samples)
         augmentations = max(1, int(self.config.model.channel_augmentations))
+        decoder_layers = self._decoder_calibration_layer_sets()
         for idx, sample in enumerate(samples):
             if idx in threshold_indices:
                 continue
@@ -72,16 +74,20 @@ class OpenSemComSystem:
             # Open calibration examples teach the detector/reject policy, but
             # never the known-class decoder.
             open_exposure = self.config.calibration.mixed_open and self._is_open_exposure(sample)
-            for layer_names in self._calibration_layer_sets():
+            for layer_names in decoder_layers:
                 symbols = self.encoder.encode(layers, layer_names)
                 for _ in range(augmentations):
                     observation = self._calibration_transmit(channel, symbols)
-                    _, probs, latent = self.decoder.decode(observation.received)
+                    _, probs, latent = self.decoder.decode(observation.received, layer_names)
                     item = (latent, sample.y, open_exposure)
                     detector_latents.append(item)
                     if not open_exposure:
                         known_latents.append(item)
-        self.decoder.fit_prototypes(known_latents)
+                        known_latents_by_stage.setdefault(layer_names, []).append(item)
+        if self.config.model.stage_specific_heads:
+            self.decoder.fit_stage_heads(known_latents_by_stage)
+        else:
+            self.decoder.fit_prototypes(known_latents)
         self.detector.fit_calibration(detector_latents)
         selective_items = []
         selective_repeats = max(1, min(4, augmentations))
@@ -90,12 +96,12 @@ class OpenSemComSystem:
                 continue
             layers = self.parser.parse(sample)
             open_exposure = self._is_open_exposure(sample)
-            for layer_names in self._calibration_layer_sets():
+            for layer_names in decoder_layers:
                 symbols = self.encoder.encode(layers, layer_names)
                 for _ in range(selective_repeats):
                     observation = self._calibration_transmit(channel, symbols)
-                    y_hat, probs, latent = self.decoder.decode(observation.received)
-                    _, prototype_distance = self.decoder.prototype_book.nearest(latent)
+                    y_hat, probs, latent = self.decoder.decode(observation.received, layer_names)
+                    prototype_distance = self.decoder.prototype_distance(latent, layer_names)
                     _, features = self.detector.score(
                         probabilities=probs,
                         latent=latent,
@@ -172,8 +178,8 @@ class OpenSemComSystem:
                 value = observation.state.get(key)
                 if isinstance(value, (int, float)):
                     calibration_phy_values[key].append(float(value))
-            y_hat, probs, latent = self.decoder.decode(observation.received)
-            _, prototype_distance = self.decoder.prototype_book.nearest(latent)
+            y_hat, probs, latent = self.decoder.decode(observation.received, layer_names)
+            prototype_distance = self.decoder.prototype_distance(latent, layer_names)
             risk_score, _ = self.detector.score(
                 probabilities=probs,
                 latent=latent,
@@ -253,6 +259,12 @@ class OpenSemComSystem:
                 ("core", "refinement", "evidence"),
             )
         return (("core", "refinement", "evidence"),)
+
+    def _decoder_calibration_layer_sets(self) -> tuple[tuple[str, ...], ...]:
+        """Payload stages used for head fitting, distinct from policy fitting."""
+        if self.config.model.stage_specific_heads:
+            return self._policy_calibration_layer_sets()
+        return self._calibration_layer_sets()
 
     def run(self, samples: list[SemanticSample], channel: WirelessChannel) -> ExperimentResult:
         metrics = MetricsAccumulator()
