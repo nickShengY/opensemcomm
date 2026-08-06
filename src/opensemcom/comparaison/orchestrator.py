@@ -27,6 +27,8 @@ from opensemcom.comparaison.dino_receiver import DinoReceiver
 from opensemcom.comparaison.dino_sender import DinoSender
 from opensemcom.comparaison.openclip_receiver import OpenclipReceiver
 from opensemcom.comparaison.openclip_sender import OpenclipSender
+from opensemcom.comparaison.imagebind_receiver import ImageBindReceiver
+from opensemcom.comparaison.imagebind_sender import ImageBindSender
 from opensemcom.comparaison.siglip_receiver import SiglipReceiver
 from opensemcom.comparaison.siglip_sender import SiglipSender
 
@@ -36,6 +38,7 @@ class ComparisonMethod(str, Enum):
     DINO = "dino"
     SIGLIP = "siglip"
     OPENCLIP = "openclip"
+    IMAGEBIND = "imagebind"
 
 
 @dataclass(frozen=True)
@@ -116,7 +119,9 @@ class ComparisonOrchestrator:
         self._validate_payload_budget()
 
     def _cohort_methods(self) -> tuple[ComparisonMethod, ...]:
-        return self.config.cohort_methods or tuple(ComparisonMethod)
+        if self.config.cohort_methods is not None:
+            return self.config.cohort_methods
+        return tuple(method for method in ComparisonMethod if method.value in self.config.manifests)
 
     def _validate_cohort_methods(self) -> None:
         cohort_methods = self._cohort_methods()
@@ -268,6 +273,8 @@ class ComparisonOrchestrator:
             return SiglipSender(self.payload_values, self.config.seed), SiglipReceiver(self.config.accept_quantile)
         if self.config.method == ComparisonMethod.OPENCLIP:
             return OpenclipSender(self.payload_values, self.config.seed), OpenclipReceiver(self.config.accept_quantile)
+        if self.config.method == ComparisonMethod.IMAGEBIND:
+            return ImageBindSender(self.payload_values, self.config.seed), ImageBindReceiver(self.config.accept_quantile)
         raise ValueError(f"{self.config.method.value} is not a static baseline.")
 
     def _load_common_rows(self) -> list[_Row]:

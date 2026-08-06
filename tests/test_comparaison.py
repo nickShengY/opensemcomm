@@ -12,7 +12,7 @@ from opensemcom.types import ChannelBackend, ChannelKind, SemanticSample
 
 def _write_manifests(tmp_path: Path) -> tuple[Path, dict[str, Path]]:
     raw_path = tmp_path / "raw.csv"
-    feature_paths = {name: tmp_path / f"{name}.csv" for name in ("opensemcom", "dino", "siglip", "openclip")}
+    feature_paths = {name: tmp_path / f"{name}.csv" for name in ("opensemcom", "dino", "siglip", "openclip", "imagebind")}
     columns = ["source_path", "label", "task", "domain", "is_unknown", "split", "regime", "artifact_index", "raw_source_path", "raw_artifact_index"]
     raw_rows = []
     feature_rows = {name: [] for name in feature_paths}
@@ -87,7 +87,7 @@ def test_static_baseline_enforces_one_ldpc_block_payload(tmp_path):
 
 @pytest.mark.parametrize(
     "method",
-    [ComparisonMethod.DINO, ComparisonMethod.SIGLIP, ComparisonMethod.OPENCLIP],
+    [ComparisonMethod.DINO, ComparisonMethod.SIGLIP, ComparisonMethod.OPENCLIP, ComparisonMethod.IMAGEBIND],
 )
 def test_orchestrator_selects_one_static_adapter(tmp_path, method):
     run = ComparisonOrchestrator(_config(tmp_path, method)).run()

@@ -26,6 +26,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--output-manifest", required=True)
     parser.add_argument("--feature-root", required=True)
     parser.add_argument("--model-id", default="openai/clip-vit-base-patch32")
+    parser.add_argument("--extractor", choices=("transformers", "imagebind"), default="transformers")
+    parser.add_argument("--imagebind-cache-dir", help="Directory for the ImageBind checkpoint.")
+    parser.add_argument("--imagebind-source-revision", help="Pinned ImageBind source revision for manifest provenance.")
     parser.add_argument("--feature-slug")
     parser.add_argument("--batch-size", type=int, default=64)
     parser.add_argument("--device", default="auto")
@@ -41,7 +44,7 @@ def main() -> None:
         rows = rows[: args.max_rows]
 
     print(f"initializing model={args.model_id} device={args.device}", flush=True)
-    extractor = PretrainedExtractor(args.model_id, args.device)
+    extractor = _build_extractor(args)
     print(f"initialized model={args.model_id} resolved_device={extractor.device}", flush=True)
     feature_slug = args.feature_slug or _slug(args.model_id)
     feature_root = Path(args.feature_root).expanduser().resolve() / feature_slug
@@ -85,6 +88,9 @@ def main() -> None:
         writer.writerows(output_rows)
     summary = {
         "model_id": args.model_id,
+        "extractor": args.extractor,
+        "imagebind_cache_dir": str(Path(args.imagebind_cache_dir).expanduser().resolve()) if args.extractor == "imagebind" and args.imagebind_cache_dir else None,
+        "imagebind_source_revision": args.imagebind_source_revision if args.extractor == "imagebind" else None,
         "feature_slug": feature_slug,
         "output_manifest": str(output_path),
         "feature_root": str(feature_root),
@@ -175,6 +181,79 @@ class PretrainedExtractor:
         norms = np.linalg.norm(values, axis=1, keepdims=True)
         return values / np.maximum(norms, 1e-9)
 
+
+class ImageBindExtractor:
+    """Optional ImageBind image/text extractor with an explicit checkpoint cache."""
+
+    def __init__(self, model_id: str, device: str, checkpoint_dir: str | None):
+        import torch
+        from imagebind import data
+        from imagebind.models import imagebind_model
+        from imagebind.models.imagebind_model import ModalityType
+
+        if model_id != "facebookresearch/imagebind-huge":
+            raise ValueError("ImageBind currently supports only 'facebookresearch/imagebind-huge'.")
+        self.torch = torch
+        if device == "auto":
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.device = torch.device(device)
+        self.data = data
+        self.ModalityType = ModalityType
+        cache = Path(checkpoint_dir or os.environ.get("OPENSEMCOM_IMAGEBIND_CACHE", ".imagebind")).expanduser().resolve()
+        cache.mkdir(parents=True, exist_ok=True)
+        original_cwd = Path.cwd()
+        try:
+            os.chdir(cache)
+            self.model = imagebind_model.imagebind_huge(pretrained=True)
+        finally:
+            os.chdir(original_cwd)
+        self.model.to(self.device)
+        self.model.eval()
+
+    def supports(self, modality: str) -> bool:
+        return modality in {"image", "text"}
+
+    def extract_batch(self, pending: list[tuple[dict[str, str], tuple[str, Any], Path]], model_id: str) -> list[dict[str, str]]:
+        out_rows: list[dict[str, str]] = []
+        by_modality: dict[str, list[tuple[dict[str, str], Any, Path]]] = {"image": [], "text": []}
+        for row, (modality, payload), out_path in pending:
+            by_modality[modality].append((row, payload, out_path))
+        for modality, items in by_modality.items():
+            if not items:
+                continue
+            features = self._extract_modality(modality, [payload for _, payload, _ in items])
+            for feature, (row, _payload, out_path) in zip(features, items):
+                out_path.parent.mkdir(parents=True, exist_ok=True)
+                np.save(out_path, feature.astype(np.float32))
+                out_rows.append(_feature_row(row, out_path, model_id))
+        return out_rows
+
+    def _extract_modality(self, modality: str, payloads: list[Any]) -> np.ndarray:
+        if modality == "image":
+            from torchvision import transforms
+
+            transform = transforms.Compose([
+                transforms.Resize(224, interpolation=transforms.InterpolationMode.BICUBIC),
+                transforms.CenterCrop(224), transforms.ToTensor(),
+                transforms.Normalize(mean=(0.48145466, 0.4578275, 0.40821073), std=(0.26862954, 0.26130258, 0.27577711)),
+            ])
+            inputs = {self.ModalityType.VISION: self.torch.stack([transform(image) for image in payloads]).to(self.device)}
+            key = self.ModalityType.VISION
+        elif modality == "text":
+            inputs = {self.ModalityType.TEXT: self.data.load_and_transform_text(payloads, self.device)}
+            key = self.ModalityType.TEXT
+        else:
+            raise ValueError(f"unsupported modality: {modality}")
+        with self.torch.inference_mode():
+            values = self.model(inputs)[key].detach().float().cpu().numpy()
+        norms = np.linalg.norm(values, axis=1, keepdims=True)
+        return values / np.maximum(norms, 1e-9)
+
+
+def _build_extractor(args: argparse.Namespace) -> PretrainedExtractor | ImageBindExtractor:
+    if args.extractor == "imagebind":
+        return ImageBindExtractor(args.model_id, args.device, args.imagebind_cache_dir)
+    return PretrainedExtractor(args.model_id, args.device)
 
 def _read_rows(path: str | Path) -> list[dict[str, str]]:
     with Path(path).expanduser().open("r", encoding="utf-8-sig", newline="") as handle:

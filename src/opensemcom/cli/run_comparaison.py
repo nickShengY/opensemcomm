@@ -23,6 +23,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--dino-manifest")
     parser.add_argument("--siglip-manifest")
     parser.add_argument("--openclip-manifest")
+    parser.add_argument("--imagebind-manifest")
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--methods", default="all", help="Comma-separated methods or 'all'.")
     parser.add_argument("--seed", type=int, default=0)
@@ -44,6 +45,7 @@ def main() -> None:
         ComparisonMethod.DINO: args.dino_manifest,
         ComparisonMethod.SIGLIP: args.siglip_manifest,
         ComparisonMethod.OPENCLIP: args.openclip_manifest,
+        ComparisonMethod.IMAGEBIND: args.imagebind_manifest,
     }
     missing = [method.value for method in methods if not manifest_args[method]]
     if missing:
