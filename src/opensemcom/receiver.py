@@ -69,8 +69,8 @@ class SelectiveSemanticReceiver:
         reconstruction_error: float = 0.0,
         adaptation_risk: float = 0.0,
     ) -> ReceiverOutput:
-        y_hat, probabilities, latent = self.decoder.decode(received)
-        _, prototype_distance = self.decoder.prototype_book.nearest(latent)
+        y_hat, probabilities, latent = self.decoder.decode(received, action.layers)
+        prototype_distance = self.decoder.prototype_distance(latent, action.layers)
         if self.use_detector:
             risk_score, features = self.detector.score(
                 probabilities=probabilities,
