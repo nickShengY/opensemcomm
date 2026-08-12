@@ -11,8 +11,7 @@
 #SBATCH --error=logs/%x-%j.err
 
 # Post-hoc score diagnostics only: all configs retain their existing calibration
-# and controller settings. Resource-open is excluded because its mechanism is
-# under separate design review.
+# and controller settings.
 set -euo pipefail
 
 PROJECT_ROOT="${SLURM_SUBMIT_DIR:?Submit this script from the repository root}"
@@ -27,7 +26,7 @@ SAMPLES="${OPENSEMCOM_DIAGNOSTIC_SAMPLES:-20000}"
 CALIBRATION_SAMPLES="${OPENSEMCOM_DIAGNOSTIC_CALIBRATION_SAMPLES:-640}"
 USERS="${OPENSEMCOM_DIAGNOSTIC_USERS:-4}"
 SEED="${OPENSEMCOM_DIAGNOSTIC_SEED:-0}"
-REGIMES=(closed-id channel-open source-open class-open task-open full-open)
+REGIMES=(closed-id channel-open source-open class-open task-open resource-open full-open)
 
 python -m opensemcom.cli.validate_manifest "$MANIFEST"
 
