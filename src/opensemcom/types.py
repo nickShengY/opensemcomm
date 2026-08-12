@@ -119,6 +119,9 @@ class ReceiverOutput:
     decision: Decision
     features: dict[str, float]
     action: ResourceAction
+    # Populated only by the HARQ wrapper after decisions have been made.  It is
+    # diagnostic metadata, not an input to the receiver or controller.
+    refinement_transitions: tuple[dict[str, Any], ...] = ()
 
 
 @dataclass(frozen=True)

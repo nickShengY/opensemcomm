@@ -59,6 +59,16 @@ class SelectiveSemanticReceiver:
             tuple(action.layers),
             StageDecisionPolicy(self.calibrator, self.q_accept, self.q_refine),
         )
+
+    def thresholds_for_action(self, action: ResourceAction) -> tuple[float, float]:
+        """Return the already-fitted acceptance and refinement thresholds.
+
+        This accessor is deliberately read-only.  Refinement diagnostics use it
+        to place stage-specific scores on their corresponding decision scale.
+        """
+        policy = self._policy_for_action(action)
+        return float(policy.q_accept), float(policy.q_refine)
+
     def receive(
         self,
         received: Array,

@@ -298,9 +298,11 @@ class OpenSemComSystem:
             total_risk = self.open_risk.total(breakdown)
             open_exposure = self._is_open_exposure(sample)
             metrics.add(sample, output, breakdown, total_risk, ood_label=open_exposure)
+            terminal_outcome = self._terminal_outcome(sample, output, open_exposure)
             traces.append(
                 {
                     "index": idx,
+                    "sample_key": self._sample_key(sample, idx),
                     "y": sample.y,
                     "y_hat": output.y_hat,
                     "task": sample.task,
@@ -319,6 +321,15 @@ class OpenSemComSystem:
                     "harq_refinement_rounds": int(output.features.get("harq_refinement_rounds", 0.0)),
                     "harq_transmissions": int(output.features.get("harq_transmissions", 1.0)),
                     "harq_hit_max_refinements": bool(int(output.features.get("harq_hit_max_refinements", 0.0))),
+                    "refinement_transitions": [
+                        {
+                            **transition,
+                            "final_terminal_action": output.decision.value,
+                            "final_semantic_stage": "+".join(output.action.layers),
+                            "terminal_outcome": terminal_outcome,
+                        }
+                        for transition in output.refinement_transitions
+                    ],
                 }
             )
 
@@ -327,6 +338,25 @@ class OpenSemComSystem:
             certified_accept_rate=self.adapter.certified_accept_rate,
         )
         return ExperimentResult(metrics=summary, decisions=dict(metrics.decision_counts), traces=traces)
+
+    @staticmethod
+    def _sample_key(sample: SemanticSample, index: int) -> str:
+        context = sample.context
+        for key in ("comparison_key", "artifact_key", "source_path"):
+            value = context.get(key)
+            if value:
+                if isinstance(value, (tuple, list)):
+                    return "|".join(str(part) for part in value)
+                return str(value)
+        return f"evaluation-index-{index}"
+
+    @staticmethod
+    def _terminal_outcome(sample: SemanticSample, output, open_exposure: bool) -> str:
+        if output.decision != Decision.ACCEPT:
+            return "rejected/open"
+        if not open_exposure and output.y_hat == sample.y:
+            return "correct-supported accepted"
+        return "unsafe accepted"
 
     def _calibration_transmit(self, channel: WirelessChannel, symbols: np.ndarray):
         repetitions = 3 if channel.config.kind == ChannelKind.INTERFERENCE else 1

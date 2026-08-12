@@ -46,7 +46,10 @@ class SemanticHARQ:
         refinement_rounds = 0
         full_payload_rounds = int(current_action.layers == self.FULL_LAYERS)
 
+        transitions: list[dict[str, object]] = []
         while output.decision == Decision.REFINE and refinement_rounds < refinement_budget:
+            previous_output = output
+            previous_action = current_action
             current_action = self._next_action(current_action)
             observation = self._transmit_repeated(
                 self.encoder.encode(layers, current_action.layers),
@@ -55,6 +58,7 @@ class SemanticHARQ:
             )
             output = self.receiver.receive(observation.received, current_action, observation.state, task, domain)
             refinement_rounds += 1
+            transitions.append(self._transition_record(previous_output, previous_action, output, current_action, refinement_rounds))
             if current_action.layers == self.FULL_LAYERS:
                 full_payload_rounds += 1
 
@@ -68,7 +72,68 @@ class SemanticHARQ:
             refinement_budget,
             full_payload_rounds,
             hit_max_refinements,
+            transitions,
         )
+
+    def _transition_record(
+        self,
+        current_output: ReceiverOutput,
+        current_action: ResourceAction,
+        next_output: ReceiverOutput,
+        next_action: ResourceAction,
+        refinement_round: int,
+    ) -> dict[str, object]:
+        current_accept, current_refine = self._thresholds_for_action(current_action)
+        next_accept, next_refine = self._thresholds_for_action(next_action)
+        current_margin = float(current_output.risk_score) - current_accept
+        next_margin = float(next_output.risk_score) - next_accept
+        return {
+            "refinement_round": refinement_round,
+            "current_stage_index": self._stage_index(current_action),
+            "next_stage_index": self._stage_index(next_action),
+            "current_stage": self._stage_name(current_action),
+            "next_stage": self._stage_name(next_action),
+            "transition_type": self._transition_type(current_action, next_action),
+            "current_risk_score": float(current_output.risk_score),
+            "next_risk_score": float(next_output.risk_score),
+            "current_q_accept": current_accept,
+            "next_q_accept": next_accept,
+            "current_q_refine": current_refine,
+            "next_q_refine": next_refine,
+            "raw_score_change": float(current_output.risk_score) - float(next_output.risk_score),
+            "current_acceptance_margin": current_margin,
+            "next_acceptance_margin": next_margin,
+            "margin_change": current_margin - next_margin,
+            "current_action": current_output.decision.value,
+            "next_action": next_output.decision.value,
+        }
+
+    def _thresholds_for_action(self, action: ResourceAction) -> tuple[float, float]:
+        accessor = getattr(self.receiver, "thresholds_for_action", None)
+        if accessor is None:
+            return float("nan"), float("nan")
+        q_accept, q_refine = accessor(action)
+        return float(q_accept), float(q_refine)
+
+    @staticmethod
+    def _stage_name(action: ResourceAction) -> str:
+        return "+".join(action.layers)
+
+    @staticmethod
+    def _stage_index(action: ResourceAction) -> int:
+        return {("core",): 0, ("core", "refinement"): 1, SemanticHARQ.FULL_LAYERS: 2}.get(
+            action.layers, len(action.layers) - 1
+        )
+
+    @staticmethod
+    def _transition_type(current: ResourceAction, next_action: ResourceAction) -> str:
+        current_index = SemanticHARQ._stage_index(current)
+        next_index = SemanticHARQ._stage_index(next_action)
+        if current_index != next_index:
+            return f"semantic_expansion_{current_index}_to_{next_index}"
+        if current.layers == SemanticHARQ.FULL_LAYERS:
+            return "strengthened_complete_payload_2_to_2"
+        return "repeated_payload"
 
     def _next_action(self, action: ResourceAction) -> ResourceAction:
         next_layers = self._next_layers(action.layers)
@@ -123,6 +188,7 @@ class SemanticHARQ:
         refinement_budget: int,
         full_payload_rounds: int,
         hit_max_refinements: bool,
+        transitions: list[dict[str, object]],
     ) -> ReceiverOutput:
         features = dict(output.features)
         features["harq_refinement_rounds"] = float(refinement_rounds)
@@ -138,6 +204,7 @@ class SemanticHARQ:
             decision=decision,
             features=features,
             action=action,
+            refinement_transitions=tuple(transitions),
         )
 
     def _transmit_repeated(self, symbols, repetitions: int, power: float = 1.0):

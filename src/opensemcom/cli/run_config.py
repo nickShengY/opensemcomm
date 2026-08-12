@@ -69,6 +69,15 @@ def main() -> None:
         dataset_manifest=manifest,
     )
 
+    # Trace annotations are written only after the run.  They make diagnostics
+    # self-describing without entering calibration or the decision controller.
+    for trace in result.traces:
+        trace["run_identifier"] = run_name
+        trace["configuration_identifier"] = str(Path(args.config).expanduser().resolve())
+        trace["evaluation_condition"] = regime
+        trace["seed"] = seed
+        trace["stage_aware_thresholds"] = bool(config.calibration.stage_aware)
+
     payload = {
         "name": run_name,
         "regime": regime,
