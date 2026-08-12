@@ -30,6 +30,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--payload-blocks", type=int, default=1)
     parser.add_argument("--accept-quantile", type=float, default=0.95)
     parser.add_argument("--write-traces", action="store_true")
+    parser.add_argument(
+        "--cohort-protocol",
+        choices=("pure-open", "mixed-deployment"),
+        default="pure-open",
+        help="Evaluation cohort definition. The default preserves the existing exact-regime protocol.",
+    )
     parser.add_argument("--profile-timing", action="store_true", help="Print per-method cohort, calibration, and evaluation timings.")
     parser.add_argument("--expected-calibration-known", type=int, help="Fail unless the common cohort has this many known calibration rows.")
     parser.add_argument("--expected-calibration-open", type=int, help="Fail unless the common cohort has this many labelled open calibration rows.")
@@ -62,6 +68,7 @@ def main() -> None:
             raw_manifest=Path(args.raw_manifest).expanduser().resolve(),
             manifests=manifests,
             regime=args.regime,
+            cohort_protocol=args.cohort_protocol,
             temp_dir=Path(temp_dir),
         )
         summary_rows = []
@@ -92,10 +99,12 @@ def main() -> None:
                 "calibration_known_rows": run.calibration_known_rows,
                 "calibration_open_rows": run.calibration_open_rows,
                 "evaluation_rows": run.evaluation_rows,
+                "evaluation_regime_counts": run.evaluation_regime_counts,
                 "payload_values": run.payload_values,
                 "timing_seconds": run.timing_seconds,
                 "metrics": run.result.metrics,
                 "protocol": {
+                    "cohort_protocol": args.cohort_protocol,
                     "task_domain_metadata_available": run.task_domain_metadata_available,
                     "evaluation_is_unknown_used_for_decision": False,
                 },
@@ -112,7 +121,16 @@ def main() -> None:
                     json.dumps(run.result.traces, indent=2, sort_keys=True) + "\n",
                     encoding="utf-8",
                 )
-            summary_rows.append({"method": run.method, "regime": args.regime, "seed": args.seed, **run.result.metrics})
+            summary_rows.append(
+                {
+                    "method": run.method,
+                    "regime": args.regime,
+                    "seed": args.seed,
+                    "cohort_protocol": args.cohort_protocol,
+                    "evaluation_regime_counts": json.dumps(run.evaluation_regime_counts, sort_keys=True),
+                    **run.result.metrics,
+                }
+            )
 
     _write_summary(output_dir / "summary.csv", summary_rows)
     print(json.dumps({"output_dir": str(output_dir), "methods": [method.value for method in methods]}, indent=2))
@@ -130,12 +148,15 @@ def _filter_to_regime(
     manifests: dict[str, Path],
     regime: str,
     temp_dir: Path,
+    cohort_protocol: str = "pure-open",
 ) -> tuple[Path, dict[str, Path]]:
     raw_rows = _read_manifest(raw_manifest)
+    allowed_eval_regimes = _evaluation_regimes(regime, cohort_protocol)
     selected_raw = [
         row
         for row in raw_rows
-        if row.get("split") == "calibration" or (row.get("split") == "eval" and row.get("regime") == regime)
+        if row.get("split") == "calibration"
+        or (row.get("split") == "eval" and row.get("regime") in allowed_eval_regimes)
     ]
     if not selected_raw:
         raise ValueError(f"Raw manifest has no calibration/eval rows for regime '{regime}'.")
@@ -150,6 +171,26 @@ def _filter_to_regime(
         _write_manifest(destination, rows, selected)
         filtered_manifests[method] = destination
     return filtered_raw, filtered_manifests
+
+
+def _evaluation_regimes(regime: str, cohort_protocol: str) -> set[str]:
+    """Return manifest regime labels included in an evaluation cohort.
+
+    ``pure-open`` preserves the original exact-regime benchmark. In
+    ``mixed-deployment``, each single open condition is evaluated alongside
+    the same supported closed-ID requests. Full-open combines those request
+    populations while the caller still applies the full-open channel model.
+    """
+
+    if cohort_protocol == "pure-open":
+        return {regime}
+    if cohort_protocol != "mixed-deployment":
+        raise ValueError(f"Unsupported cohort protocol: {cohort_protocol}")
+    if regime in {"class-open", "source-open", "task-open"}:
+        return {"closed-id", regime}
+    if regime == "full-open":
+        return {"closed-id", "class-open", "source-open", "task-open"}
+    return {regime}
 
 
 def _write_manifest(path: Path, original_rows: list[dict[str, str]], rows: list[dict[str, str]]) -> None:

@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 
 from opensemcom.comparaison import ComparisonConfig, ComparisonMethod, ComparisonOrchestrator
+from opensemcom.cli.run_comparaison import _filter_to_regime
 from opensemcom.config import CalibrationConfig, ChannelConfig, ModelConfig, OpenSemComConfig
 from opensemcom.types import ChannelBackend, ChannelKind, SemanticSample
 
@@ -280,3 +281,40 @@ def test_expected_mixed_calibration_counts_are_enforced(tmp_path):
                 seed=7,
             )
         ).run()
+
+
+def test_mixed_deployment_cohorts_add_closed_controls_without_changing_pure_open(tmp_path):
+    raw_path, manifests = _write_manifests(tmp_path)
+    paths = [raw_path, *manifests.values()]
+    for path in paths:
+        with path.open("r", encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle))
+            fields = list(rows[0])
+        for index, regime in {
+            6: "closed-id",
+            7: "class-open",
+            8: "source-open",
+            9: "task-open",
+            10: "full-open",
+            11: "resource-open",
+        }.items():
+            rows[index]["regime"] = regime
+        _write_csv(path, fields, rows)
+
+    pure_dir = tmp_path / "pure"
+    pure_dir.mkdir()
+    mixed_dir = tmp_path / "mixed"
+    mixed_dir.mkdir()
+    full_dir = tmp_path / "full"
+    full_dir.mkdir()
+
+    pure_raw, _ = _filter_to_regime(raw_path, manifests, "class-open", pure_dir, "pure-open")
+    mixed_raw, _ = _filter_to_regime(raw_path, manifests, "class-open", mixed_dir, "mixed-deployment")
+    full_raw, _ = _filter_to_regime(raw_path, manifests, "full-open", full_dir, "mixed-deployment")
+
+    def eval_regimes(path: Path) -> list[str]:
+        return [row["regime"] for row in csv.DictReader(path.open(encoding="utf-8")) if row["split"] == "eval"]
+
+    assert eval_regimes(pure_raw) == ["class-open"]
+    assert eval_regimes(mixed_raw) == ["closed-id", "class-open"]
+    assert eval_regimes(full_raw) == ["closed-id", "class-open", "source-open", "task-open"]

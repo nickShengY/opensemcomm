@@ -12,6 +12,7 @@ from time import perf_counter
 from dataclasses import dataclass, replace
 from enum import Enum
 from pathlib import Path
+from collections import Counter
 
 import numpy as np
 
@@ -81,6 +82,7 @@ class ComparisonRun:
     cohort_rows: int
     calibration_rows: int
     evaluation_rows: int
+    evaluation_regime_counts: dict[str, int]
     payload_values: int
     result: ExperimentResult
     timing_seconds: dict[str, float]
@@ -159,6 +161,7 @@ class ComparisonOrchestrator:
             cohort_rows=len(rows),
             calibration_rows=len(calibration),
             evaluation_rows=len(evaluation),
+            evaluation_regime_counts=dict(sorted(Counter(row.regime for row in evaluation).items())),
             payload_values=self.payload_values,
             result=result,
             timing_seconds={
